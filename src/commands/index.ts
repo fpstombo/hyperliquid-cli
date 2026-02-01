@@ -4,6 +4,7 @@ import { registerMarketsCommands } from "./markets/index.js"
 import { registerAssetCommands } from "./asset/index.js"
 import { registerOrderCommands } from "./order/index.js"
 import { registerServerCommands } from "./server.js"
+import { registerUpgradeCommand } from "./upgrade.js"
 
 export function registerCommands(program: Command): void {
   registerAccountCommands(program)
@@ -11,4 +12,5 @@ export function registerCommands(program: Command): void {
   registerAssetCommands(program)
   registerOrderCommands(program)
   registerServerCommands(program)
+  registerUpgradeCommand(program)
 }

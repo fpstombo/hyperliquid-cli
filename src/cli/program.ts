@@ -1,7 +1,11 @@
 import { Command } from "commander"
+import { createRequire } from "module"
 import { loadConfig } from "../lib/config.js"
 import { createContext, type CLIContext } from "./context.js"
 import { registerCommands } from "../commands/index.js"
+
+const require = createRequire(import.meta.url)
+const pkg = require("../../package.json") as { version: string }
 
 export interface GlobalOptions {
   json: boolean
@@ -14,7 +18,7 @@ export function createProgram(): Command {
   program
     .name("hl")
     .description("CLI for Hyperliquid DEX")
-    .version("1.0.0")
+    .version(pkg.version)
     .option("--json", "Output in JSON format", false)
     .option("--testnet", "Use testnet instead of mainnet", false)
     .hook("preAction", async (thisCommand) => {
