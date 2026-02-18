@@ -453,3 +453,37 @@ a {
     flex-direction: column;
   }
 }
+
+.pill,
+.ok-pill,
+.warning-pill {
+  border-radius: 999px;
+  padding: 0.25rem 0.6rem;
+  font-size: 0.75rem;
+  border: 1px solid var(--border);
+  background: color-mix(in srgb, var(--card) 80%, black);
+}
+
+.ok-pill {
+  border-color: #3e8559;
+  color: #9ce1b5;
+}
+
+.warning-pill {
+  border-color: #9f7e42;
+  color: #f9d69a;
+}
+
+.cta {
+  border: 1px solid #3a4a78;
+  border-radius: 0.7rem;
+  background: #101628;
+  color: var(--foreground);
+  padding: 0.65rem 0.8rem;
+  cursor: pointer;
+}
+
+.cta:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
