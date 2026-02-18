@@ -40,14 +40,14 @@ export function NavbarControls() {
     <div style={{ marginLeft: "auto", display: "flex", gap: "0.55rem", alignItems: "center", flexWrap: "wrap" }}>
       <span className="pill">{ready ? shortenAddress(session.walletAddress) : "Loading session…"}</span>
       <span className="pill">{session.chainName}</span>
-      <button style={buttonStyle} onClick={() => switchChain()} type="button">
+      <button style={buttonStyle} onClick={() => void switchChain()} type="button">
         Switch chain
       </button>
       <button style={buttonStyle} onClick={() => switchEnvironment(isMainnet ? "testnet" : "mainnet")} type="button">
         {isMainnet ? "Use testnet" : "Use mainnet"}
       </button>
       {isMainnet ? <span className="warning-pill">Mainnet is live. Double-check every order.</span> : <span className="ok-pill">Testnet mode</span>}
-      <button style={buttonStyle} onClick={connectWallet} type="button">
+      <button style={buttonStyle} onClick={() => void connectWallet()} type="button">
         Connect wallet
       </button>
       {session.authenticated ? (
