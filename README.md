@@ -22,7 +22,7 @@ npm install -g hyperliquid-cli
 
 ## Web UI Roadmap
 
-A web-first roadmap (including Privy-based wallet connect recommendation, implementation slices, and live done/not-done tracking) lives in:
+A web-first roadmap (including Privy-based wallet connect recommendation and implementation slices) lives in:
 
 - `docs/web-ui-execution-plan.md`
 
