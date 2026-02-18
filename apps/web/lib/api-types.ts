@@ -1,5 +1,24 @@
+export type ApiErrorCode =
+  | "BAD_REQUEST"
+  | "UNAUTHORIZED"
+  | "FORBIDDEN"
+  | "INTERNAL_ERROR"
+  | "ORDER_ERROR"
+
 export interface ApiError {
-  error: string
+  error: {
+    code: ApiErrorCode
+    message: string
+  }
+}
+
+export function createApiError(code: ApiErrorCode, message: string): ApiError {
+  return {
+    error: {
+      code,
+      message,
+    },
+  }
 }
 
 export interface BalanceItem {
