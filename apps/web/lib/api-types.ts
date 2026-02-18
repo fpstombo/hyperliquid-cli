@@ -63,7 +63,16 @@ export interface OrderItem {
 export interface OrdersResponse {
   orders: OrderItem[]
   updatedAt: string
+  context?: OrderContext
 }
+
+export interface OrderContext {
+  environment: "mainnet" | "testnet"
+  user: string
+  accountSource: "default_account_db" | "environment_variables"
+  accountAlias: string | null
+}
+
 
 export interface PricesResponse {
   prices: Record<string, string>

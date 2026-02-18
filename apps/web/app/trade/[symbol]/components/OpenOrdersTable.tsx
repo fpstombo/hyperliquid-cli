@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useAuth } from "../../../../../components/providers"
 
 type Order = {
   oid: number
@@ -11,24 +12,34 @@ type Order = {
   timestamp?: number
 }
 
+type Context = {
+  environment: "mainnet" | "testnet"
+  user: string
+  accountSource: string
+  accountAlias: string | null
+}
+
 type Props = {
   refreshKey: number
 }
 
 export function OpenOrdersTable({ refreshKey }: Props) {
+  const { session } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [error, setError] = useState<string | null>(null)
+  const [context, setContext] = useState<Context | null>(null)
 
   async function loadOrders() {
     try {
       const response = await fetch("/api/orders/open")
-      const json = (await response.json()) as { orders?: Order[]; error?: string }
+      const json = (await response.json()) as { orders?: Order[]; context?: Context; error?: string }
       if (!response.ok) {
         setError(json.error || "Failed to load open orders")
         return
       }
       setError(null)
       setOrders(json.orders || [])
+      setContext(json.context || null)
     } catch {
       setError("Failed to load open orders")
     }
@@ -63,9 +74,21 @@ export function OpenOrdersTable({ refreshKey }: Props) {
     }
   }
 
+  const hasEnvironmentMismatch = context ? context.environment !== session.environment : false
+
   return (
     <section className="card">
       <h2 style={{ marginTop: 0 }}>Open Orders</h2>
+      {context ? (
+        <p className="muted">
+          API context: {context.environment.toUpperCase()} · {context.user} · {context.accountAlias ?? context.accountSource}
+        </p>
+      ) : null}
+      {hasEnvironmentMismatch ? (
+        <p className="status-error">
+          API is serving {context?.environment.toUpperCase()} while UI is set to {session.environment.toUpperCase()}. Trading actions are blocked.
+        </p>
+      ) : null}
       {error ? <p className="status-error">{error}</p> : null}
       {orders.length === 0 ? (
         <p className="muted">No open orders.</p>
@@ -90,7 +113,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
                 <td>{order.sz}</td>
                 <td>{order.limitPx}</td>
                 <td>
-                  <button onClick={() => void cancelOrder(order)}>Cancel</button>
+                  <button onClick={() => void cancelOrder(order)} disabled={hasEnvironmentMismatch}>Cancel</button>
                 </td>
               </tr>
             ))}

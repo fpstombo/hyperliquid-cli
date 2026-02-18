@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { fetchOpenOrders, resolveTradingContext, toApiError } from "../../../../lib/trading"
+import { requireAuthenticatedSession } from "../../../../lib/server-session"
 import { requireApiAuth, verifyAuthorizedTradingAccount } from "../../../../lib/api-auth"
 import { fetchOpenOrders, toApiError } from "../../../../lib/trading"
 
@@ -14,8 +16,18 @@ export async function GET(request: Request) {
   }
 
   try {
-    const orders = await fetchOpenOrders()
-    return NextResponse.json({ orders })
+    const session = await requireAuthenticatedSession()
+    const context = resolveTradingContext(session)
+    const orders = await fetchOpenOrders(context)
+    return NextResponse.json({
+      orders,
+      context: {
+        environment: context.environment,
+        user: context.user,
+        accountSource: context.accountSource,
+        accountAlias: context.accountAlias,
+      },
+    })
   } catch (error) {
     return NextResponse.json(toApiError(error), { status: 400 })
   }
