@@ -1,6 +1,7 @@
 {
   "name": "hyperliquid-cli",
   "version": "0.0.5",
+  "private": true,
   "description": "CLI tool for Hyperliquid DEX",
   "author": "Chris Ling",
   "license": "MIT",
@@ -39,8 +40,14 @@
     "test:coverage": "vitest run --coverage",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "prepublishOnly": "pnpm build"
+    "prepublishOnly": "pnpm build",
+    "web:dev": "pnpm --filter @hyperliquid/web dev",
+    "web:build": "pnpm --filter @hyperliquid/web build",
+    "web:lint": "pnpm --filter @hyperliquid/web lint"
   },
+  "workspaces": [
+    "apps/*"
+  ],
   "dependencies": {
     "@inquirer/prompts": "^8.2.0",
     "@nktkas/hyperliquid": "^0.30.2",

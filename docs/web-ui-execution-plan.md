@@ -160,7 +160,7 @@ Make the app reliable and safe enough for broader usage.
 ## Implementation Task Board (ready to convert to issues)
 
 ## Epic A — Platform & UI Foundation
-- [ ] A1: Bootstrap Next.js app in `apps/web` with TypeScript and lint config.
+- [x] A1: Bootstrap Next.js app in `apps/web` with TypeScript and lint config.
 - [ ] A2: Install and configure Tailwind + base design tokens.
 - [ ] A3: Build reusable primitives (Button/Input/Card/Table/Modal/Toast).
 - [ ] A4: Implement app shell (navbar/sidebar/content).
