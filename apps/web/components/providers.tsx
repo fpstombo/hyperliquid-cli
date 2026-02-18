@@ -56,7 +56,7 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
       const response = await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ accessToken }),
+        body: JSON.stringify({ accessToken, environment }),
         credentials: "include",
       })
 
@@ -68,7 +68,7 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
 
     void syncTrustedSession()
 
-  }, [authenticated, getAccessToken, ready])
+  }, [authenticated, environment, getAccessToken, ready])
 
   const switchEnvironment = useCallback((nextEnvironment: AppEnvironment) => {
     setEnvironment(nextEnvironment)

@@ -1,6 +1,6 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
-import { SESSION_COOKIE } from "../../../../lib/auth"
+import { SESSION_COOKIE, type AppEnvironment } from "../../../../lib/auth"
 import { createSessionToken } from "../../../../lib/session-token"
 
 type PrivyIdentity = {
@@ -50,9 +50,13 @@ async function verifyPrivyAccessToken(accessToken: string): Promise<PrivyIdentit
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { accessToken?: string }
+    const body = (await request.json()) as { accessToken?: string; environment?: AppEnvironment }
     if (!body.accessToken) {
       return NextResponse.json({ error: "Missing access token" }, { status: 400 })
+    }
+
+    if (body.environment !== "mainnet" && body.environment !== "testnet") {
+      return NextResponse.json({ error: "Missing or invalid environment (mainnet|testnet)" }, { status: 400 })
     }
 
     const identity = await verifyPrivyAccessToken(body.accessToken)
@@ -60,6 +64,7 @@ export async function POST(request: Request) {
     const token = await createSessionToken({
       sub: identity.userId,
       walletAddress: identity.walletAddress,
+      environment: body.environment,
     })
 
     cookies().set(SESSION_COOKIE, token, {

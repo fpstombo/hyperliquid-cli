@@ -7,6 +7,7 @@ const AUDIENCE = "hyperliquid-protected-routes"
 type SessionClaims = {
   sub: string
   walletAddress: string | null
+  environment: "mainnet" | "testnet"
 }
 
 function getSecret() {
@@ -18,7 +19,7 @@ function getSecret() {
 }
 
 export async function createSessionToken(claims: SessionClaims) {
-  return new SignJWT({ walletAddress: claims.walletAddress })
+  return new SignJWT({ walletAddress: claims.walletAddress, environment: claims.environment })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuer(ISSUER)
     .setAudience(AUDIENCE)

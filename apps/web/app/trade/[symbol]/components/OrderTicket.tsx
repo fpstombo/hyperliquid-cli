@@ -1,6 +1,7 @@
 "use client"
 
 import { FormEvent, useMemo, useState } from "react"
+import { useAuth } from "../../../../../components/providers"
 
 type OrderType = "market" | "limit"
 type Side = "buy" | "sell"
@@ -11,6 +12,7 @@ type Props = {
 }
 
 export function OrderTicket({ symbol, onOrderPlaced }: Props) {
+  const { session } = useAuth()
   const [orderType, setOrderType] = useState<OrderType>("market")
   const [side, setSide] = useState<Side>("buy")
   const [size, setSize] = useState("0.01")
@@ -23,6 +25,8 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
   const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null)
 
   const endpoint = useMemo(() => `/api/orders/${orderType}`, [orderType])
+  const expectedChainId = session.environment === "mainnet" ? 42161 : 421614
+  const hasChainMismatch = session.chainId !== expectedChainId
 
   async function submitOrder() {
     setPending(true)
@@ -65,12 +69,24 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
 
   function onSubmit(event: FormEvent) {
     event.preventDefault()
+    if (hasChainMismatch) {
+      setStatus({
+        type: "error",
+        text: `Environment mismatch: ${session.environment} expects chain ${expectedChainId}, connected wallet is ${session.chainId}. Switch chain before submitting.`,
+      })
+      return
+    }
     setConfirming(true)
   }
 
   return (
     <div className="card order-ticket">
       <h2 style={{ marginTop: 0 }}>Order Ticket</h2>
+      <p className={session.environment === "mainnet" ? "warning-pill" : "ok-pill"}>
+        Active environment: {session.environment.toUpperCase()} ({session.chainName})
+      </p>
+      {hasChainMismatch ? <p className="status-error">Wallet chain and selected environment do not match. Order submission is blocked.</p> : null}
+
       <form onSubmit={onSubmit} className="grid">
         <label>
           Type
@@ -120,14 +136,16 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
           Reduce only
         </label>
 
-        <button type="submit" disabled={pending}>{pending ? "Submitting..." : "Review order"}</button>
+        <button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</button>
       </form>
 
       {confirming ? (
         <div className="confirm-box">
-          <p style={{ marginTop: 0 }}>Confirm {orderType} {side.toUpperCase()} {size} {symbol}?</p>
+          <p style={{ marginTop: 0 }}>
+            Confirm {orderType} {side.toUpperCase()} {size} {symbol} on {session.environment.toUpperCase()}?
+          </p>
           <div style={{ display: "flex", gap: "0.5rem" }}>
-            <button onClick={() => void submitOrder()} disabled={pending}>Confirm</button>
+            <button onClick={() => void submitOrder()} disabled={pending || hasChainMismatch}>Confirm</button>
             <button onClick={() => setConfirming(false)} disabled={pending}>Edit</button>
           </div>
         </div>
