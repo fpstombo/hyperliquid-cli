@@ -157,6 +157,29 @@ Make the app reliable and safe enough for broader usage.
 
 ---
 
+
+## Execution Tracking (single source of truth)
+
+We will maintain this file as the live status board. Each task uses one of:
+- `[x]` done
+- `[~]` in progress
+- `[ ]` not started
+- `[!]` blocked
+
+### Current Snapshot
+- **Current slice:** Slice 1 — Web App Foundation + Design System
+- **Overall status:** In progress
+- **Last updated:** 2026-02-18
+
+### Working Agreement
+- At the end of each implementation PR, update:
+  1) Current slice status
+  2) Task checkboxes in the relevant epic
+  3) A short “Completed this PR” note
+  4) A short “Next up” note
+
+---
+
 ## Implementation Task Board (ready to convert to issues)
 
 ## Epic A — Platform & UI Foundation
@@ -209,3 +232,13 @@ Make the app reliable and safe enough for broader usage.
 6. F1–F5
 
 This sequence ships value early (beautiful UI + auth + read-only data), then layers trading and operational hardening.
+
+
+## Progress Log
+
+### Completed this PR
+- Added execution tracking conventions and live snapshot section.
+- Established checklist state legend and PR update workflow.
+
+### Next up
+- Start Slice 1 scaffolding with `apps/web` (A1), then app shell/page skeletons (A4/A5).
