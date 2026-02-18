@@ -15,7 +15,14 @@ export default function DashboardPage() {
       <section>
         <h1 style={{ marginBottom: "0.5rem" }}>Dashboard</h1>
         <p className="muted" style={{ marginTop: 0 }}>
-          Slice 1 foundation route with mocked account data.
+Dashboard with mocked account data plus onboarding and agent lifecycle controls.
+        </p>
+      </section>
+
+      <section className="card">
+        <h2 style={{ marginTop: 0 }}>Agent setup</h2>
+        <p className="muted" style={{ marginBottom: 0 }}>
+          Complete onboarding before trading and use Agent Status for recovery from expired/revoked approvals.
         </p>
       </section>
 

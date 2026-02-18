@@ -1,3 +1,9 @@
+"use client"
+
+import Link from "next/link"
+import { useEffect, useState } from "react"
+import { refreshApprovalState, validateTradingContext } from "../../../lib/agent-approval"
+
 type TradePageProps = {
   params: {
     symbol: string
@@ -19,6 +25,32 @@ const mockBook = {
 
 export default function TradePage({ params }: TradePageProps) {
   const symbol = params.symbol.toUpperCase()
+  const [walletInput, setWalletInput] = useState("")
+  const [validationError, setValidationError] = useState<string | null>("Connect wallet to validate agent context")
+
+  useEffect(() => {
+    const interval = window.setInterval(() => {
+      refreshApprovalState()
+      if (walletInput) {
+        const result = validateTradingContext(walletInput)
+        setValidationError(result.valid ? null : result.reason ?? "Agent validation failed")
+      }
+    }, 3000)
+
+    return () => window.clearInterval(interval)
+  }, [walletInput])
+
+  useEffect(() => {
+    if (!walletInput) {
+      setValidationError("Connect wallet to validate agent context")
+      return
+    }
+
+    const result = validateTradingContext(walletInput)
+    setValidationError(result.valid ? null : result.reason ?? "Agent validation failed")
+  }, [walletInput])
+
+  const canTrade = Boolean(walletInput) && !validationError
 
   return (
     <main className="grid" style={{ gridTemplateColumns: "2fr 1fr" }}>
@@ -46,9 +78,29 @@ export default function TradePage({ params }: TradePageProps) {
         </div>
       </section>
 
-      <aside className="card">
+      <aside className="card grid">
         <h2 style={{ marginTop: 0 }}>Order Ticket</h2>
-        <p className="muted">Mocked form placeholder for market/limit order entry.</p>
+        <label className="grid">
+          <span className="muted">Connected wallet</span>
+          <input className="input" placeholder="0x..." value={walletInput} onChange={(event) => setWalletInput(event.target.value)} />
+        </label>
+
+        {validationError ? (
+          <div className="card" style={{ borderColor: "#ff8b8b" }}>
+            <p style={{ margin: 0 }}><strong>Trading locked</strong></p>
+            <p className="muted" style={{ marginBottom: 0 }}>{validationError}</p>
+            <p style={{ marginBottom: 0 }}>
+              Go to <Link href="/onboarding">Onboarding</Link> or <Link href="/agent-status">Agent Status</Link> for remediation.
+            </p>
+          </div>
+        ) : (
+          <div className="card" style={{ borderColor: "#7bff8a" }}>
+            <p style={{ margin: 0 }}><strong>Agent context valid</strong></p>
+            <p className="muted" style={{ marginBottom: 0 }}>Trading controls are enabled.</p>
+          </div>
+        )}
+
+        <button className="button" disabled={!canTrade}>Submit mock order</button>
       </aside>
     </main>
   )

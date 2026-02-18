@@ -20,6 +20,12 @@ export default function RootLayout({ children }: { children: import("react").Rea
             <Link className="muted" href="/trade/BTC">
               Trade
             </Link>
+            <Link className="muted" href="/onboarding">
+              Onboarding
+            </Link>
+            <Link className="muted" href="/agent-status">
+              Agent Status
+            </Link>
           </nav>
         </header>
         {children}
