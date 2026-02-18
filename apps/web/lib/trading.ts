@@ -10,6 +10,7 @@ import {
   getAssetIndex,
   parseOrderError,
 } from "../../../src/core/order.js"
+import { createApiError, type ApiError } from "./api-types"
 
 type AccountSource = "default_account_db" | "environment_variables"
 
@@ -146,6 +147,6 @@ export async function fetchOpenOrders(context: TradingContext) {
   return publicClient.openOrders({ user, dex: "ALL_DEXS" })
 }
 
-export function toApiError(error: unknown): { error: string } {
-  return { error: parseOrderError(error) }
+export function toApiError(error: unknown): ApiError {
+  return createApiError("ORDER_ERROR", parseOrderError(error))
 }
