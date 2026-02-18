@@ -1,11 +1,12 @@
 export const SESSION_COOKIE = "hl_session"
-export const SESSION_STORAGE_KEY = "hl-web-session"
 
 export type AppEnvironment = "mainnet" | "testnet"
 
 export type SessionState = {
   authenticated: boolean
+  userId: string | null
   walletAddress: string | null
+  linkedWallets: string[]
   chainId: number
   chainName: string
   environment: AppEnvironment
@@ -13,9 +14,11 @@ export type SessionState = {
 
 export const DEFAULT_SESSION: SessionState = {
   authenticated: false,
+  userId: null,
   walletAddress: null,
-  chainId: 42161,
-  chainName: "Arbitrum",
+  linkedWallets: [],
+  chainId: 421614,
+  chainName: "Arbitrum Sepolia",
   environment: "testnet",
 }
 
