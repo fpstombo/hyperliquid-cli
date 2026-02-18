@@ -12,6 +12,7 @@ import {
 import { ServerCache } from "./cache.js"
 import { SubscriptionManager } from "./subscriptions.js"
 import { IPCServer } from "./ipc.js"
+import { createStructuredLogger } from "./logger.js"
 
 // Parse command line args
 const args = process.argv.slice(2)
@@ -20,11 +21,12 @@ const isTestnet = args.includes("--testnet")
 // Ensure ~/.hl directory exists
 mkdirSync(HL_DIR, { recursive: true })
 
-// Logging
+const structuredLog = createStructuredLogger({ component: "hl-server", pid: process.pid, testnet: isTestnet })
+
+// Legacy plain text logging helper
 function log(msg: string): void {
-  const timestamp = new Date().toISOString()
-  const line = `[${timestamp}] ${msg}\n`
-  appendFileSync(SERVER_LOG_PATH, line)
+  appendFileSync(SERVER_LOG_PATH, `[${new Date().toISOString()}] ${msg}\n`)
+  structuredLog({ level: "info", event: "server.message", msg })
 }
 
 // Initialize
@@ -95,7 +97,7 @@ async function start(): Promise<void> {
     await subscriptions.start()
 
     // Start IPC server
-    ipcServer = new IPCServer(cache, subscriptions, isTestnet, startedAt, log, () => {
+    ipcServer = new IPCServer(cache, subscriptions, isTestnet, startedAt, log, structuredLog, () => {
       shutdown("shutdown request")
     })
     await ipcServer.start()

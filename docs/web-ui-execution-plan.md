@@ -217,11 +217,11 @@ We will maintain this file as the live status board. Each task uses one of:
 - [ ] E4: Add key-management and safety copy/recovery UX.
 
 ## Epic F — Hardening
-- [ ] F1: Add request validation + rate limiting.
-- [ ] F2: Add logging/metrics/tracing.
-- [ ] F3: Add automated tests for critical flows.
-- [ ] F4: Add reconnect/backoff strategy for live data.
-- [ ] F5: Prepare beta launch checklist.
+- [x] F1: Add request validation + rate limiting.
+- [x] F2: Add logging/metrics/tracing.
+- [x] F3: Add automated tests for critical flows.
+- [x] F4: Add reconnect/backoff strategy for live data.
+- [x] F5: Prepare beta launch checklist.
 
 ## Suggested Build Sequence (practical)
 1. A1–A5

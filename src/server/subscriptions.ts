@@ -6,6 +6,7 @@ import {
 } from "@nktkas/hyperliquid"
 import WebSocket from "ws"
 import type { ServerCache, AllMidsData } from "./cache.js"
+import { withBackoff } from "./backoff.js"
 
 // Interface for subscription handle returned by SDK
 interface Subscription {
@@ -43,7 +44,12 @@ export class SubscriptionManager {
 
   async start(): Promise<void> {
     this.log("Waiting for WebSocket connection...")
-    await this.wsTransport.ready()
+    await withBackoff(
+      async () => {
+        await this.wsTransport.ready()
+      },
+      { maxAttempts: 5, baseDelayMs: 300, maxDelayMs: 3_000 },
+    )
     this.log("WebSocket connected")
 
     // Subscribe to allMids
@@ -90,13 +96,21 @@ export class SubscriptionManager {
   }
 
   private async fetchPerpMetas(): Promise<void> {
-    const meta = await this.infoClient.allPerpMetas()
+    const meta = await withBackoff(() => this.infoClient.allPerpMetas(), {
+      maxAttempts: 4,
+      baseDelayMs: 250,
+      maxDelayMs: 2_000,
+    })
     this.cache.setAllPerpMetas(meta)
     this.log("Updated perpMetas cache")
   }
 
   private async fetchSpotMeta(): Promise<void> {
-    const meta = await this.infoClient.spotMeta()
+    const meta = await withBackoff(() => this.infoClient.spotMeta(), {
+      maxAttempts: 4,
+      baseDelayMs: 250,
+      maxDelayMs: 2_000,
+    })
     this.cache.setSpotMeta(meta)
     this.log("Updated spotMeta cache")
   }
