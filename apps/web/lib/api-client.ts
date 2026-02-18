@@ -12,7 +12,8 @@ async function requestJson<T>(path: string): Promise<T> {
   const body = (await response.json()) as T | ApiError
 
   if (!response.ok) {
-    throw new HttpError((body as ApiError).error ?? "Request failed", response.status)
+    const message = (body as ApiError).error?.message ?? "Request failed"
+    throw new HttpError(message, response.status)
   }
 
   return body as T

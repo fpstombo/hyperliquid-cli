@@ -8,6 +8,7 @@ import {
   getAssetIndex,
   parseOrderError,
 } from "../../../src/core/order.js"
+import { createApiError, type ApiError } from "./api-types"
 
 export async function createTradingClients() {
   const config = loadConfig(true)
@@ -68,6 +69,6 @@ export async function fetchOpenOrders() {
   return publicClient.openOrders({ user, dex: "ALL_DEXS" })
 }
 
-export function toApiError(error: unknown): { error: string } {
-  return { error: parseOrderError(error) }
+export function toApiError(error: unknown): ApiError {
+  return createApiError("ORDER_ERROR", parseOrderError(error))
 }
