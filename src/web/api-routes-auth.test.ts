@@ -21,6 +21,8 @@ const mocks = vi.hoisted(() => ({
   executeLimitOrderMock: vi.fn(),
   cancelOrderMock: vi.fn(),
   fetchOpenOrdersMock: vi.fn(),
+  resolveTradingContextMock: vi.fn(),
+  requireAuthenticatedSessionMock: vi.fn(),
   toApiErrorMock: vi.fn((error: unknown) => ({
     error: { code: "ORDER_ERROR", message: error instanceof Error ? error.message : "Order failed" },
   })),
@@ -49,7 +51,12 @@ vi.mock("/workspace/hyperliquid-cli/apps/web/lib/trading.ts", () => ({
   executeLimitOrder: mocks.executeLimitOrderMock,
   cancelOrder: mocks.cancelOrderMock,
   fetchOpenOrders: mocks.fetchOpenOrdersMock,
+  resolveTradingContext: mocks.resolveTradingContextMock,
   toApiError: mocks.toApiErrorMock,
+}))
+
+vi.mock("/workspace/hyperliquid-cli/apps/web/lib/server-session", () => ({
+  requireAuthenticatedSession: mocks.requireAuthenticatedSessionMock,
 }))
 
 import { GET as getBalances } from "../../apps/web/app/api/balances/route"
@@ -63,6 +70,13 @@ describe("API route auth guards", () => {
     vi.clearAllMocks()
     mocks.createRouteRuntimeConfigMock.mockReturnValue({ user: "0xabc", isTestnet: true })
     mocks.verifyAuthorizedTradingAccountMock.mockReturnValue(null)
+    mocks.requireAuthenticatedSessionMock.mockResolvedValue({ environment: "testnet", walletAddress: "0xabc" })
+    mocks.resolveTradingContextMock.mockReturnValue({
+      environment: "testnet",
+      user: "0xabc",
+      accountSource: "environment_variables",
+      accountAlias: null,
+    })
   })
 
   it("rejects anonymous balances requests with normalized auth error", async () => {
@@ -159,7 +173,13 @@ describe("API route auth guards", () => {
     )
 
     expect(response.status).toBe(200)
-    expect(mocks.executeMarketOrderMock).toHaveBeenCalledWith({ side: "buy", size: "1", coin: "BTC", slippage: "0.1" })
-    await expect(response.json()).resolves.toEqual({ status: "ok" })
+    expect(mocks.executeMarketOrderMock).toHaveBeenCalledWith(
+      expect.objectContaining({ environment: "testnet", user: "0xabc" }),
+      { side: "buy", size: "1", coin: "BTC", slippage: "0.1" },
+    )
+    await expect(response.json()).resolves.toMatchObject({
+      status: "ok",
+      context: { environment: "testnet", user: "0xabc", accountSource: "environment_variables", accountAlias: null },
+    })
   })
 })

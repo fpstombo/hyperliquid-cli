@@ -46,6 +46,9 @@ Ship a polished, non-functional shell that proves visual direction and informati
 - Mobile + desktop responsive behavior for key screens.
 - No Hyperliquid API dependency yet.
 
+### Definition of Done
+- Slice checkboxes can only be marked complete when merged PRs include links to concrete artifacts (tests, API route handlers, or deployment verification), not simulation-only mock UI.
+
 ---
 
 ## Slice 2 — Privy Integration + Auth Guardrails
@@ -69,6 +72,9 @@ Allow users to connect wallet and establish authenticated session.
 - Authenticated users can access dashboard and trade routes.
 - Wallet state remains stable across refreshes.
 
+### Definition of Done
+- Route-level auth coverage must include regression tests for unauthenticated → `/auth` redirect and authenticated access to protected routes.
+
 ---
 
 ## Slice 3 — Read-Only Market + Account Data
@@ -90,6 +96,9 @@ Display real Hyperliquid market/account data in the new UI.
 - Dashboard renders live balances, positions, and orders.
 - Market prices update continuously.
 - Failures degrade gracefully (toasts + retry controls).
+
+### Definition of Done
+- Completion requires evidence that live API-backed responses are wired end-to-end (route + hook + rendered state), with failing/empty-state behavior covered by automated tests.
 
 ---
 
@@ -113,6 +122,9 @@ Enable users to place and cancel orders from the web UI.
 - Order cancel flow works from open orders table.
 - Clear, actionable error messages for common rejection cases.
 
+### Definition of Done
+- Mark done only when testnet-integrated order execution/cancel flows are validated by automated tests (not mocked-only confirmation UI).
+
 ---
 
 ## Slice 5 — API Wallet / Delegated Trading Workflow
@@ -132,6 +144,9 @@ Support practical trading workflows tied to Hyperliquid API-wallet model.
 ### Acceptance Criteria
 - User can complete onboarding and trade with approved agent context.
 - Revocation or expiry is clearly surfaced.
+
+### Definition of Done
+- Prototype UI tasks may be marked complete with simulated data, but production-integrated tasks require API-backed approval/agent-status evidence and regression tests.
 
 ---
 
@@ -155,6 +170,9 @@ Make the app reliable and safe enough for broader usage.
 - Error budget and observability in place.
 - Beta launch checklist signed off.
 
+### Definition of Done
+- A slice is complete only when the readiness checklist references concrete test artifacts and CI coverage for critical auth + trading routes.
+
 ---
 
 
@@ -167,7 +185,7 @@ We will maintain this file as the live status board. Each task uses one of:
 - `[!]` blocked
 
 ### Current Snapshot
-- **Current slice:** Slice 1 — Web App Foundation + Design System
+- **Current slice:** Slice 5 — API Wallet / Delegated Trading Workflow
 - **Overall status:** In progress
 - **Last updated:** 2026-02-18
 
@@ -211,10 +229,14 @@ We will maintain this file as the live status board. Each task uses one of:
 - [x] D5: Add status UX (pending/filled/rejected) + detailed errors.
 
 ## Epic E — API Wallet Workflow
-- [ ] E1: Build onboarding wizard for API wallet/agent approval.
-- [ ] E2: Integrate extra-agent listing + approval polling.
-- [ ] E3: Add status page and remediation guidance.
-- [ ] E4: Add key-management and safety copy/recovery UX.
+- [x] E1a (prototype/simulated): Build onboarding wizard shell for API wallet/agent approval.
+- [ ] E1b (production-integrated): Validate onboarding with authenticated, API-backed approval evidence.
+- [x] E2a (prototype/simulated): Add extra-agent polling UX and local status refresh interactions.
+- [ ] E2b (production-integrated): Verify polling states against live/realistic API route integration (pending/active/revoked).
+- [x] E3a (prototype/simulated): Ship agent-status page and remediation guidance content.
+- [ ] E3b (production-integrated): Confirm lifecycle transitions with automated API integration coverage and route-level auth behavior.
+- [x] E4a (prototype/simulated): Add key-management safety messaging and local metadata controls.
+- [ ] E4b (production-integrated): Complete operational recovery/revocation evidence tied to real approval lifecycle checks.
 
 ## Epic F — Hardening
 - [x] F1: Add request validation + rate limiting.
@@ -240,8 +262,9 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 ## Progress Log
 
 ### Completed this PR
-- Added execution tracking conventions and live snapshot section.
-- Established checklist state legend and PR update workflow.
+- Added onboarding + agent-status API integration tests covering pending/active/revoked lifecycle states.
+- Added middleware regression tests for unauthenticated redirect to `/auth` and authenticated protected-route access.
+- Split Epic E into prototype vs production-integrated completion criteria to avoid overstating status.
 
 ### Next up
-- Start Slice 1 scaffolding with `apps/web` (A1), then app shell/page skeletons (A4/A5).
+- Close production-integrated Epic E tasks by validating real Privy session + Hyperliquid approval lifecycle in end-to-end environments.
