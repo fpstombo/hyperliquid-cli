@@ -12,9 +12,16 @@
 
 ## Quality
 - [x] Unit tests for shared core validation/rate-limit/backoff logic.
-- [x] Integration tests for API routes.
+- [x] Integration tests for API routes (orders + balances auth guards + agent onboarding/agent-status endpoints).
+- [x] Route-level auth regression checks for unauthenticated → `/auth` redirect and authenticated protected-route access.
 - [x] E2E flow tests for login, dashboard, place/cancel order.
 - [x] CI quality gates configured for lint + typecheck + tests.
+
+### Test Artifacts
+- `src/web/api-routes-auth.test.ts` — auth guard + protected order/balance route behavior.
+- `src/web/agent-onboarding-routes.test.ts` — onboarding/agent-status lifecycle API integration coverage.
+- `src/web/middleware-auth-redirects.test.ts` — middleware auth gating transitions across protected routes.
+- `src/server/flows.e2e.test.ts` — critical login/dashboard/place/cancel order flow.
 
 ## Product + Launch
 - [x] Activation funnel and key events documented.
