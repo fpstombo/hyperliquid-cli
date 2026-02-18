@@ -184,10 +184,10 @@ We will maintain this file as the live status board. Each task uses one of:
 
 ## Epic A — Platform & UI Foundation
 - [x] A1: Bootstrap Next.js app in `apps/web` with TypeScript and lint config.
-- [ ] A2: Install and configure Tailwind + base design tokens.
-- [ ] A3: Build reusable primitives (Button/Input/Card/Table/Modal/Toast).
-- [ ] A4: Implement app shell (navbar/sidebar/content).
-- [ ] A5: Create dashboard and trade page skeletons with mock data.
+- [x] A2: Install and configure Tailwind + base design tokens.
+- [x] A3: Build reusable primitives (Button/Input/Card/Table/Modal/Toast).
+- [x] A4: Implement app shell (navbar/sidebar/content).
+- [x] A5: Create dashboard and trade page skeletons with mock data.
 
 ## Epic B — Authentication (Privy)
 - [x] B1: Integrate Privy SDK and provider wrapper.
