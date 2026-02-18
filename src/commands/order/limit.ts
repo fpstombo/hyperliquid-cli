@@ -1,8 +1,7 @@
 import { Command } from "commander"
 import { getContext, getOutputOptions } from "../../cli/program.js"
 import { output, outputError, outputSuccess } from "../../cli/output.js"
-import { validatePositiveNumber, validateTif } from "../../lib/validation.js"
-import { validateSideWithAliases, getAssetIndex } from "./shared.js"
+import { buildLimitOrderRequest, parseOrderError } from "./shared.js"
 
 export function registerLimitCommand(order: Command): void {
   order
@@ -32,27 +31,14 @@ export function registerLimitCommand(order: Command): void {
         const client = ctx.getWalletClient()
         const publicClient = ctx.getPublicClient()
 
-        const side = validateSideWithAliases(sideArg)
-        const size = validatePositiveNumber(sizeArg, "size")
-        const limitPx = validatePositiveNumber(priceArg, "price")
-        const tif = validateTif(options.tif || "Gtc")
-        const isBuy = side === "buy"
-
-        const assetIndex = await getAssetIndex(publicClient, coin)
-
-        const orderRequest = {
-          orders: [
-            {
-              a: assetIndex,
-              b: isBuy,
-              p: limitPx.toString(),
-              s: size.toString(),
-              r: options.reduceOnly || false,
-              t: { limit: { tif } },
-            },
-          ],
-          grouping: "na" as const,
-        }
+        const orderRequest = await buildLimitOrderRequest(publicClient, {
+          side: sideArg,
+          size: sizeArg,
+          coin,
+          price: priceArg,
+          tif: options.tif,
+          reduceOnly: options.reduceOnly || false,
+        })
 
         const result = await client.order(orderRequest)
 
@@ -73,7 +59,7 @@ export function registerLimitCommand(order: Command): void {
           }
         }
       } catch (err) {
-        outputError(err instanceof Error ? err.message : String(err))
+        outputError(parseOrderError(err))
         process.exit(1)
       }
     })

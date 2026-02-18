@@ -124,6 +124,46 @@ export class ServerClient {
     })
   }
 
+
+  async login(wallet: string): Promise<{ token: string; wallet: string }> {
+    const response = await this.request("login", { wallet })
+    if (response.error) {
+      throw new Error(response.error)
+    }
+    return response.result as { token: string; wallet: string }
+  }
+
+  async getDashboard(authToken: string): Promise<{ cache: ServerStatus["cache"]; prices: Record<string, string>; updatedAt?: number }> {
+    const response = await this.request("getDashboard", { authToken })
+    if (response.error) {
+      throw new Error(response.error)
+    }
+    return response.result as { cache: ServerStatus["cache"]; prices: Record<string, string>; updatedAt?: number }
+  }
+
+  async placeOrder(authToken: string, coin: string, side: "buy" | "sell", size: number): Promise<{ orderId: string; status: string }> {
+    const response = await this.request("placeOrder", { authToken, coin, side, size })
+    if (response.error) {
+      throw new Error(response.error)
+    }
+    return response.result as { orderId: string; status: string }
+  }
+
+  async cancelOrder(authToken: string, orderId: string): Promise<{ orderId: string; status: string }> {
+    const response = await this.request("cancelOrder", { authToken, orderId })
+    if (response.error) {
+      throw new Error(response.error)
+    }
+    return response.result as { orderId: string; status: string }
+  }
+
+  async getMetrics(): Promise<Record<string, unknown>> {
+    const response = await this.request("getMetrics")
+    if (response.error) {
+      throw new Error(response.error)
+    }
+    return response.result as Record<string, unknown>
+  }
   async getPrices(coin?: string): Promise<{ data: Record<string, string>; cached_at: number }> {
     const response = await this.request("getPrices", coin ? { coin } : undefined)
     if (response.error) {

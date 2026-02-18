@@ -3,20 +3,7 @@ import { existsSync, unlinkSync } from "node:fs"
 import type { ServerCache } from "./cache.js"
 import type { SubscriptionManager } from "./subscriptions.js"
 import { SERVER_SOCKET_PATH } from "../lib/paths.js"
-
-// JSON-RPC request/response types
-interface RPCRequest {
-  id: string
-  method: string
-  params?: Record<string, unknown>
-}
-
-interface RPCResponse {
-  id: string
-  result?: unknown
-  error?: string
-  cached_at?: number
-}
+import { RPCGateway, createTraceId, validateRPCRequest, type RPCResponse } from "./rpc-core.js"
 
 export class IPCServer {
   private server: Server | null = null
@@ -25,7 +12,9 @@ export class IPCServer {
   private isTestnet: boolean
   private startedAt: number
   private log: (msg: string) => void
+  private logStructured: (entry: Record<string, unknown>) => void
   private onShutdown: () => void
+  private gateway: RPCGateway
 
   constructor(
     cache: ServerCache,
@@ -33,6 +22,7 @@ export class IPCServer {
     isTestnet: boolean,
     startedAt: number,
     log: (msg: string) => void,
+    logStructured: (entry: Record<string, unknown>) => void,
     onShutdown: () => void,
   ) {
     this.cache = cache
@@ -40,7 +30,16 @@ export class IPCServer {
     this.isTestnet = isTestnet
     this.startedAt = startedAt
     this.log = log
+    this.logStructured = logStructured
     this.onShutdown = onShutdown
+    this.gateway = new RPCGateway(
+      cache,
+      isTestnet,
+      startedAt,
+      () => this.subscriptions.isConnected(),
+      this.onShutdown,
+      this.logStructured,
+    )
   }
 
   async start(): Promise<void> {
@@ -68,6 +67,7 @@ export class IPCServer {
 
   private handleConnection(socket: Socket): void {
     let buffer = ""
+    const clientId = `${socket.remoteAddress ?? "local"}:${socket.remotePort ?? 0}:${Date.now()}`
 
     socket.on("data", (data) => {
       buffer += data.toString()
@@ -78,7 +78,7 @@ export class IPCServer {
 
       for (const line of lines) {
         if (line.trim()) {
-          this.handleMessage(socket, line)
+          this.handleMessage(socket, line, clientId)
         }
       }
     })
@@ -88,95 +88,28 @@ export class IPCServer {
     })
   }
 
-  private handleMessage(socket: Socket, message: string): void {
-    let request: RPCRequest
+  private handleMessage(socket: Socket, message: string, clientId: string): void {
+    let payload: unknown
     try {
-      request = JSON.parse(message)
+      payload = JSON.parse(message)
     } catch {
       this.sendResponse(socket, { id: "0", error: "Invalid JSON" })
       return
     }
 
-    const response = this.handleRequest(request)
-    this.sendResponse(socket, response)
-  }
-
-  private handleRequest(request: RPCRequest): RPCResponse {
-    const { id, method, params } = request
-
-    switch (method) {
-      case "getPrices": {
-        const entry = this.cache.getAllMids()
-        if (!entry) {
-          return { id, error: "No data available" }
-        }
-        const coin = params?.coin as string | undefined
-        if (coin) {
-          const price = entry.data[coin]
-          if (price === undefined) {
-            return { id, error: `Coin not found: ${coin}` }
-          }
-          return { id, result: { [coin]: price }, cached_at: entry.updatedAt }
-        }
-        return { id, result: entry.data, cached_at: entry.updatedAt }
-      }
-
-      case "getAssetCtxs": {
-        const entry = this.cache.getAllDexsAssetCtxs()
-        if (!entry) {
-          return { id, error: "No data available" }
-        }
-        return { id, result: entry.data, cached_at: entry.updatedAt }
-      }
-
-      case "getPerpMeta": {
-        const entry = this.cache.getAllPerpMetas()
-        if (!entry) {
-          return { id, error: "No data available" }
-        }
-        return { id, result: entry.data, cached_at: entry.updatedAt }
-      }
-
-      case "getSpotMeta": {
-        const entry = this.cache.getSpotMeta()
-        if (!entry) {
-          return { id, error: "No data available" }
-        }
-        return { id, result: entry.data, cached_at: entry.updatedAt }
-      }
-
-      case "getSpotAssetCtxs": {
-        const entry = this.cache.getSpotAssetCtxs()
-        if (!entry) {
-          return { id, error: "No data available" }
-        }
-        return { id, result: entry.data, cached_at: entry.updatedAt }
-      }
-
-      case "getStatus": {
-        const cacheStatus = this.cache.getStatus()
-        return {
-          id,
-          result: {
-            running: true,
-            testnet: this.isTestnet,
-            connected: this.subscriptions.isConnected(),
-            startedAt: this.startedAt,
-            uptime: Date.now() - this.startedAt,
-            cache: cacheStatus,
-          },
-        }
-      }
-
-      case "shutdown": {
-        // Respond first, then shutdown
-        setTimeout(() => this.onShutdown(), 100)
-        return { id, result: { ok: true } }
-      }
-
-      default:
-        return { id, error: `Unknown method: ${method}` }
+    const validated = validateRPCRequest(payload)
+    if (validated.error || !validated.request) {
+      const id = (payload as { id?: string } | undefined)?.id ?? "0"
+      this.sendResponse(socket, { id: typeof id === "string" ? id : "0", error: validated.error ?? "Invalid request" })
+      return
     }
+
+    const response = this.gateway.handleRequest(validated.request, {
+      clientId,
+      receivedAt: Date.now(),
+      traceId: createTraceId(),
+    })
+    this.sendResponse(socket, response)
   }
 
   private sendResponse(socket: Socket, response: RPCResponse): void {

@@ -20,6 +20,24 @@ export default function RootLayout({ children }: { children: import("react").Rea
   return (
     <html lang="en">
       <body>
+        <header style={{ borderBottom: "1px solid #25304f", padding: "0.9rem 1rem" }}>
+          <nav style={{ maxWidth: 1200, margin: "0 auto", display: "flex", gap: "1rem", alignItems: "center" }}>
+            <strong>Hyperliquid Web</strong>
+            <Link className="muted" href="/dashboard">
+              Dashboard
+            </Link>
+            <Link className="muted" href="/trade/BTC">
+              Trade
+            </Link>
+            <Link className="muted" href="/onboarding">
+              Onboarding
+            </Link>
+            <Link className="muted" href="/agent-status">
+              Agent Status
+            </Link>
+          </nav>
+        </header>
+        {children}
         <div className="app-shell">
           <header className="top-nav">
             <div className="top-nav-inner">
