@@ -19,6 +19,13 @@ npm install -g hyperliquid-cli
 - **Scripting Friendly** - JSON output mode for automation and scripting
 - **Testnet Support** - Seamless switching between mainnet and testnet
 
+
+## Web UI Roadmap
+
+A web-first roadmap (including Privy-based wallet connect recommendation, implementation slices, and live done/not-done tracking) lives in:
+
+- `docs/web-ui-execution-plan.md`
+
 ## Global Options
 
 | Option | Description |
