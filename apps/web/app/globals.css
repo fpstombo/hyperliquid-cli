@@ -546,3 +546,35 @@ button {
   border-bottom: 1px solid var(--border);
   font-size: 0.9rem;
 }
+
+.input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: #0c1222;
+  color: var(--foreground);
+  padding: 0.6rem 0.75rem;
+}
+
+.button {
+  border: 1px solid #4f78ff;
+  background: #2746aa;
+  color: #f1f5ff;
+  padding: 0.55rem 0.8rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px;
+}
+
+.button.secondary {
+  border-color: var(--border);
+  background: #121b33;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
