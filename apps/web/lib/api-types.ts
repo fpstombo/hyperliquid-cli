@@ -1,0 +1,55 @@
+export interface ApiError {
+  error: string
+}
+
+export interface BalanceItem {
+  token: string
+  total: string
+  hold: string
+  available: string
+}
+
+export interface BalancesResponse {
+  perpBalance: string
+  spotBalances: BalanceItem[]
+  updatedAt: string
+}
+
+export interface PositionItem {
+  coin: string
+  size: string
+  entryPx: string
+  positionValue: string
+  unrealizedPnl: string
+  leverage: string
+  liquidationPx: string
+}
+
+export interface PositionsResponse {
+  positions: PositionItem[]
+  accountValue: string
+  totalMarginUsed: string
+  updatedAt: string
+}
+
+export interface OrderItem {
+  oid: number
+  coin: string
+  side: string
+  sz: string
+  limitPx: string
+  timestamp: number
+}
+
+export interface OrdersResponse {
+  orders: OrderItem[]
+  updatedAt: string
+}
+
+export interface PricesResponse {
+  prices: Record<string, string>
+  symbol?: string
+  price?: string
+  source: "server" | "info"
+  updatedAt: string
+}
