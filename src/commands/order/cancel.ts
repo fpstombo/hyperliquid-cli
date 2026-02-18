@@ -1,9 +1,8 @@
 import { Command } from "commander"
 import { getContext, getOutputOptions } from "../../cli/program.js"
 import { output, outputError, outputSuccess } from "../../cli/output.js"
-import { validatePositiveInteger } from "../../lib/validation.js"
 import { select } from "../../lib/prompts.js"
-import { getAssetIndex } from "./shared.js"
+import { buildCancelRequest, getAssetIndex, parseOrderError } from "./shared.js"
 
 export function registerCancelCommand(order: Command): void {
   order
@@ -24,7 +23,7 @@ export function registerCancelCommand(order: Command): void {
 
         if (oidArg) {
           // Direct cancel with provided OID
-          orderId = validatePositiveInteger(oidArg, "oid")
+          orderId = parseInt(oidArg, 10)
 
           // Fetch open orders to find the asset index for this order
           const orders = await publicClient.openOrders({ user, dex: "ALL_DEXS" })
@@ -64,9 +63,7 @@ export function registerCancelCommand(order: Command): void {
           assetIndex = await getAssetIndex(publicClient, selectedOrder.coin)
         }
 
-        const result = await client.cancel({
-          cancels: [{ a: assetIndex, o: orderId }],
-        })
+        const result = await client.cancel(buildCancelRequest({ assetIndex, orderId }))
 
         if (outputOpts.json) {
           output(result, outputOpts)
@@ -74,7 +71,7 @@ export function registerCancelCommand(order: Command): void {
           outputSuccess(`Order ${orderId} cancelled`)
         }
       } catch (err) {
-        outputError(err instanceof Error ? err.message : String(err))
+        outputError(parseOrderError(err))
         process.exit(1)
       }
     })
