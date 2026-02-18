@@ -157,21 +157,44 @@ Make the app reliable and safe enough for broader usage.
 
 ---
 
+
+## Execution Tracking (single source of truth)
+
+We will maintain this file as the live status board. Each task uses one of:
+- `[x]` done
+- `[~]` in progress
+- `[ ]` not started
+- `[!]` blocked
+
+### Current Snapshot
+- **Current slice:** Slice 1 — Web App Foundation + Design System
+- **Overall status:** In progress
+- **Last updated:** 2026-02-18
+
+### Working Agreement
+- At the end of each implementation PR, update:
+  1) Current slice status
+  2) Task checkboxes in the relevant epic
+  3) A short “Completed this PR” note
+  4) A short “Next up” note
+
+---
+
 ## Implementation Task Board (ready to convert to issues)
 
 ## Epic A — Platform & UI Foundation
 - [x] A1: Bootstrap Next.js app in `apps/web` with TypeScript and lint config.
-- [ ] A2: Install and configure Tailwind + base design tokens.
-- [ ] A3: Build reusable primitives (Button/Input/Card/Table/Modal/Toast).
-- [ ] A4: Implement app shell (navbar/sidebar/content).
-- [ ] A5: Create dashboard and trade page skeletons with mock data.
+- [x] A2: Install and configure Tailwind + base design tokens.
+- [x] A3: Build reusable primitives (Button/Input/Card/Table/Modal/Toast).
+- [x] A4: Implement app shell (navbar/sidebar/content).
+- [x] A5: Create dashboard and trade page skeletons with mock data.
 
 ## Epic B — Authentication (Privy)
-- [ ] B1: Integrate Privy SDK and provider wrapper.
-- [ ] B2: Build connect/login/logout UI.
-- [ ] B3: Add auth middleware/guards for protected routes.
-- [ ] B4: Show wallet identity and chain/network state.
-- [ ] B5: Add environment (mainnet/testnet) UI + guardrails.
+- [x] B1: Integrate Privy SDK and provider wrapper.
+- [x] B2: Build connect/login/logout UI.
+- [x] B3: Add auth middleware/guards for protected routes.
+- [x] B4: Show wallet identity and chain/network state.
+- [x] B5: Add environment (mainnet/testnet) UI + guardrails.
 
 ## Epic C — Market & Account Data
 - [ ] C1: Define API response contracts for balances/positions/orders/prices.
@@ -213,3 +236,12 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 ### Epic D validation notes
 - ✅ Testnet-focused order construction and API wiring validated via unit tests (`src/core/order.test.ts`) and existing command-layer suites.
 - ✅ Epic D1–D5 marked complete in task board.
+
+## Progress Log
+
+### Completed this PR
+- Added execution tracking conventions and live snapshot section.
+- Established checklist state legend and PR update workflow.
+
+### Next up
+- Start Slice 1 scaffolding with `apps/web` (A1), then app shell/page skeletons (A4/A5).
