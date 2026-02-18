@@ -167,11 +167,11 @@ Make the app reliable and safe enough for broader usage.
 - [ ] A5: Create dashboard and trade page skeletons with mock data.
 
 ## Epic B — Authentication (Privy)
-- [ ] B1: Integrate Privy SDK and provider wrapper.
-- [ ] B2: Build connect/login/logout UI.
-- [ ] B3: Add auth middleware/guards for protected routes.
-- [ ] B4: Show wallet identity and chain/network state.
-- [ ] B5: Add environment (mainnet/testnet) UI + guardrails.
+- [x] B1: Integrate Privy SDK and provider wrapper.
+- [x] B2: Build connect/login/logout UI.
+- [x] B3: Add auth middleware/guards for protected routes.
+- [x] B4: Show wallet identity and chain/network state.
+- [x] B5: Add environment (mainnet/testnet) UI + guardrails.
 
 ## Epic C — Market & Account Data
 - [ ] C1: Define API response contracts for balances/positions/orders/prices.
