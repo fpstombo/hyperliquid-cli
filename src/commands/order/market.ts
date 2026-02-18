@@ -1,9 +1,8 @@
 import { Command } from "commander"
 import { getContext, getOutputOptions } from "../../cli/program.js"
 import { output, outputError, outputSuccess } from "../../cli/output.js"
-import { validatePositiveNumber } from "../../lib/validation.js"
 import { getOrderConfig } from "../../lib/order-config.js"
-import { validateSideWithAliases, getAssetIndex } from "./shared.js"
+import { buildMarketOrderRequest, parseOrderError } from "./shared.js"
 
 export function registerMarketCommand(order: Command): void {
   order
@@ -31,39 +30,16 @@ export function registerMarketCommand(order: Command): void {
         const client = ctx.getWalletClient()
         const publicClient = ctx.getPublicClient()
 
-        const side = validateSideWithAliases(sideArg)
-        const size = validatePositiveNumber(sizeArg, "size")
-        const isBuy = side === "buy"
-
-        const assetIndex = await getAssetIndex(publicClient, coin)
-
-        // Get slippage from option or config
         const config = getOrderConfig()
-        const slippagePct =
-          (options.slippage ? parseFloat(options.slippage) : config.slippage) / 100
+        const slippagePercent = options.slippage ? parseFloat(options.slippage) : config.slippage
 
-        // Market order: IOC at mid price + slippage
-        const mids = await publicClient.allMids()
-        const midPrice = parseFloat(mids[coin])
-        if (!midPrice) {
-          throw new Error(`Cannot get mid price for ${coin}`)
-        }
-
-        const limitPx = isBuy ? midPrice * (1 + slippagePct) : midPrice * (1 - slippagePct)
-
-        const orderRequest = {
-          orders: [
-            {
-              a: assetIndex,
-              b: isBuy,
-              p: limitPx.toFixed(6),
-              s: size.toString(),
-              r: options.reduceOnly || false,
-              t: { limit: { tif: "Ioc" as const } },
-            },
-          ],
-          grouping: "na" as const,
-        }
+        const orderRequest = await buildMarketOrderRequest(publicClient, {
+          side: sideArg,
+          size: sizeArg,
+          coin,
+          reduceOnly: options.reduceOnly || false,
+          slippagePercent,
+        })
 
         const result = await client.order(orderRequest)
 
@@ -82,7 +58,7 @@ export function registerMarketCommand(order: Command): void {
           }
         }
       } catch (err) {
-        outputError(err instanceof Error ? err.message : String(err))
+        outputError(parseOrderError(err))
         process.exit(1)
       }
     })

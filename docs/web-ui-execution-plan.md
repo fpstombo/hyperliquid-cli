@@ -204,11 +204,11 @@ We will maintain this file as the live status board. Each task uses one of:
 - [ ] C5: Replace mock state with live data in dashboard/trade pages.
 
 ## Epic D — Trading
-- [ ] D1: Extract shared order validation/construction into `src/core`.
-- [ ] D2: Implement order execution API endpoints.
-- [ ] D3: Build order ticket form (market + limit + reduce-only + tif).
-- [ ] D4: Build open orders table with cancel action.
-- [ ] D5: Add status UX (pending/filled/rejected) + detailed errors.
+- [x] D1: Extract shared order validation/construction into `src/core`.
+- [x] D2: Implement order execution API endpoints.
+- [x] D3: Build order ticket form (market + limit + reduce-only + tif).
+- [x] D4: Build open orders table with cancel action.
+- [x] D5: Add status UX (pending/filled/rejected) + detailed errors.
 
 ## Epic E — API Wallet Workflow
 - [ ] E1: Build onboarding wizard for API wallet/agent approval.
@@ -233,6 +233,9 @@ We will maintain this file as the live status board. Each task uses one of:
 
 This sequence ships value early (beautiful UI + auth + read-only data), then layers trading and operational hardening.
 
+### Epic D validation notes
+- ✅ Testnet-focused order construction and API wiring validated via unit tests (`src/core/order.test.ts`) and existing command-layer suites.
+- ✅ Epic D1–D5 marked complete in task board.
 
 ## Progress Log
 

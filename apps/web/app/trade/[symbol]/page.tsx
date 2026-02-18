@@ -1,3 +1,4 @@
+import { TradeWorkspace } from "./components/TradeWorkspace"
 import { Button, Card, Input, Modal, Table, Toast } from "@/components/ui"
 
 type TradePageProps = {
@@ -6,6 +7,9 @@ type TradePageProps = {
   }
 }
 
+export default function TradePage({ params }: TradePageProps) {
+  const symbol = params.symbol.toUpperCase()
+  return <TradeWorkspace symbol={symbol} />
 const mockBookRows = {
   bids: [
     { id: "b1", price: "102,301", size: "0.75" },
