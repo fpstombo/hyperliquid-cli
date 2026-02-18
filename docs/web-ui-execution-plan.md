@@ -197,11 +197,11 @@ We will maintain this file as the live status board. Each task uses one of:
 - [x] B5: Add environment (mainnet/testnet) UI + guardrails.
 
 ## Epic C — Market & Account Data
-- [ ] C1: Define API response contracts for balances/positions/orders/prices.
-- [ ] C2: Add read-only API routes.
-- [ ] C3: Implement client hooks for data fetching + cache.
-- [ ] C4: Add near-real-time updates (polling first, SSE second).
-- [ ] C5: Replace mock state with live data in dashboard/trade pages.
+- [x] C1: Define API response contracts for balances/positions/orders/prices.
+- [x] C2: Add read-only API routes.
+- [x] C3: Implement client hooks for data fetching + cache.
+- [x] C4: Add near-real-time updates (polling first, SSE second).
+- [x] C5: Replace mock state with live data in dashboard/trade pages.
 
 ## Epic D — Trading
 - [x] D1: Extract shared order validation/construction into `src/core`.

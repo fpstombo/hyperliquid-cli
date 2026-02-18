@@ -1,3 +1,7 @@
+import { DashboardClient } from "../../components/dashboard-client"
+
+export default function DashboardPage() {
+  return <DashboardClient />
 import { Button, Card, Table, Toast } from "@/components/ui"
 
 const balanceRows = [

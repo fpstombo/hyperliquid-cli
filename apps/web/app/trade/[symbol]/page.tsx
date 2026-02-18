@@ -1,3 +1,4 @@
+import { TradeClient } from "../../../components/trade-client"
 "use client"
 
 import Link from "next/link"
@@ -14,6 +15,7 @@ type TradePageProps = {
 
 export default function TradePage({ params }: TradePageProps) {
   const symbol = params.symbol.toUpperCase()
+  return <TradeClient symbol={symbol} />
   return <TradeWorkspace symbol={symbol} />
 const mockBookRows = {
   bids: [
