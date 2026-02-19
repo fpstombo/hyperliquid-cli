@@ -24,6 +24,21 @@ export default function OnboardingPage() {
   const [isChecking, setIsChecking] = useState(false)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
 
+  const ensureSessionContext = async () => {
+    const response = await fetch("/api/auth/session", { method: "GET", cache: "no-store" })
+    if (!response.ok) {
+      throw new Error("Your session has expired. Re-authenticate before retrying recovery steps.")
+    }
+
+    const payload = (await response.json()) as { walletAddress?: string | null; environment?: "mainnet" | "testnet" }
+    if (payload.walletAddress) {
+      setWalletAddress(payload.walletAddress)
+    }
+    if (payload.environment) {
+      setIsTestnet(payload.environment === "testnet")
+    }
+  }
+
   useEffect(() => {
     let cancelled = false
 
@@ -73,6 +88,7 @@ export default function OnboardingPage() {
   }, [backupConfirmed, record, termsAccepted, walletAddress])
 
   async function pollAgentState(userAddress: string, apiWalletAddress: string, testnet: boolean, lastKnownState?: ApprovalState) {
+    await ensureSessionContext()
     const response = await fetch("/api/agent/extra-agents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -130,6 +146,7 @@ export default function OnboardingPage() {
     setStatusMessage(null)
 
     try {
+      await ensureSessionContext()
       const response = await fetch("/api/agent/validate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -185,6 +202,30 @@ export default function OnboardingPage() {
     { key: "approve", label: "3. Approve agent" },
     { key: "ready", label: "4. Ready to trade" },
   ]
+
+  const remediationByState: Record<ApprovalState, { title: string; action: string }> = {
+    missing: {
+      title: "No active authorization found",
+      action: "Re-run validation with the intended API key, then open Hyperliquid approvals to authorize the agent.",
+    },
+    pending: {
+      title: "Approval is pending",
+      action: "Approve the agent in Hyperliquid, then use Retry status check to pull fresh lifecycle state from the server.",
+    },
+    active: {
+      title: "Authorization is active",
+      action: "Proceed to trade and monitor lifecycle status in Agent Status for expiry/revocation changes.",
+    },
+    expired: {
+      title: "Authorization has expired",
+      action: "Renew the approval expiry window in Hyperliquid and immediately run Retry status check to confirm recovery.",
+    },
+    revoked: {
+      title: "Authorization was revoked",
+      action: "Treat this as a security event: rotate API credentials, re-validate a new key, and complete approval again.",
+    },
+  }
+  const remediation = remediationByState[record?.state ?? "missing"]
 
   return (
     <main className="grid">
@@ -276,7 +317,11 @@ export default function OnboardingPage() {
           <button
             className="button secondary"
             disabled={!walletAddress || !agentAddress}
-            onClick={() => void pollAgentState(walletAddress, agentAddress, isTestnet, record?.state)}
+            onClick={() => {
+              void pollAgentState(walletAddress, agentAddress, isTestnet, record?.state).catch((error: unknown) => {
+                setStatusMessage(error instanceof Error ? error.message : "Unable to load recovery status")
+              })
+            }}
           >
             Retry status check
           </button>
@@ -300,6 +345,18 @@ export default function OnboardingPage() {
           </p>
           <p style={{ margin: 0 }}>
             <strong>Valid until:</strong> {record?.validUntil ? new Date(record.validUntil).toLocaleString() : "—"}
+          </p>
+        </div>
+
+        <div className="card" style={{ marginTop: "0.5rem" }}>
+          <p className="muted" style={{ marginTop: 0 }}>
+            Recovery guidance
+          </p>
+          <p style={{ marginBottom: "0.35rem" }}>
+            <strong>{remediation.title}</strong>
+          </p>
+          <p className="muted" style={{ marginBottom: 0 }}>
+            {remediation.action}
           </p>
         </div>
       </section>
