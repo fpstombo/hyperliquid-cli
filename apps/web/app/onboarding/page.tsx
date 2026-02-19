@@ -25,6 +25,33 @@ export default function OnboardingPage() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
 
   useEffect(() => {
+    let cancelled = false
+
+    async function hydrateFromSession() {
+      try {
+        const response = await fetch("/api/auth/session", { method: "GET", cache: "no-store" })
+        if (!response.ok) return
+        const payload = (await response.json()) as { walletAddress?: string | null; environment?: "mainnet" | "testnet" }
+        if (cancelled) return
+
+        if (payload.walletAddress) {
+          setWalletAddress((current) => current || payload.walletAddress || "")
+        }
+        if (payload.environment) {
+          setIsTestnet(payload.environment === "testnet")
+        }
+      } catch {
+        // Ignore session hydration failures and continue with manual entry.
+      }
+    }
+
+    void hydrateFromSession()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  useEffect(() => {
     const saved = loadOnboardingContext()
     if (!saved) return
     setWalletAddress(saved.walletAddress)

@@ -1,6 +1,7 @@
 import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 import { SESSION_COOKIE, type AppEnvironment } from "../../../../lib/auth"
+import { requireAuthenticatedSession } from "../../../../lib/server-session"
 import { createSessionToken } from "../../../../lib/session-token"
 
 type PrivyIdentity = {
@@ -83,6 +84,19 @@ export async function POST(request: Request) {
       },
       { status: 401 },
     )
+  }
+}
+
+export async function GET() {
+  try {
+    const session = await requireAuthenticatedSession()
+    return NextResponse.json({
+      ok: true,
+      walletAddress: session.walletAddress,
+      environment: session.environment,
+    })
+  } catch {
+    return NextResponse.json({ error: "Authentication required" }, { status: 401 })
   }
 }
 
