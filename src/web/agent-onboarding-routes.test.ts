@@ -164,6 +164,31 @@ describe("agent onboarding + status API routes", () => {
     })
   })
 
+
+  it("returns revoked when authenticated session observes active lifecycle but validation fails", async () => {
+    mocks.validateApiKeyMock.mockResolvedValue({ valid: false, error: "Session key no longer authorized" })
+    mocks.getExtraAgentsMock.mockResolvedValue([])
+
+    const response = await postExtraAgents(
+      new Request("http://localhost/api/agent/extra-agents", {
+        method: "POST",
+        body: JSON.stringify({
+          userAddress: "0xabc",
+          apiWalletAddress: "0xagent",
+          apiPrivateKey: "0xkey",
+          lastKnownState: "active",
+        }),
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      state: "revoked",
+      reason: "Session key no longer authorized",
+    })
+  })
+
   it("rejects apiPrivateKey in query params for extra-agents", async () => {
     const response = await postExtraAgents(
       new Request("http://localhost/api/agent/extra-agents?apiPrivateKey=0xkey", {
@@ -220,6 +245,30 @@ describe("agent onboarding + status API routes", () => {
       approved: true,
       state: "active",
       validUntil: validUntilSeconds * 1000,
+    })
+  })
+
+
+  it("returns expired lifecycle from wait route for authenticated recovery checks", async () => {
+    const nowMs = 1_730_000_000_000
+    vi.useFakeTimers()
+    vi.setSystemTime(nowMs)
+    mocks.waitForApprovalMock.mockResolvedValue(true)
+    mocks.getExtraAgentsMock.mockResolvedValue([{ address: "0xagent", validUntil: Math.floor(nowMs / 1000) - 60 }])
+
+    const response = await postWait(
+      new Request("http://localhost/api/agent/wait", {
+        method: "POST",
+        body: JSON.stringify({ userAddress: "0xabc", apiWalletAddress: "0xagent" }),
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      approved: false,
+      state: "expired",
+      reason: "Agent approval has expired.",
     })
   })
 

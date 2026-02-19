@@ -21,6 +21,21 @@ export default function AgentStatusPage() {
   const [message, setMessage] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
+  const ensureSessionContext = async () => {
+    const response = await fetch("/api/auth/session", { method: "GET", cache: "no-store" })
+    if (!response.ok) {
+      throw new Error("Authentication session is missing. Sign in again to continue remediation.")
+    }
+
+    const payload = (await response.json()) as { walletAddress?: string | null; environment?: "mainnet" | "testnet" }
+    if (payload.walletAddress) {
+      setWalletAddress(payload.walletAddress)
+    }
+    if (payload.environment) {
+      setIsTestnet(payload.environment === "testnet")
+    }
+  }
+
   useEffect(() => {
     let cancelled = false
 
@@ -49,6 +64,7 @@ export default function AgentStatusPage() {
   }, [])
 
   async function fetchState(userAddress: string, apiWalletAddress: string, testnet: boolean, lastKnownState?: ApprovalState) {
+    await ensureSessionContext()
     const response = await fetch("/api/agent/extra-agents", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -116,6 +132,7 @@ export default function AgentStatusPage() {
     setMessage("Waiting for Hyperliquid approval confirmation...")
 
     try {
+      await ensureSessionContext()
       const response = await fetch("/api/agent/wait", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -142,6 +159,38 @@ export default function AgentStatusPage() {
   }
 
   const state = record?.state ?? "missing"
+  const remediationByState: Record<ApprovalState, { steps: string[] }> = {
+    missing: {
+      steps: [
+        "Go to onboarding and validate the API key to bind the expected wallet pair.",
+        "Open Hyperliquid approvals and create/confirm the agent authorization.",
+      ],
+    },
+    pending: {
+      steps: [
+        "Complete approval in Hyperliquid wallet UI.",
+        "Run Retry status check or Wait for approval to refresh lifecycle state from server routes.",
+      ],
+    },
+    active: {
+      steps: [
+        "Authorization is healthy—continue trading.",
+        "Keep this page open during critical sessions to catch expiration or revocation early.",
+      ],
+    },
+    expired: {
+      steps: [
+        "Renew the approval expiry in Hyperliquid.",
+        "Immediately rerun Retry status check to verify the server now reports Active.",
+      ],
+    },
+    revoked: {
+      steps: [
+        "Pause trading and review account activity for unauthorized changes.",
+        "Rotate API credentials, then re-run onboarding validation and approval with a fresh key.",
+      ],
+    },
+  }
 
   return (
     <main className="grid" style={{ gridTemplateColumns: "2fr 1fr" }}>
@@ -199,7 +248,11 @@ export default function AgentStatusPage() {
         <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
           <button
             className="button"
-            onClick={() => void fetchState(walletAddress, agentAddress, isTestnet, record?.state)}
+            onClick={() => {
+              void fetchState(walletAddress, agentAddress, isTestnet, record?.state).catch((error: unknown) => {
+                setMessage(error instanceof Error ? error.message : "Unable to refresh status")
+              })
+            }}
             disabled={!walletAddress || !agentAddress || isRefreshing}
           >
             Retry status check
@@ -229,19 +282,13 @@ export default function AgentStatusPage() {
 
       <aside className="card grid">
         <h2 style={{ margin: 0 }}>Remediation guide</h2>
+        <p className="muted" style={{ margin: 0 }}>
+          Server lifecycle response: <strong>{statusMeta[state].label}</strong>
+        </p>
         <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
-          <li>
-            <strong>Missing:</strong> return to onboarding and validate the API private key for the intended wallet context.
-          </li>
-          <li>
-            <strong>Pending:</strong> complete API approval in wallet UI, then use Retry/Wait for approval for a real re-check.
-          </li>
-          <li>
-            <strong>Expired:</strong> renew approval in Hyperliquid API page, then re-run status checks.
-          </li>
-          <li>
-            <strong>Revoked:</strong> verify account security, rotate keys if needed, and perform a fresh onboarding validation.
-          </li>
+          {remediationByState[state].steps.map((step) => (
+            <li key={step}>{step}</li>
+          ))}
         </ul>
         <p className="muted" style={{ margin: 0 }}>
           Trading stays blocked unless the agent state is Active. Return to the onboarding wizard for guided setup.
