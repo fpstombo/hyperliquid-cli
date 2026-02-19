@@ -22,17 +22,16 @@ export default function AgentStatusPage() {
   const [isRefreshing, setIsRefreshing] = useState(false)
 
   async function fetchState(userAddress: string, apiWalletAddress: string, testnet: boolean, lastKnownState?: ApprovalState) {
-    const params = new URLSearchParams({
-      userAddress,
-      apiWalletAddress,
-      isTestnet: String(testnet),
+    const response = await fetch("/api/agent/extra-agents", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
+      body: JSON.stringify({
+        userAddress,
+        apiWalletAddress,
+        lastKnownState,
+      }),
     })
-
-    if (lastKnownState) {
-      params.set("lastKnownState", lastKnownState)
-    }
-
-    const response = await fetch(`/api/agent/extra-agents?${params.toString()}`, { cache: "no-store" })
     const payload = await response.json()
 
     if (!response.ok) {
