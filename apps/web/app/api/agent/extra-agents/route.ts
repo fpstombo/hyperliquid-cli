@@ -3,39 +3,8 @@ import { getExtraAgents, validateApiKey } from "../../../../../../src/lib/api-wa
 import type { ApprovalState } from "../../../../lib/agent-state"
 import { requireApiAuth } from "../../../../lib/api-auth"
 import { createApiError } from "../../../../lib/api-types"
+import { asMs, deriveExtraAgentsState } from "../../../../lib/agent-state-server"
 import type { Address, Hex } from "viem"
-
-function asMs(value: number): number {
-  return value > 1_000_000_000_000 ? value : value * 1000
-}
-
-function deriveState(args: {
-  userAddress: string
-  apiWalletAddress: string
-  validationValid: boolean
-  extraAgents: Array<{ address: Address; validUntil: number }>
-  lastKnownState?: ApprovalState
-  validationError?: string
-}): { state: ApprovalState; validUntil?: number; reason?: string } {
-  const extra = args.extraAgents.find((agent) => agent.address.toLowerCase() === args.apiWalletAddress.toLowerCase())
-
-  if (extra) {
-    const validUntil = asMs(extra.validUntil)
-    if (Date.now() >= validUntil) {
-      return { state: "expired", validUntil, reason: "Agent approval has expired." }
-    }
-    return { state: "active", validUntil }
-  }
-
-  if (!args.validationValid) {
-    if (args.lastKnownState === "active" || args.lastKnownState === "pending") {
-      return { state: "revoked", reason: args.validationError ?? "Agent authorization no longer valid." }
-    }
-    return { state: "missing", reason: args.validationError ?? "Agent authorization not found." }
-  }
-
-  return { state: "pending", reason: "Approval is still pending on Hyperliquid." }
-}
 
 export async function POST(request: Request) {
   const auth = await requireApiAuth(request)
@@ -77,8 +46,7 @@ export async function POST(request: Request) {
     }
 
     const extraAgents = await getExtraAgents(body.userAddress as Address, isTestnet)
-    const derived = deriveState({
-      userAddress: body.userAddress,
+    const derived = deriveExtraAgentsState({
       apiWalletAddress: body.apiWalletAddress,
       validationValid,
       validationError,
