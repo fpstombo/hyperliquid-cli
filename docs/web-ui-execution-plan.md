@@ -238,7 +238,7 @@ We will maintain this file as the live status board. Each task uses one of:
 
 ## Epic E — API Wallet Workflow
 - [x] E1a (prototype/simulated): Build onboarding wizard shell for API wallet/agent approval. _(Artifacts: `apps/web/app/onboarding/page.tsx`)_
-- [~] E1b (production-integrated): Validate onboarding with authenticated, API-backed approval evidence. _(Artifacts in progress: `apps/web/app/api/agent/validate/route.ts`, `src/web/agent-onboarding-routes.test.ts`, follow-up PR required)_
+- [~] E1b (production-integrated): Validate onboarding with authenticated, API-backed approval evidence. _(Artifacts: `apps/web/app/api/agent/validate/route.ts`, `src/web/agent-onboarding-routes.test.ts`, PR: https://github.com/chrisling-dev/hyperliquid-cli/pull/new/work)_
 - [x] E2a (prototype/simulated): Add extra-agent polling UX and local status refresh interactions. _(Artifacts: `apps/web/lib/agent-state.ts`, `apps/web/lib/agent-state-server.ts`)_
 - [~] E2b (production-integrated): Verify polling states against live/realistic API route integration (pending/active/revoked). _(Artifacts in progress: `apps/web/app/api/agent/extra-agents/route.ts`, `src/web/agent-onboarding-routes.test.ts`, follow-up PR required)_
 - [x] E3a (prototype/simulated): Ship agent-status page and remediation guidance content. _(Artifacts: `apps/web/app/agent-status/page.tsx`)_
