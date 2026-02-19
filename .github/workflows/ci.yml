@@ -36,7 +36,7 @@ jobs:
         run: pnpm --filter web test
 
       - name: API route eslint (no warnings)
-        run: pnpm --filter web exec eslint apps/web/app/api --max-warnings=0
+        run: pnpm --filter web exec eslint app/api --max-warnings=0
 
       - name: API route compile check
         run: pnpm --filter web exec tsc --noEmit
