@@ -16,8 +16,8 @@
 - [x] Route-level auth regression checks for unauthenticated → `/auth` redirect and authenticated protected-route access.
 - [x] E2E flow tests for login, dashboard, place/cancel order.
 - [x] CI quality gates configured for lint + typecheck + tests.
-- [ ] Web-slice completion gate enforced: no slice can be marked complete unless web route lint, typecheck, and tests all pass in CI for that PR.
-- [ ] API route quality gate enforced for `apps/web/app/api/**`: compile/lint checks must pass and duplicate-import/syntax regressions must be covered by targeted tests.
+- [x] Web-slice completion gate enforced: no slice can be marked complete unless web route lint, typecheck, and tests all pass in CI for that PR.
+- [x] API route quality gate enforced for `apps/web/app/api/**`: compile/lint checks must pass and duplicate-import/syntax regressions must be covered by targeted tests.
 
 ### Required Quality-Gate Commands (must pass before marking slice completion)
 - `pnpm --filter web lint`
@@ -36,3 +36,10 @@
 ## Product + Launch
 - [x] Activation funnel and key events documented.
 - [x] Launch notes drafted for beta release.
+
+### Completed this PR
+- [x] Web-slice completion gate enforcement is now codified in CI and PR intake requirements. _(Artifacts: `.github/workflows/ci.yml`, `.github/pull_request_template.md`)_
+- [x] API route quality gate enforcement now requires dedicated eslint/tsc/targeted route tests in CI plus PR artifact links. _(Artifacts: `.github/workflows/ci.yml`, `.github/pull_request_template.md`)_
+
+### Next up
+- [ ] Attach concrete CI run URLs for this PR in the merged PR description so future slice-checkbox promotions can cite immutable job artifacts. _(Artifacts: `.github/pull_request_template.md`)_

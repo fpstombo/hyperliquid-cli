@@ -268,10 +268,10 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 - ✅ Epic D1–D5 marked complete in task board.
 
 
-## Known Gaps (until Epic E production tasks are complete)
-- Remaining Epic E production item (E1b) is still **in progress** pending staging evidence with real Privy + Hyperliquid integrations for onboarding validation.
-- Slice completion cannot be declared for Epic E while any production item lacks: (1) green web lint/typecheck/tests, (2) API route compile/lint pass, and (3) linked PR/test artifacts.
-- Continue tracking open work in each Epic E checkbox inline artifact notes and in the Progress Log section below.
+## Known Gaps (Epic E production status snapshot)
+- **Completed Epic E production tasks:** E2b, E3b, and E4b are complete with linked API-route and integration-test artifacts in the Epic E checklist.
+- **Remaining Epic E production task:** E1b remains **in progress** until staging evidence is attached for real Privy + Hyperliquid onboarding validation.
+- Epic E slice completion remains blocked until E1b includes all required artifacts: (1) green web lint/typecheck/tests, (2) API-route compile/lint pass, and (3) linked PR/test-job evidence.
 
 ## API Route Quality Gates (mandatory when touching `apps/web/app/api/**`)
 1. `pnpm --filter web lint`
@@ -284,13 +284,9 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 ## Progress Log
 
 ### Completed this PR
-- Finalized E4b by wiring onboarding/status recovery actions to authenticated session checks and server-derived revoked/expired lifecycle responses.
-- Added authenticated integration coverage for revoked + expired recovery outcomes in onboarding route tests.
-- Linked UI/route/test artifacts for E4b completion and attached this PR evidence.
-- Hardened onboarding/status lifecycle checks by asserting deterministic `pending -> active`, `revoked`, and `expired` transitions from server lifecycle data.
-- Updated `POST /api/agent/wait` lifecycle progression to derive approval state from authenticated session + server lifecycle evidence instead of local polling assumptions.
-- Expanded route-level regressions for auth guard propagation and invalid JSON parsing in onboarding/status test suites, including revoked-after-pending coverage and `validUntil` boundary handling.
-- Promoted E2b and E3b to complete with concrete artifacts and this PR evidence link.
+- Enforced the full web/API CI gate command set in the CI workflow so Epic E production checkboxes must pass lint/typecheck/tests + API-route compile/lint + targeted route regressions. Artifacts: [CI workflow](../.github/workflows/ci.yml), [quality-gate command list](../docs/beta-readiness-checklist.md).
+- Added PR-template artifact-link requirements so slice checkboxes cannot be responsibly moved to `[x]` without concrete CI/test evidence links. Artifacts: [PR template](../.github/pull_request_template.md), [slice DoD language](../docs/web-ui-execution-plan.md).
+- Marked the two open quality-gate checklist items complete now that enforcement exists in-repo. Artifacts: [beta readiness checklist](../docs/beta-readiness-checklist.md), [CI workflow](../.github/workflows/ci.yml).
 
 ### Epic E production acceptance tests (API-route artifacts)
 - **E1b onboarding validation**: `POST /api/agent/validate` must require authenticated session, enforce `userAddress===session.walletAddress`, and return API-backed `pending|active|missing` evidence with `apiWalletAddress` + `approvalUrl`. Artifacts: [validate route](../apps/web/app/api/agent/validate/route.ts), [integration tests](../src/web/agent-onboarding-routes.test.ts).
@@ -299,4 +295,4 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 - **E4b recovery/revocation operations**: `POST /api/agent/wait` and status refresh must only progress with authenticated session context and surface revoked/expired outcomes through server-backed lifecycle checks, not local-only assumptions. Artifacts: [agent status UI](../apps/web/app/agent-status/page.tsx), [onboarding UI](../apps/web/app/onboarding/page.tsx), [auth session route](../apps/web/app/api/auth/session/route.ts), [integration tests](../src/web/agent-onboarding-routes.test.ts).
 
 ### Next up
-- Land remaining Epic E production milestone (E1b) with staging-backed Privy + Hyperliquid evidence for onboarding validation paths.
+- Land remaining Epic E production milestone (E1b) with staging-backed Privy + Hyperliquid evidence for onboarding validation paths. Artifacts to attach: [E1b checklist row](../docs/web-ui-execution-plan.md), CI job URLs captured via [PR template quality-gate section](../.github/pull_request_template.md).

@@ -1,7 +1,7 @@
 "use client"
 
 import { FormEvent, useMemo, useState } from "react"
-import { useAuth } from "../../../../../components/providers"
+import { useAuth } from "../../../../components/providers"
 
 type OrderType = "market" | "limit"
 type Side = "buy" | "sell"

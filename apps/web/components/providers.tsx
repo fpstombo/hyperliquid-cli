@@ -16,8 +16,8 @@ type AuthContextValue = {
   ready: boolean
   session: SessionState
   login: () => void
-  logout: () => void
-  connectWallet: () => Promise<void>
+  logout: () => Promise<void>
+  connectWallet: () => void
   switchEnvironment: (environment: AppEnvironment) => void
   switchChain: () => Promise<void>
 }
@@ -29,15 +29,7 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
   const [environment, setEnvironment] = useState<AppEnvironment>(DEFAULT_SESSION.environment)
   const [chainId, setChainId] = useState<number>(DEFAULT_SESSION.chainId)
 
-  const activeWallet = user?.wallet
-  const walletAddress = activeWallet?.address ?? null
-
-  useEffect(() => {
-    const nextChainId = activeWallet?.chainId
-    if (!nextChainId) return
-    setChainId(nextChainId)
-    setEnvironment(nextChainId === 42161 ? "mainnet" : "testnet")
-  }, [activeWallet?.chainId])
+  const walletAddress = user?.wallet?.address ?? null
 
   useEffect(() => {
     async function syncTrustedSession() {
@@ -53,21 +45,15 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
         return
       }
 
-      const response = await fetch("/api/auth/session", {
+      await fetch("/api/auth/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ accessToken, environment }),
         credentials: "include",
       })
-
-      if (!response.ok) {
-        return
-      }
-
     }
 
     void syncTrustedSession()
-
   }, [authenticated, environment, getAccessToken, ready])
 
   const switchEnvironment = useCallback((nextEnvironment: AppEnvironment) => {
@@ -77,25 +63,19 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
 
   const switchChain = useCallback(async () => {
     const nextChain = chainId === 42161 ? 421614 : 42161
-
-    try {
-      if (activeWallet) {
-        await activeWallet.switchChain(nextChain)
-      }
-    } finally {
-      setChainId(nextChain)
-      setEnvironment(nextChain === 42161 ? "mainnet" : "testnet")
-    }
-  }, [activeWallet, chainId])
+    setChainId(nextChain)
+    setEnvironment(nextChain === 42161 ? "mainnet" : "testnet")
+  }, [chainId])
 
   const session = useMemo<SessionState>(
     () => ({
       authenticated,
       userId: user?.id ?? null,
       walletAddress,
-      linkedWallets: user?.linkedAccounts
-        ?.filter((account): account is typeof account & { type: "wallet"; address: string } => account.type === "wallet")
-        .map((wallet) => wallet.address) ?? [],
+      linkedWallets:
+        user?.linkedAccounts
+          ?.filter((account): account is typeof account & { type: "wallet"; address: string } => account.type === "wallet")
+          .map((wallet) => wallet.address) ?? [],
       chainId,
       chainName: chainId === 42161 ? "Arbitrum" : "Arbitrum Sepolia",
       environment,
