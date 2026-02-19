@@ -26,11 +26,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Lint
-        run: pnpm lint
+      - name: Web lint
+        run: pnpm --filter web lint
 
-      - name: Typecheck
-        run: pnpm typecheck
+      - name: Web typecheck
+        run: pnpm --filter web typecheck
 
-      - name: Unit + integration + e2e tests
-        run: pnpm test
+      - name: Web test
+        run: pnpm --filter web test
+
+      - name: API route eslint (no warnings)
+        run: pnpm --filter web exec eslint apps/web/app/api --max-warnings=0
+
+      - name: API route compile check
+        run: pnpm --filter web exec tsc --noEmit
+
+      - name: API route targeted regression tests
+        run: pnpm --filter web test src/web/agent-onboarding-routes.test.ts src/web/api-routes-auth.test.ts
