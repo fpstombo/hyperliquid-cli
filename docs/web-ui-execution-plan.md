@@ -48,6 +48,7 @@ Ship a polished, non-functional shell that proves visual direction and informati
 
 ### Definition of Done
 - Slice checkboxes can only be marked complete when merged PRs include links to concrete artifacts (tests, API route handlers, or deployment verification), not simulation-only mock UI.
+- Every slice completion PR must include successful `pnpm --filter web lint`, `pnpm --filter web typecheck`, and `pnpm --filter web test` results.
 
 ---
 
@@ -74,6 +75,7 @@ Allow users to connect wallet and establish authenticated session.
 
 ### Definition of Done
 - Route-level auth coverage must include regression tests for unauthenticated → `/auth` redirect and authenticated access to protected routes.
+- Slice cannot be marked complete without passing web lint/typecheck/tests in CI and linking those run artifacts in the PR.
 
 ---
 
@@ -99,6 +101,7 @@ Display real Hyperliquid market/account data in the new UI.
 
 ### Definition of Done
 - Completion requires evidence that live API-backed responses are wired end-to-end (route + hook + rendered state), with failing/empty-state behavior covered by automated tests.
+- For any `apps/web/app/api/**` changes, include compile/lint proof plus targeted tests that catch duplicate-import or syntax regressions.
 
 ---
 
@@ -124,6 +127,7 @@ Enable users to place and cancel orders from the web UI.
 
 ### Definition of Done
 - Mark done only when testnet-integrated order execution/cancel flows are validated by automated tests (not mocked-only confirmation UI).
+- Completion requires passing web lint/typecheck/tests and explicit API route compile/lint checks when order routes are touched.
 
 ---
 
@@ -147,6 +151,7 @@ Support practical trading workflows tied to Hyperliquid API-wallet model.
 
 ### Definition of Done
 - Prototype UI tasks may be marked complete with simulated data, but production-integrated tasks require API-backed approval/agent-status evidence and regression tests.
+- Production-integrated completion additionally requires successful web lint/typecheck/tests and API-route compile/lint checks recorded in the PR artifacts.
 
 ---
 
@@ -172,6 +177,7 @@ Make the app reliable and safe enough for broader usage.
 
 ### Definition of Done
 - A slice is complete only when the readiness checklist references concrete test artifacts and CI coverage for critical auth + trading routes.
+- Hardening signoff must include explicit `apps/web/app/api/**` quality gates (compile, lint, duplicate-import/syntax regression tests).
 
 ---
 
@@ -195,55 +201,57 @@ We will maintain this file as the live status board. Each task uses one of:
   2) Task checkboxes in the relevant epic
   3) A short “Completed this PR” note
   4) A short “Next up” note
+  5) For every checkbox moved to `[x]`, add a concrete artifact reference inline (`test file`, `route file`, and/or `PR link`).
+- Never mark a checkbox complete if web lint/typecheck/tests are red for that PR.
 
 ---
 
 ## Implementation Task Board (ready to convert to issues)
 
 ## Epic A — Platform & UI Foundation
-- [x] A1: Bootstrap Next.js app in `apps/web` with TypeScript and lint config.
-- [x] A2: Install and configure Tailwind + base design tokens.
-- [x] A3: Build reusable primitives (Button/Input/Card/Table/Modal/Toast).
-- [x] A4: Implement app shell (navbar/sidebar/content).
-- [x] A5: Create dashboard and trade page skeletons with mock data.
+- [x] A1: Bootstrap Next.js app in `apps/web` with TypeScript and lint config. _(Artifacts: `apps/web/package.json`)_
+- [x] A2: Install and configure Tailwind + base design tokens. _(Artifacts: `apps/web/app/globals.css`, `apps/web/package.json`)_
+- [x] A3: Build reusable primitives (Button/Input/Card/Table/Modal/Toast). _(Artifacts: `apps/web/components/ui/*`)_
+- [x] A4: Implement app shell (navbar/sidebar/content). _(Artifacts: `apps/web/app/layout.tsx`, `apps/web/components/navbar-controls.tsx`)_
+- [x] A5: Create dashboard and trade page skeletons with mock data. _(Artifacts: `apps/web/app/dashboard/page.tsx`, `apps/web/app/trade/[symbol]/page.tsx`)_
 
 ## Epic B — Authentication (Privy)
-- [x] B1: Integrate Privy SDK and provider wrapper.
-- [x] B2: Build connect/login/logout UI.
-- [x] B3: Add auth middleware/guards for protected routes.
-- [x] B4: Show wallet identity and chain/network state.
-- [x] B5: Add environment (mainnet/testnet) UI + guardrails.
+- [x] B1: Integrate Privy SDK and provider wrapper. _(Artifacts: `apps/web/components/providers.tsx`, `apps/web/lib/auth.ts`)_
+- [x] B2: Build connect/login/logout UI. _(Artifacts: `apps/web/app/auth/page.tsx`)_
+- [x] B3: Add auth middleware/guards for protected routes. _(Artifacts: `apps/web/middleware.ts`, `src/web/middleware-auth-redirects.test.ts`)_
+- [x] B4: Show wallet identity and chain/network state. _(Artifacts: `apps/web/components/navbar-controls.tsx`)_
+- [x] B5: Add environment (mainnet/testnet) UI + guardrails. _(Artifacts: `apps/web/components/navbar-controls.tsx`, `apps/web/lib/auth.ts`)_
 
 ## Epic C — Market & Account Data
-- [x] C1: Define API response contracts for balances/positions/orders/prices.
-- [x] C2: Add read-only API routes.
-- [x] C3: Implement client hooks for data fetching + cache.
-- [x] C4: Add near-real-time updates (polling first, SSE second).
-- [x] C5: Replace mock state with live data in dashboard/trade pages.
+- [x] C1: Define API response contracts for balances/positions/orders/prices. _(Artifacts: `apps/web/lib/api-types.ts`)_
+- [x] C2: Add read-only API routes. _(Artifacts: `apps/web/app/api/balances/route.ts`, `apps/web/app/api/positions/route.ts`)_
+- [x] C3: Implement client hooks for data fetching + cache. _(Artifacts: `apps/web/lib/hooks/use-dashboard-data.ts`, `apps/web/lib/hooks/use-trade-data.ts`)_
+- [x] C4: Add near-real-time updates (polling first, SSE second). _(Artifacts: `apps/web/lib/hooks/use-polling-resource.ts`)_
+- [x] C5: Replace mock state with live data in dashboard/trade pages. _(Artifacts: `apps/web/components/dashboard-client.tsx`, `apps/web/components/trade-client.tsx`)_
 
 ## Epic D — Trading
-- [x] D1: Extract shared order validation/construction into `src/core`.
-- [x] D2: Implement order execution API endpoints.
-- [x] D3: Build order ticket form (market + limit + reduce-only + tif).
-- [x] D4: Build open orders table with cancel action.
-- [x] D5: Add status UX (pending/filled/rejected) + detailed errors.
+- [x] D1: Extract shared order validation/construction into `src/core`. _(Artifacts: `src/core/order.ts`, `src/core/order.test.ts`)_
+- [x] D2: Implement order execution API endpoints. _(Artifacts: `apps/web/app/api/orders/market/route.ts`, `apps/web/app/api/orders/limit/route.ts`, `apps/web/app/api/orders/cancel/route.ts`, `src/web/api-routes-auth.test.ts`)_
+- [x] D3: Build order ticket form (market + limit + reduce-only + tif). _(Artifacts: `apps/web/app/trade/[symbol]/components/OrderTicket.tsx`)_
+- [x] D4: Build open orders table with cancel action. _(Artifacts: `apps/web/app/trade/[symbol]/components/OpenOrdersTable.tsx`)_
+- [x] D5: Add status UX (pending/filled/rejected) + detailed errors. _(Artifacts: `apps/web/components/Toast.tsx`, `apps/web/app/trade/[symbol]/components/TradeWorkspace.tsx`)_
 
 ## Epic E — API Wallet Workflow
-- [x] E1a (prototype/simulated): Build onboarding wizard shell for API wallet/agent approval.
-- [x] E1b (production-integrated): Validate onboarding with authenticated, API-backed approval evidence.
-- [x] E2a (prototype/simulated): Add extra-agent polling UX and local status refresh interactions.
-- [x] E2b (production-integrated): Verify polling states against live/realistic API route integration (pending/active/revoked).
-- [x] E3a (prototype/simulated): Ship agent-status page and remediation guidance content.
-- [x] E3b (production-integrated): Confirm lifecycle transitions with automated API integration coverage and route-level auth behavior.
-- [x] E4a (prototype/simulated): Add key-management safety messaging and local metadata controls.
-- [x] E4b (production-integrated): Complete operational recovery/revocation evidence tied to real approval lifecycle checks.
+- [x] E1a (prototype/simulated): Build onboarding wizard shell for API wallet/agent approval. _(Artifacts: `apps/web/app/onboarding/page.tsx`)_
+- [~] E1b (production-integrated): Validate onboarding with authenticated, API-backed approval evidence. _(Artifacts in progress: `apps/web/app/api/agent/validate/route.ts`, `src/web/agent-onboarding-routes.test.ts`, follow-up PR required)_
+- [x] E2a (prototype/simulated): Add extra-agent polling UX and local status refresh interactions. _(Artifacts: `apps/web/lib/agent-state.ts`, `apps/web/lib/agent-state-server.ts`)_
+- [~] E2b (production-integrated): Verify polling states against live/realistic API route integration (pending/active/revoked). _(Artifacts in progress: `apps/web/app/api/agent/extra-agents/route.ts`, `src/web/agent-onboarding-routes.test.ts`, follow-up PR required)_
+- [x] E3a (prototype/simulated): Ship agent-status page and remediation guidance content. _(Artifacts: `apps/web/app/agent-status/page.tsx`)_
+- [~] E3b (production-integrated): Confirm lifecycle transitions with automated API integration coverage and route-level auth behavior. _(Artifacts in progress: `apps/web/app/api/agent/wait/route.ts`, `src/web/api-routes-auth.test.ts`, follow-up PR required)_
+- [x] E4a (prototype/simulated): Add key-management safety messaging and local metadata controls. _(Artifacts: `apps/web/app/onboarding/page.tsx`, `apps/web/lib/agent-approval.ts`)_
+- [~] E4b (production-integrated): Complete operational recovery/revocation evidence tied to real approval lifecycle checks. _(Artifacts in progress: `apps/web/app/agent-status/page.tsx`, `src/web/agent-onboarding-routes.test.ts`, follow-up PR required)_
 
 ## Epic F — Hardening
-- [x] F1: Add request validation + rate limiting.
-- [x] F2: Add logging/metrics/tracing.
-- [x] F3: Add automated tests for critical flows.
-- [x] F4: Add reconnect/backoff strategy for live data.
-- [x] F5: Prepare beta launch checklist.
+- [x] F1: Add request validation + rate limiting. _(Artifacts: `src/server/rpc-core.ts`, `src/lib/validation.ts`)_
+- [x] F2: Add logging/metrics/tracing. _(Artifacts: `src/server/logger.ts`, `src/server/index.ts`)_
+- [x] F3: Add automated tests for critical flows. _(Artifacts: `src/server/flows.e2e.test.ts`, `src/web/api-routes-auth.test.ts`)_
+- [x] F4: Add reconnect/backoff strategy for live data. _(Artifacts: `src/server/backoff.ts`, `src/server/subscriptions.ts`)_
+- [x] F5: Prepare beta launch checklist. _(Artifacts: `docs/beta-readiness-checklist.md`)_
 
 ## Suggested Build Sequence (practical)
 1. A1–A5
@@ -258,6 +266,20 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 ### Epic D validation notes
 - ✅ Testnet-focused order construction and API wiring validated via unit tests (`src/core/order.test.ts`) and existing command-layer suites.
 - ✅ Epic D1–D5 marked complete in task board.
+
+
+## Known Gaps (until Epic E production tasks are complete)
+- Epic E production items (E1b/E2b/E3b/E4b) remain **in progress** pending staging evidence with real Privy + Hyperliquid integrations and non-mocked approval lifecycle transitions.
+- Slice completion cannot be declared for Epic E while any production item lacks: (1) green web lint/typecheck/tests, (2) API route compile/lint pass, and (3) linked PR/test artifacts.
+- Continue tracking open work in each Epic E checkbox inline artifact notes and in the Progress Log section below.
+
+## API Route Quality Gates (mandatory when touching `apps/web/app/api/**`)
+1. `pnpm --filter web lint`
+2. `pnpm --filter web typecheck`
+3. `pnpm --filter web test`
+4. `pnpm --filter web exec eslint apps/web/app/api --max-warnings=0`
+5. `pnpm --filter web exec tsc --noEmit`
+6. Targeted regression coverage for duplicate-import/syntax failures in route suites (for example `src/web/agent-onboarding-routes.test.ts` and `src/web/api-routes-auth.test.ts`).
 
 ## Progress Log
 
