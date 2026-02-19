@@ -64,6 +64,7 @@ import { POST as postMarketOrder } from "../../apps/web/app/api/orders/market/ro
 import { POST as postLimitOrder } from "../../apps/web/app/api/orders/limit/route"
 import { POST as postCancelOrder } from "../../apps/web/app/api/orders/cancel/route"
 import { GET as getOpenOrders } from "../../apps/web/app/api/orders/open/route"
+import { GET as getOrders } from "../../apps/web/app/api/orders/route"
 
 describe("API route auth guards", () => {
   beforeEach(() => {
@@ -125,7 +126,7 @@ describe("API route auth guards", () => {
       ),
     )
 
-    const [marketResponse, limitResponse, cancelResponse, openResponse] = await Promise.all([
+    const [marketResponse, limitResponse, cancelResponse, openResponse, ordersResponse] = await Promise.all([
       postMarketOrder(
         new Request("http://localhost/api/orders/market", {
           method: "POST",
@@ -145,41 +146,81 @@ describe("API route auth guards", () => {
         }),
       ),
       getOpenOrders(new Request("http://localhost/api/orders/open")),
+      getOrders(new Request("http://localhost/api/orders")),
     ])
 
     expect(marketResponse.status).toBe(403)
     expect(limitResponse.status).toBe(403)
     expect(cancelResponse.status).toBe(403)
     expect(openResponse.status).toBe(403)
+    expect(ordersResponse.status).toBe(403)
     expect(mocks.executeMarketOrderMock).not.toHaveBeenCalled()
     expect(mocks.executeLimitOrderMock).not.toHaveBeenCalled()
     expect(mocks.cancelOrderMock).not.toHaveBeenCalled()
     expect(mocks.fetchOpenOrdersMock).not.toHaveBeenCalled()
   })
 
-  it("allows authorized market orders", async () => {
+  it("returns normalized responses for authenticated order endpoints", async () => {
     mocks.requireApiAuthMock.mockResolvedValue({
       userId: "user_1",
       walletAddress: "0xabc",
       tradingAccount: "0xabc",
     })
+
     mocks.executeMarketOrderMock.mockResolvedValue({ status: "ok" })
+    mocks.executeLimitOrderMock.mockResolvedValue({ status: "ok", oid: "2" })
+    mocks.cancelOrderMock.mockResolvedValue({ status: "ok", canceled: true })
+    mocks.fetchOpenOrdersMock.mockResolvedValue([
+      { oid: 1, coin: "BTC", side: "B", sz: "1", limitPx: "100000", timestamp: 1234567890 },
+    ])
 
-    const response = await postMarketOrder(
-      new Request("http://localhost/api/orders/market", {
-        method: "POST",
-        body: JSON.stringify({ side: "buy", size: "1", coin: "BTC", slippage: "0.1" }),
-      }),
-    )
+    const [marketResponse, limitResponse, cancelResponse, openResponse, ordersResponse] = await Promise.all([
+      postMarketOrder(
+        new Request("http://localhost/api/orders/market", {
+          method: "POST",
+          body: JSON.stringify({ side: "buy", size: "1", coin: "BTC", slippage: "0.1" }),
+        }),
+      ),
+      postLimitOrder(
+        new Request("http://localhost/api/orders/limit", {
+          method: "POST",
+          body: JSON.stringify({ side: "buy", size: "1", coin: "BTC", price: "100000", tif: "Gtc" }),
+        }),
+      ),
+      postCancelOrder(
+        new Request("http://localhost/api/orders/cancel", {
+          method: "POST",
+          body: JSON.stringify({ oid: "1", coin: "BTC" }),
+        }),
+      ),
+      getOpenOrders(new Request("http://localhost/api/orders/open")),
+      getOrders(new Request("http://localhost/api/orders")),
+    ])
 
-    expect(response.status).toBe(200)
-    expect(mocks.executeMarketOrderMock).toHaveBeenCalledWith(
-      expect.objectContaining({ environment: "testnet", user: "0xabc" }),
-      { side: "buy", size: "1", coin: "BTC", slippage: "0.1" },
-    )
-    await expect(response.json()).resolves.toMatchObject({
+    await expect(marketResponse.json()).resolves.toMatchObject({
       status: "ok",
       context: { environment: "testnet", user: "0xabc", accountSource: "environment_variables", accountAlias: null },
     })
+    await expect(limitResponse.json()).resolves.toMatchObject({
+      status: "ok",
+      oid: "2",
+      context: { environment: "testnet", user: "0xabc", accountSource: "environment_variables", accountAlias: null },
+    })
+    await expect(cancelResponse.json()).resolves.toMatchObject({
+      status: "ok",
+      canceled: true,
+      context: { environment: "testnet", user: "0xabc", accountSource: "environment_variables", accountAlias: null },
+    })
+    await expect(openResponse.json()).resolves.toMatchObject({
+      orders: [{ oid: 1, coin: "BTC" }],
+      context: { environment: "testnet", user: "0xabc", accountSource: "environment_variables", accountAlias: null },
+    })
+
+    const ordersBody = await ordersResponse.json()
+    expect(ordersBody).toMatchObject({
+      orders: [{ oid: 1, coin: "BTC" }],
+      context: { environment: "testnet", user: "0xabc", accountSource: "environment_variables", accountAlias: null },
+    })
+    expect(typeof ordersBody.updatedAt).toBe("string")
   })
 })

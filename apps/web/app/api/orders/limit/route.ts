@@ -3,7 +3,6 @@ import { executeLimitOrder, resolveTradingContext, toApiError } from "../../../.
 import { requireAuthenticatedSession } from "../../../../lib/server-session"
 import { requireApiAuth, verifyAuthorizedTradingAccount } from "../../../../lib/api-auth"
 import { createApiError } from "../../../../lib/api-types"
-import { executeLimitOrder, toApiError } from "../../../../lib/trading"
 
 export async function POST(request: Request) {
   const auth = await requireApiAuth(request)
