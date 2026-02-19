@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getExtraAgents, waitForApproval } from "../../../../../../src/lib/api-wallet"
 import { requireApiAuth } from "../../../../lib/api-auth"
 import { createApiError } from "../../../../lib/api-types"
-import { active, asMs, findMatchingExtraAgent, pending } from "../../../../lib/agent-state-server"
+import { deriveExtraAgentsState } from "../../../../lib/agent-state-server"
 import type { Address } from "viem"
 
 export async function POST(request: Request) {
@@ -38,14 +38,21 @@ export async function POST(request: Request) {
     )
 
     const extraAgents = await getExtraAgents(body.userAddress as Address, isTestnet)
-    const extraAgent = findMatchingExtraAgent(body.apiWalletAddress, extraAgents)
-    const state = approved ? active(extraAgent ? asMs(extraAgent.validUntil) : undefined) : pending("Awaiting approval")
+    const state = deriveExtraAgentsState({
+      apiWalletAddress: body.apiWalletAddress,
+      validationValid: true,
+      extraAgents,
+      lastKnownState: approved ? "pending" : undefined,
+    })
+
+    const approvedFromLifecycle = state.state === "active"
 
     return NextResponse.json({
       ok: true,
-      approved,
+      approved: approvedFromLifecycle,
       state: state.state,
       validUntil: state.validUntil,
+      reason: state.reason,
       updatedAt: Date.now(),
     })
   } catch (error) {

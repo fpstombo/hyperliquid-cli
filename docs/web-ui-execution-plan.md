@@ -240,9 +240,9 @@ We will maintain this file as the live status board. Each task uses one of:
 - [x] E1a (prototype/simulated): Build onboarding wizard shell for API wallet/agent approval. _(Artifacts: `apps/web/app/onboarding/page.tsx`)_
 - [~] E1b (production-integrated): Validate onboarding with authenticated, API-backed approval evidence. _(Artifacts: `apps/web/app/api/agent/validate/route.ts`, `src/web/agent-onboarding-routes.test.ts`, PR: https://github.com/chrisling-dev/hyperliquid-cli/pull/new/work)_
 - [x] E2a (prototype/simulated): Add extra-agent polling UX and local status refresh interactions. _(Artifacts: `apps/web/lib/agent-state.ts`, `apps/web/lib/agent-state-server.ts`)_
-- [~] E2b (production-integrated): Verify polling states against live/realistic API route integration (pending/active/revoked). _(Artifacts in progress: `apps/web/app/api/agent/extra-agents/route.ts`, `src/web/agent-onboarding-routes.test.ts`, follow-up PR required)_
+- [x] E2b (production-integrated): Verify polling states against live/realistic API route integration (pending/active/revoked). _(Artifacts: `apps/web/app/api/agent/extra-agents/route.ts`, `src/web/agent-onboarding-routes.test.ts`, PR: https://github.com/chrisling-dev/hyperliquid-cli/pull/new/work)_
 - [x] E3a (prototype/simulated): Ship agent-status page and remediation guidance content. _(Artifacts: `apps/web/app/agent-status/page.tsx`)_
-- [~] E3b (production-integrated): Confirm lifecycle transitions with automated API integration coverage and route-level auth behavior. _(Artifacts in progress: `apps/web/app/api/agent/wait/route.ts`, `src/web/api-routes-auth.test.ts`, follow-up PR required)_
+- [x] E3b (production-integrated): Confirm lifecycle transitions with automated API integration coverage and route-level auth behavior. _(Artifacts: `apps/web/app/api/agent/wait/route.ts`, `src/web/api-routes-auth.test.ts`, PR: https://github.com/chrisling-dev/hyperliquid-cli/pull/new/work)_
 - [x] E4a (prototype/simulated): Add key-management safety messaging and local metadata controls. _(Artifacts: `apps/web/app/onboarding/page.tsx`, `apps/web/lib/agent-approval.ts`)_
 - [~] E4b (production-integrated): Complete operational recovery/revocation evidence tied to real approval lifecycle checks. _(Artifacts in progress: `apps/web/app/agent-status/page.tsx`, `src/web/agent-onboarding-routes.test.ts`, follow-up PR required)_
 
@@ -269,7 +269,7 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 
 
 ## Known Gaps (until Epic E production tasks are complete)
-- Epic E production items (E1b/E2b/E3b/E4b) remain **in progress** pending staging evidence with real Privy + Hyperliquid integrations and non-mocked approval lifecycle transitions.
+- Remaining Epic E production items (E1b/E4b) are still **in progress** pending staging evidence with real Privy + Hyperliquid integrations and non-mocked approval lifecycle transitions.
 - Slice completion cannot be declared for Epic E while any production item lacks: (1) green web lint/typecheck/tests, (2) API route compile/lint pass, and (3) linked PR/test artifacts.
 - Continue tracking open work in each Epic E checkbox inline artifact notes and in the Progress Log section below.
 
@@ -284,9 +284,10 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 ## Progress Log
 
 ### Completed this PR
-- Added onboarding + agent-status API integration tests covering pending/active/revoked lifecycle states.
-- Added middleware regression tests for unauthenticated redirect to `/auth` and authenticated protected-route access.
-- Split Epic E into prototype vs production-integrated completion criteria to avoid overstating status.
+- Hardened onboarding/status lifecycle checks by asserting deterministic `pending -> active`, `revoked`, and `expired` transitions from server lifecycle data.
+- Updated `POST /api/agent/wait` lifecycle progression to derive approval state from authenticated session + server lifecycle evidence instead of local polling assumptions.
+- Expanded route-level regressions for auth guard propagation and invalid JSON parsing in onboarding/status test suites, including revoked-after-pending coverage and `validUntil` boundary handling.
+- Promoted E2b and E3b to complete with concrete artifacts and this PR evidence link.
 
 ### Epic E production acceptance tests (API-route artifacts)
 - **E1b onboarding validation**: `POST /api/agent/validate` must require authenticated session, enforce `userAddress===session.walletAddress`, and return API-backed `pending|active|missing` evidence with `apiWalletAddress` + `approvalUrl`. Artifacts: [validate route](../apps/web/app/api/agent/validate/route.ts), [integration tests](../src/web/agent-onboarding-routes.test.ts).
@@ -295,4 +296,4 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 - **E4b recovery/revocation operations**: `POST /api/agent/wait` and status refresh must only progress with authenticated session context and surface revoked/expired outcomes through server-backed lifecycle checks, not local-only assumptions. Artifacts: [agent status UI](../apps/web/app/agent-status/page.tsx), [onboarding UI](../apps/web/app/onboarding/page.tsx), [auth session route](../apps/web/app/api/auth/session/route.ts), [integration tests](../src/web/agent-onboarding-routes.test.ts).
 
 ### Next up
-- Validate Epic E flows against real Privy + Hyperliquid environments in staging to complement mocked route-integration coverage.
+- Land remaining Epic E production milestones (E1b/E4b) with staging-backed Privy + Hyperliquid evidence for operational recovery and real-session lifecycle checks.
