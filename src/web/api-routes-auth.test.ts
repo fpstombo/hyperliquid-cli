@@ -99,6 +99,7 @@ describe("API route auth guards", () => {
       userId: "user_1",
       walletAddress: "0xabc",
       tradingAccount: "0xabc",
+      environment: "testnet",
     })
     mocks.fetchBalancesMock.mockResolvedValue({ perpBalance: "100", spotBalances: [] })
 
@@ -109,6 +110,7 @@ describe("API route auth guards", () => {
       userId: "user_1",
       walletAddress: "0xabc",
       tradingAccount: "0xabc",
+      environment: "testnet",
     })
     expect(mocks.fetchBalancesMock).toHaveBeenCalledWith({ user: "0xabc", isTestnet: true })
   })
@@ -118,6 +120,7 @@ describe("API route auth guards", () => {
       userId: "user_1",
       walletAddress: "0xabc",
       tradingAccount: "0xabc",
+      environment: "testnet",
     })
     mocks.verifyAuthorizedTradingAccountMock.mockReturnValue(
       MockNextResponse.json(
@@ -165,6 +168,7 @@ describe("API route auth guards", () => {
       userId: "user_1",
       walletAddress: "0xabc",
       tradingAccount: "0xabc",
+      environment: "testnet",
     })
 
     mocks.executeMarketOrderMock.mockResolvedValue({ status: "ok" })
@@ -222,5 +226,50 @@ describe("API route auth guards", () => {
       context: { environment: "testnet", user: "0xabc", accountSource: "environment_variables", accountAlias: null },
     })
     expect(typeof ordersBody.updatedAt).toBe("string")
+  })
+
+  it("uses session environment when building runtime config for mainnet requests", async () => {
+    mocks.requireApiAuthMock.mockResolvedValue({
+      userId: "user_1",
+      walletAddress: "0xabc",
+      tradingAccount: "0xabc",
+      environment: "mainnet",
+    })
+    mocks.createRouteRuntimeConfigMock.mockReturnValue({ user: "0xabc", isTestnet: false })
+    mocks.fetchBalancesMock.mockResolvedValue({ perpBalance: "100", spotBalances: [] })
+
+    const response = await getBalances(new Request("http://localhost/api/balances"))
+
+    expect(response.status).toBe(200)
+    expect(mocks.createRouteRuntimeConfigMock).toHaveBeenCalledWith({
+      userId: "user_1",
+      walletAddress: "0xabc",
+      tradingAccount: "0xabc",
+      environment: "mainnet",
+    })
+    expect(mocks.fetchBalancesMock).toHaveBeenCalledWith({ user: "0xabc", isTestnet: false })
+  })
+
+  it("passes authenticated environment into authorization checks to avoid cross-environment leakage", async () => {
+    mocks.requireApiAuthMock.mockResolvedValue({
+      userId: "user_1",
+      walletAddress: "0xabc",
+      tradingAccount: "0xabc",
+      environment: "mainnet",
+    })
+
+    await postMarketOrder(
+      new Request("http://localhost/api/orders/market", {
+        method: "POST",
+        body: JSON.stringify({ side: "buy", size: "1", coin: "BTC", slippage: "0.1" }),
+      }),
+    )
+
+    expect(mocks.verifyAuthorizedTradingAccountMock).toHaveBeenCalledWith({
+      userId: "user_1",
+      walletAddress: "0xabc",
+      tradingAccount: "0xabc",
+      environment: "mainnet",
+    })
   })
 })

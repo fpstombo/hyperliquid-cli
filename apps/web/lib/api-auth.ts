@@ -2,18 +2,21 @@ import { NextResponse } from "next/server"
 import { loadConfig } from "../../../src/lib/config.js"
 import { validateAddress } from "../../../src/lib/validation.js"
 import { SESSION_COOKIE } from "./auth"
+import { type AppEnvironment } from "./auth"
 import { createApiError, type ApiError } from "./api-types"
 import { verifySessionToken } from "./session-token"
 
 type SessionPayload = {
   sub?: string
   walletAddress?: string | null
+  environment?: AppEnvironment
 }
 
 export type AuthenticatedRequestContext = {
   userId: string
   walletAddress: string
   tradingAccount: string
+  environment: AppEnvironment
 }
 
 function parseCookie(rawCookie: string | null, cookieName: string): string | null {
@@ -74,6 +77,10 @@ export async function requireApiAuth(request: Request): Promise<AuthenticatedReq
     return authError(403, "FORBIDDEN", "Session missing wallet identity")
   }
 
+  if (payload.environment !== "mainnet" && payload.environment !== "testnet") {
+    return authError(403, "FORBIDDEN", "Session missing environment")
+  }
+
   try {
     const walletAddress = normalizeAddress(payload.walletAddress)
 
@@ -81,6 +88,7 @@ export async function requireApiAuth(request: Request): Promise<AuthenticatedReq
       userId: payload.sub,
       walletAddress,
       tradingAccount: resolveTradingAccount(walletAddress),
+      environment: payload.environment,
     }
   } catch {
     return authError(403, "FORBIDDEN", "Invalid wallet identity")
@@ -88,7 +96,7 @@ export async function requireApiAuth(request: Request): Promise<AuthenticatedReq
 }
 
 export function verifyAuthorizedTradingAccount(context: AuthenticatedRequestContext): NextResponse<ApiError> | null {
-  const config = loadConfig(true)
+  const config = loadConfig(context.environment === "testnet")
   if (!config.privateKey) {
     return null
   }
@@ -113,6 +121,6 @@ export function verifyAuthorizedTradingAccount(context: AuthenticatedRequestCont
 export function createRouteRuntimeConfig(context: AuthenticatedRequestContext) {
   return {
     user: validateAddress(context.tradingAccount),
-    isTestnet: process.env.HYPERLIQUID_TESTNET === "true",
+    isTestnet: context.environment === "testnet",
   }
 }
