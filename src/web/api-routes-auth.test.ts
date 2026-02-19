@@ -23,6 +23,8 @@ const mocks = vi.hoisted(() => ({
   fetchOpenOrdersMock: vi.fn(),
   resolveTradingContextMock: vi.fn(),
   requireAuthenticatedSessionMock: vi.fn(),
+  getExtraAgentsMock: vi.fn(),
+  waitForApprovalMock: vi.fn(),
   toApiErrorMock: vi.fn((error: unknown) => ({
     error: { code: "ORDER_ERROR", message: error instanceof Error ? error.message : "Order failed" },
   })),
@@ -59,12 +61,19 @@ vi.mock("/workspace/hyperliquid-cli/apps/web/lib/server-session", () => ({
   requireAuthenticatedSession: mocks.requireAuthenticatedSessionMock,
 }))
 
+vi.mock("/workspace/hyperliquid-cli/src/lib/api-wallet", () => ({
+  getExtraAgents: mocks.getExtraAgentsMock,
+  waitForApproval: mocks.waitForApprovalMock,
+}))
+
 import { GET as getBalances } from "../../apps/web/app/api/balances/route"
 import { POST as postMarketOrder } from "../../apps/web/app/api/orders/market/route"
 import { POST as postLimitOrder } from "../../apps/web/app/api/orders/limit/route"
 import { POST as postCancelOrder } from "../../apps/web/app/api/orders/cancel/route"
 import { GET as getOpenOrders } from "../../apps/web/app/api/orders/open/route"
 import { GET as getOrders } from "../../apps/web/app/api/orders/route"
+import { POST as postExtraAgents } from "../../apps/web/app/api/agent/extra-agents/route"
+import { POST as postWait } from "../../apps/web/app/api/agent/wait/route"
 
 describe("API route auth guards", () => {
   beforeEach(() => {
@@ -81,7 +90,7 @@ describe("API route auth guards", () => {
   })
 
   it("rejects anonymous balances requests with normalized auth error", async () => {
-    mocks.requireApiAuthMock.mockResolvedValue(
+    mocks.requireApiAuthMock.mockImplementation(async () =>
       MockNextResponse.json({ error: { code: "UNAUTHORIZED", message: "Authentication required" } }, { status: 401 }),
     )
 
@@ -272,4 +281,57 @@ describe("API route auth guards", () => {
       environment: "mainnet",
     })
   })
+
+  it("enforces auth guard on onboarding status routes", async () => {
+    mocks.requireApiAuthMock.mockResolvedValue(
+      MockNextResponse.json({ error: { code: "UNAUTHORIZED", message: "Authentication required" } }, { status: 401 }),
+    )
+
+    const [extraResponse, waitResponse] = await Promise.all([
+      postExtraAgents(
+        new Request("http://localhost/api/agent/extra-agents", {
+          method: "POST",
+          body: JSON.stringify({ userAddress: "0xabc", apiWalletAddress: "0xagent" }),
+        }),
+      ),
+      postWait(
+        new Request("http://localhost/api/agent/wait", {
+          method: "POST",
+          body: JSON.stringify({ userAddress: "0xabc", apiWalletAddress: "0xagent" }),
+        }),
+      ),
+    ])
+
+    expect(extraResponse.status).toBe(401)
+    expect(waitResponse.status).toBe(401)
+    await expect(extraResponse.json()).resolves.toEqual({
+      error: { code: "UNAUTHORIZED", message: "Authentication required" },
+    })
+    expect(mocks.getExtraAgentsMock).not.toHaveBeenCalled()
+    expect(mocks.waitForApprovalMock).not.toHaveBeenCalled()
+  })
+
+  it("normalizes syntax errors on onboarding status routes", async () => {
+    mocks.requireApiAuthMock.mockResolvedValue({
+      userId: "user_1",
+      walletAddress: "0xabc",
+      tradingAccount: "0xabc",
+      environment: "testnet",
+    })
+
+    const [extraResponse, waitResponse] = await Promise.all([
+      postExtraAgents(new Request("http://localhost/api/agent/extra-agents", { method: "POST", body: "{" })),
+      postWait(new Request("http://localhost/api/agent/wait", { method: "POST", body: "{" })),
+    ])
+
+    expect(extraResponse.status).toBe(400)
+    expect(waitResponse.status).toBe(400)
+    await expect(extraResponse.json()).resolves.toEqual({
+      error: { code: "BAD_REQUEST", message: "Invalid request payload" },
+    })
+    await expect(waitResponse.json()).resolves.toEqual({
+      error: { code: "BAD_REQUEST", message: "Invalid request payload" },
+    })
+  })
+
 })
