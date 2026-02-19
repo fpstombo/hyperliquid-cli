@@ -16,6 +16,16 @@
 - [x] Route-level auth regression checks for unauthenticated → `/auth` redirect and authenticated protected-route access.
 - [x] E2E flow tests for login, dashboard, place/cancel order.
 - [x] CI quality gates configured for lint + typecheck + tests.
+- [ ] Web-slice completion gate enforced: no slice can be marked complete unless web route lint, typecheck, and tests all pass in CI for that PR.
+- [ ] API route quality gate enforced for `apps/web/app/api/**`: compile/lint checks must pass and duplicate-import/syntax regressions must be covered by targeted tests.
+
+### Required Quality-Gate Commands (must pass before marking slice completion)
+- `pnpm --filter web lint`
+- `pnpm --filter web typecheck`
+- `pnpm --filter web test`
+- `pnpm --filter web exec eslint apps/web/app/api --max-warnings=0`
+- `pnpm --filter web exec tsc --noEmit`
+- `pnpm --filter web test src/web/agent-onboarding-routes.test.ts src/web/api-routes-auth.test.ts`
 
 ### Test Artifacts
 - `src/web/api-routes-auth.test.ts` — auth guard + protected order/balance route behavior.
