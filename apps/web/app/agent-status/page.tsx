@@ -21,6 +21,33 @@ export default function AgentStatusPage() {
   const [message, setMessage] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
 
+  useEffect(() => {
+    let cancelled = false
+
+    async function hydrateFromSession() {
+      try {
+        const response = await fetch("/api/auth/session", { method: "GET", cache: "no-store" })
+        if (!response.ok) return
+        const payload = (await response.json()) as { walletAddress?: string | null; environment?: "mainnet" | "testnet" }
+        if (cancelled) return
+
+        if (payload.walletAddress) {
+          setWalletAddress((current) => current || payload.walletAddress || "")
+        }
+        if (payload.environment) {
+          setIsTestnet(payload.environment === "testnet")
+        }
+      } catch {
+        // Ignore session hydration failures and continue with local/manual metadata.
+      }
+    }
+
+    void hydrateFromSession()
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
   async function fetchState(userAddress: string, apiWalletAddress: string, testnet: boolean, lastKnownState?: ApprovalState) {
     const response = await fetch("/api/agent/extra-agents", {
       method: "POST",
@@ -123,6 +150,32 @@ export default function AgentStatusPage() {
         <p className="muted" style={{ margin: 0 }}>
           Live status is fetched from API routes backed by Hyperliquid validation and extra-agent polling.
         </p>
+
+        <div className="grid" style={{ gridTemplateColumns: "1fr 1fr", gap: "0.75rem" }}>
+          <label className="grid">
+            <span className="muted">Master wallet address</span>
+            <input
+              value={walletAddress}
+              onChange={(event) => setWalletAddress(event.target.value)}
+              placeholder="0x..."
+              className="input"
+            />
+          </label>
+          <label className="grid">
+            <span className="muted">Agent wallet address</span>
+            <input
+              value={agentAddress}
+              onChange={(event) => setAgentAddress(event.target.value)}
+              placeholder="0x..."
+              className="input"
+            />
+          </label>
+        </div>
+
+        <label style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+          <input type="checkbox" checked={isTestnet} onChange={(event) => setIsTestnet(event.target.checked)} />
+          Use Hyperliquid testnet endpoints
+        </label>
 
         <div className="card" style={{ borderColor: statusMeta[state].color }}>
           <p className="muted" style={{ marginTop: 0 }}>

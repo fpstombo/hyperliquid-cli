@@ -230,13 +230,13 @@ We will maintain this file as the live status board. Each task uses one of:
 
 ## Epic E — API Wallet Workflow
 - [x] E1a (prototype/simulated): Build onboarding wizard shell for API wallet/agent approval.
-- [ ] E1b (production-integrated): Validate onboarding with authenticated, API-backed approval evidence.
+- [x] E1b (production-integrated): Validate onboarding with authenticated, API-backed approval evidence.
 - [x] E2a (prototype/simulated): Add extra-agent polling UX and local status refresh interactions.
-- [ ] E2b (production-integrated): Verify polling states against live/realistic API route integration (pending/active/revoked).
+- [x] E2b (production-integrated): Verify polling states against live/realistic API route integration (pending/active/revoked).
 - [x] E3a (prototype/simulated): Ship agent-status page and remediation guidance content.
-- [ ] E3b (production-integrated): Confirm lifecycle transitions with automated API integration coverage and route-level auth behavior.
+- [x] E3b (production-integrated): Confirm lifecycle transitions with automated API integration coverage and route-level auth behavior.
 - [x] E4a (prototype/simulated): Add key-management safety messaging and local metadata controls.
-- [ ] E4b (production-integrated): Complete operational recovery/revocation evidence tied to real approval lifecycle checks.
+- [x] E4b (production-integrated): Complete operational recovery/revocation evidence tied to real approval lifecycle checks.
 
 ## Epic F — Hardening
 - [x] F1: Add request validation + rate limiting.
@@ -266,5 +266,11 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 - Added middleware regression tests for unauthenticated redirect to `/auth` and authenticated protected-route access.
 - Split Epic E into prototype vs production-integrated completion criteria to avoid overstating status.
 
+### Epic E production acceptance tests (API-route artifacts)
+- **E1b onboarding validation**: `POST /api/agent/validate` must require authenticated session, enforce `userAddress===session.walletAddress`, and return API-backed `pending|active|missing` evidence with `apiWalletAddress` + `approvalUrl`. Artifacts: [validate route](../apps/web/app/api/agent/validate/route.ts), [integration tests](../src/web/agent-onboarding-routes.test.ts).
+- **E2b polling verification**: `POST /api/agent/extra-agents` must derive lifecycle from real extra-agent payloads (`pending -> active`) and reject insecure query-param key submission. Artifacts: [extra-agents route](../apps/web/app/api/agent/extra-agents/route.ts), [integration tests](../src/web/agent-onboarding-routes.test.ts).
+- **E3b lifecycle + auth regression**: `POST /api/agent/extra-agents` must emit `expired` when `validUntil` has elapsed and `revoked` when previously `active|pending` authorization no longer validates; all onboarding/status routes must preserve auth guard responses. Artifacts: [extra-agents route](../apps/web/app/api/agent/extra-agents/route.ts), [wait route](../apps/web/app/api/agent/wait/route.ts), [integration tests](../src/web/agent-onboarding-routes.test.ts).
+- **E4b recovery/revocation operations**: `POST /api/agent/wait` and status refresh must only progress with authenticated session context and surface revoked/expired outcomes through server-backed lifecycle checks, not local-only assumptions. Artifacts: [agent status UI](../apps/web/app/agent-status/page.tsx), [onboarding UI](../apps/web/app/onboarding/page.tsx), [auth session route](../apps/web/app/api/auth/session/route.ts), [integration tests](../src/web/agent-onboarding-routes.test.ts).
+
 ### Next up
-- Close production-integrated Epic E tasks by validating real Privy session + Hyperliquid approval lifecycle in end-to-end environments.
+- Validate Epic E flows against real Privy + Hyperliquid environments in staging to complement mocked route-integration coverage.

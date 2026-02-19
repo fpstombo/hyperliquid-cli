@@ -46,6 +46,7 @@ import { POST as postWait } from "../../apps/web/app/api/agent/wait/route"
 describe("agent onboarding + status API routes", () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.useRealTimers()
     mocks.requireApiAuthMock.mockResolvedValue({
       userId: "user_1",
       walletAddress: "0xabc",
@@ -66,7 +67,7 @@ describe("agent onboarding + status API routes", () => {
     const response = await postValidate(
       new Request("http://localhost/api/agent/validate", {
         method: "POST",
-        body: JSON.stringify({ userAddress: "0xabc", apiPrivateKey: "0xkey", isTestnet: false }),
+        body: JSON.stringify({ userAddress: "0xabc", apiPrivateKey: "0xkey" }),
       }),
     )
 
@@ -80,7 +81,7 @@ describe("agent onboarding + status API routes", () => {
     expect(mocks.validateApiKeyMock).toHaveBeenCalledWith("0xkey", true)
   })
 
-  it("accepts secure POST shape for extra-agents status checks", async () => {
+  it("moves lifecycle from pending to active from extra-agents route payload", async () => {
     const validUntilSeconds = Math.floor(Date.now() / 1000) + 3600
     mocks.getExtraAgentsMock.mockResolvedValue([{ address: "0xagent", validUntil: validUntilSeconds }])
 
@@ -96,6 +97,51 @@ describe("agent onboarding + status API routes", () => {
       ok: true,
       state: "active",
       validUntil: validUntilSeconds * 1000,
+    })
+  })
+
+  it("returns expired when agent validUntil is in the past", async () => {
+    const nowMs = 1_730_000_000_000
+    vi.useFakeTimers()
+    vi.setSystemTime(nowMs)
+    mocks.getExtraAgentsMock.mockResolvedValue([{ address: "0xagent", validUntil: Math.floor((nowMs - 1_000) / 1000) }])
+
+    const response = await postExtraAgents(
+      new Request("http://localhost/api/agent/extra-agents", {
+        method: "POST",
+        body: JSON.stringify({ userAddress: "0xabc", apiWalletAddress: "0xagent", lastKnownState: "active" }),
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      state: "expired",
+      reason: "Agent approval has expired.",
+    })
+  })
+
+  it("returns revoked when active or pending authorization disappears on revalidation", async () => {
+    mocks.validateApiKeyMock.mockResolvedValue({ valid: false, error: "API key revoked" })
+    mocks.getExtraAgentsMock.mockResolvedValue([])
+
+    const response = await postExtraAgents(
+      new Request("http://localhost/api/agent/extra-agents", {
+        method: "POST",
+        body: JSON.stringify({
+          userAddress: "0xabc",
+          apiWalletAddress: "0xagent",
+          apiPrivateKey: "0xkey",
+          lastKnownState: "active",
+        }),
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      state: "revoked",
+      reason: "API key revoked",
     })
   })
 
@@ -122,7 +168,7 @@ describe("agent onboarding + status API routes", () => {
     const response = await postWait(
       new Request("http://localhost/api/agent/wait", {
         method: "POST",
-        body: JSON.stringify({ userAddress: "0xabc", apiWalletAddress: "0xagent", isTestnet: false, maxAttempts: 2 }),
+        body: JSON.stringify({ userAddress: "0xabc", apiWalletAddress: "0xagent", maxAttempts: 2 }),
       }),
     )
 
@@ -141,17 +187,64 @@ describe("agent onboarding + status API routes", () => {
       MockNextResponse.json({ error: { code: "UNAUTHORIZED", message: "Authentication required" } }, { status: 401 }),
     )
 
-    const response = await postValidate(
-      new Request("http://localhost/api/agent/validate", {
-        method: "POST",
-        body: JSON.stringify({ userAddress: "0xabc", apiPrivateKey: "0xkey" }),
-      }),
-    )
+    const [validateResponse, extraResponse, waitResponse] = await Promise.all([
+      postValidate(
+        new Request("http://localhost/api/agent/validate", {
+          method: "POST",
+          body: JSON.stringify({ userAddress: "0xabc", apiPrivateKey: "0xkey" }),
+        }),
+      ),
+      postExtraAgents(
+        new Request("http://localhost/api/agent/extra-agents", {
+          method: "POST",
+          body: JSON.stringify({ userAddress: "0xabc", apiWalletAddress: "0xagent" }),
+        }),
+      ),
+      postWait(
+        new Request("http://localhost/api/agent/wait", {
+          method: "POST",
+          body: JSON.stringify({ userAddress: "0xabc", apiWalletAddress: "0xagent" }),
+        }),
+      ),
+    ])
 
-    expect(response.status).toBe(401)
-    await expect(response.json()).resolves.toEqual({
-      error: { code: "UNAUTHORIZED", message: "Authentication required" },
+    expect(validateResponse.status).toBe(401)
+    expect(extraResponse.status).toBe(401)
+    expect(waitResponse.status).toBe(401)
+  })
+
+  it("enforces session wallet match for validate/extra-agents/wait routes", async () => {
+    const [validateResponse, extraResponse, waitResponse] = await Promise.all([
+      postValidate(
+        new Request("http://localhost/api/agent/validate", {
+          method: "POST",
+          body: JSON.stringify({ userAddress: "0xdef", apiPrivateKey: "0xkey" }),
+        }),
+      ),
+      postExtraAgents(
+        new Request("http://localhost/api/agent/extra-agents", {
+          method: "POST",
+          body: JSON.stringify({ userAddress: "0xdef", apiWalletAddress: "0xagent" }),
+        }),
+      ),
+      postWait(
+        new Request("http://localhost/api/agent/wait", {
+          method: "POST",
+          body: JSON.stringify({ userAddress: "0xdef", apiWalletAddress: "0xagent" }),
+        }),
+      ),
+    ])
+
+    await expect(validateResponse.json()).resolves.toEqual({
+      error: { code: "FORBIDDEN", message: "userAddress must match authenticated wallet" },
+    })
+    await expect(extraResponse.json()).resolves.toEqual({
+      error: { code: "FORBIDDEN", message: "userAddress must match authenticated wallet" },
+    })
+    await expect(waitResponse.json()).resolves.toEqual({
+      error: { code: "FORBIDDEN", message: "userAddress must match authenticated wallet" },
     })
     expect(mocks.validateApiKeyMock).not.toHaveBeenCalled()
+    expect(mocks.waitForApprovalMock).not.toHaveBeenCalled()
   })
 })
