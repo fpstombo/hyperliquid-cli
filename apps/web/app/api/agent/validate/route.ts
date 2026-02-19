@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { getApprovalUrl, getExtraAgents, validateApiKey } from "../../../../../../src/lib/api-wallet"
 import type { ApprovalState } from "../../../../lib/agent-state"
+import { requireApiAuth } from "../../../../lib/api-auth"
+import { createApiError } from "../../../../lib/api-types"
 import type { Address, Hex } from "viem"
 
 function asMs(value: number): number {
@@ -31,25 +33,34 @@ function deriveState(input: {
 }
 
 export async function POST(request: Request) {
+  const auth = await requireApiAuth(request)
+  if (auth instanceof Response) {
+    return auth
+  }
+
   try {
     const body = (await request.json()) as {
       apiPrivateKey?: string
       userAddress?: string
-      isTestnet?: boolean
     }
 
     if (!body.apiPrivateKey || !body.userAddress) {
-      return NextResponse.json({ error: "Missing apiPrivateKey or userAddress" }, { status: 400 })
+      return NextResponse.json(createApiError("BAD_REQUEST", "Missing apiPrivateKey or userAddress"), { status: 400 })
     }
 
-    const validation = await validateApiKey(body.apiPrivateKey as Hex, body.isTestnet ?? false)
+    if (body.userAddress.toLowerCase() !== auth.walletAddress.toLowerCase()) {
+      return NextResponse.json(createApiError("FORBIDDEN", "userAddress must match authenticated wallet"), { status: 403 })
+    }
+
+    const isTestnet = auth.environment === "testnet"
+    const validation = await validateApiKey(body.apiPrivateKey as Hex, isTestnet)
 
     if (!validation.valid) {
       return NextResponse.json({
         ok: false,
         state: "missing" satisfies ApprovalState,
         reason: validation.error,
-        approvalUrl: getApprovalUrl(body.isTestnet ?? false),
+        approvalUrl: getApprovalUrl(isTestnet),
       })
     }
 
@@ -59,11 +70,11 @@ export async function POST(request: Request) {
         state: "missing" satisfies ApprovalState,
         reason: `API key belongs to ${validation.masterAddress}, not ${body.userAddress}`,
         apiWalletAddress: validation.apiWalletAddress,
-        approvalUrl: getApprovalUrl(body.isTestnet ?? false),
+        approvalUrl: getApprovalUrl(isTestnet),
       })
     }
 
-    const extraAgents = await getExtraAgents(body.userAddress as Address, body.isTestnet ?? false)
+    const extraAgents = await getExtraAgents(body.userAddress as Address, isTestnet)
     const derived = deriveState({
       apiWalletAddress: validation.apiWalletAddress,
       extraAgents,
@@ -77,10 +88,17 @@ export async function POST(request: Request) {
       validUntil: derived.validUntil,
       masterAddress: validation.masterAddress,
       apiWalletAddress: validation.apiWalletAddress,
-      approvalUrl: getApprovalUrl(body.isTestnet ?? false),
+      approvalUrl: getApprovalUrl(isTestnet),
       updatedAt: Date.now(),
     })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to validate key" }, { status: 500 })
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(createApiError("BAD_REQUEST", "Invalid request payload"), { status: 400 })
+    }
+
+    return NextResponse.json(
+      createApiError("INTERNAL_ERROR", error instanceof Error ? error.message : "Failed to validate key"),
+      { status: 500 },
+    )
   }
 }

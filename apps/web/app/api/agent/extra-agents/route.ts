@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 import { getExtraAgents, validateApiKey } from "../../../../../../src/lib/api-wallet"
 import type { ApprovalState } from "../../../../lib/agent-state"
+import { requireApiAuth } from "../../../../lib/api-auth"
+import { createApiError } from "../../../../lib/api-types"
 import type { Address, Hex } from "viem"
 
 function asMs(value: number): number {
@@ -35,38 +37,53 @@ function deriveState(args: {
   return { state: "pending", reason: "Approval is still pending on Hyperliquid." }
 }
 
-export async function GET(request: Request) {
+export async function POST(request: Request) {
+  const auth = await requireApiAuth(request)
+  if (auth instanceof Response) {
+    return auth
+  }
+
   try {
     const { searchParams } = new URL(request.url)
-    const userAddress = searchParams.get("userAddress")
-    const apiWalletAddress = searchParams.get("apiWalletAddress")
-    const isTestnet = searchParams.get("isTestnet") === "true"
-    const lastKnownState = searchParams.get("lastKnownState") as ApprovalState | null
-    const apiPrivateKey = searchParams.get("apiPrivateKey")
-
-    if (!userAddress || !apiWalletAddress) {
-      return NextResponse.json({ error: "Missing userAddress or apiWalletAddress" }, { status: 400 })
+    if (searchParams.has("apiPrivateKey")) {
+      return NextResponse.json(createApiError("BAD_REQUEST", "apiPrivateKey must be sent in the JSON body"), { status: 400 })
     }
 
+    const body = (await request.json()) as {
+      userAddress?: string
+      apiWalletAddress?: string
+      apiPrivateKey?: string
+      lastKnownState?: ApprovalState
+    }
+
+    if (!body.userAddress || !body.apiWalletAddress) {
+      return NextResponse.json(createApiError("BAD_REQUEST", "Missing userAddress or apiWalletAddress"), { status: 400 })
+    }
+
+    if (body.userAddress.toLowerCase() !== auth.walletAddress.toLowerCase()) {
+      return NextResponse.json(createApiError("FORBIDDEN", "userAddress must match authenticated wallet"), { status: 403 })
+    }
+
+    const isTestnet = auth.environment === "testnet"
     let validationValid = true
     let validationError: string | undefined
 
-    if (apiPrivateKey) {
-      const validation = await validateApiKey(apiPrivateKey as Hex, isTestnet)
-      validationValid = validation.valid && validation.apiWalletAddress.toLowerCase() === apiWalletAddress.toLowerCase()
+    if (body.apiPrivateKey) {
+      const validation = await validateApiKey(body.apiPrivateKey as Hex, isTestnet)
+      validationValid = validation.valid && validation.apiWalletAddress.toLowerCase() === body.apiWalletAddress.toLowerCase()
       if (!validation.valid) {
         validationError = validation.error
       }
     }
 
-    const extraAgents = await getExtraAgents(userAddress as Address, isTestnet)
+    const extraAgents = await getExtraAgents(body.userAddress as Address, isTestnet)
     const derived = deriveState({
-      userAddress,
-      apiWalletAddress,
+      userAddress: body.userAddress,
+      apiWalletAddress: body.apiWalletAddress,
       validationValid,
       validationError,
       extraAgents,
-      lastKnownState: lastKnownState ?? undefined,
+      lastKnownState: body.lastKnownState,
     })
 
     return NextResponse.json({
@@ -78,6 +95,13 @@ export async function GET(request: Request) {
       updatedAt: Date.now(),
     })
   } catch (error) {
-    return NextResponse.json({ error: error instanceof Error ? error.message : "Failed to load agent state" }, { status: 500 })
+    if (error instanceof SyntaxError) {
+      return NextResponse.json(createApiError("BAD_REQUEST", "Invalid request payload"), { status: 400 })
+    }
+
+    return NextResponse.json(
+      createApiError("INTERNAL_ERROR", error instanceof Error ? error.message : "Failed to load agent state"),
+      { status: 500 },
+    )
   }
 }
