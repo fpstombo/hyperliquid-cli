@@ -75,7 +75,9 @@ describe("agent onboarding + status API routes", () => {
     await expect(response.json()).resolves.toMatchObject({
       ok: true,
       state: "pending",
+      status: "pending",
       apiWalletAddress: "0xagent",
+      approvalUrl: "https://app.hyperliquid.xyz/API",
       reason: "Approval request exists but agent is not active yet.",
     })
     expect(mocks.validateApiKeyMock).toHaveBeenCalledWith("0xkey", true)
@@ -211,6 +213,112 @@ describe("agent onboarding + status API routes", () => {
     expect(validateResponse.status).toBe(401)
     expect(extraResponse.status).toBe(401)
     expect(waitResponse.status).toBe(401)
+  })
+
+  it("rejects validate route when authentication context is missing", async () => {
+    mocks.requireApiAuthMock.mockResolvedValue(
+      MockNextResponse.json({ error: { code: "UNAUTHORIZED", message: "Authentication required" } }, { status: 401 }),
+    )
+
+    const response = await postValidate(
+      new Request("http://localhost/api/agent/validate", {
+        method: "POST",
+        body: JSON.stringify({ userAddress: "0xabc", apiPrivateKey: "0xkey" }),
+      }),
+    )
+
+    expect(response.status).toBe(401)
+    await expect(response.json()).resolves.toEqual({
+      error: { code: "UNAUTHORIZED", message: "Authentication required" },
+    })
+  })
+
+  it("rejects validate route for wallet mismatch", async () => {
+    const response = await postValidate(
+      new Request("http://localhost/api/agent/validate", {
+        method: "POST",
+        body: JSON.stringify({ userAddress: "0xdef", apiPrivateKey: "0xkey" }),
+      }),
+    )
+
+    expect(response.status).toBe(403)
+    await expect(response.json()).resolves.toEqual({
+      error: { code: "FORBIDDEN", message: "userAddress must match authenticated wallet" },
+    })
+    expect(mocks.validateApiKeyMock).not.toHaveBeenCalled()
+  })
+
+  it("returns explicit missing status payload when api key is invalid", async () => {
+    mocks.validateApiKeyMock.mockResolvedValue({ valid: false, error: "API key revoked" })
+
+    const response = await postValidate(
+      new Request("http://localhost/api/agent/validate", {
+        method: "POST",
+        body: JSON.stringify({ userAddress: "0xabc", apiPrivateKey: "0xkey" }),
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      state: "missing",
+      status: "missing",
+      reason: "API key revoked",
+      apiWalletAddress: null,
+      approvalUrl: "https://app.hyperliquid.xyz/API",
+    })
+  })
+
+  it("returns explicit missing status payload when key belongs to different master", async () => {
+    mocks.validateApiKeyMock.mockResolvedValue({
+      valid: true,
+      masterAddress: "0xdef",
+      apiWalletAddress: "0xagent",
+    })
+
+    const response = await postValidate(
+      new Request("http://localhost/api/agent/validate", {
+        method: "POST",
+        body: JSON.stringify({ userAddress: "0xabc", apiPrivateKey: "0xkey" }),
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      ok: false,
+      state: "missing",
+      status: "missing",
+      reason: "API key belongs to 0xdef, not 0xabc",
+      apiWalletAddress: "0xagent",
+      approvalUrl: "https://app.hyperliquid.xyz/API",
+    })
+  })
+
+  it("returns explicit active status payload when extra-agent approval is active", async () => {
+    const validUntilSeconds = Math.floor(Date.now() / 1000) + 3600
+    mocks.validateApiKeyMock.mockResolvedValue({
+      valid: true,
+      masterAddress: "0xabc",
+      apiWalletAddress: "0xagent",
+    })
+    mocks.getExtraAgentsMock.mockResolvedValue([{ address: "0xagent", validUntil: validUntilSeconds }])
+
+    const response = await postValidate(
+      new Request("http://localhost/api/agent/validate", {
+        method: "POST",
+        body: JSON.stringify({ userAddress: "0xabc", apiPrivateKey: "0xkey" }),
+      }),
+    )
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toMatchObject({
+      ok: true,
+      state: "active",
+      status: "active",
+      apiWalletAddress: "0xagent",
+      approvalUrl: "https://app.hyperliquid.xyz/API",
+      validUntil: validUntilSeconds * 1000,
+    })
   })
 
   it("enforces session wallet match for validate/extra-agents/wait routes", async () => {

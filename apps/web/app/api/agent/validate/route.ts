@@ -5,6 +5,15 @@ import { createApiError } from "../../../../lib/api-types"
 import { deriveValidateAgentState, missing } from "../../../../lib/agent-state-server"
 import type { Address, Hex } from "viem"
 
+type ValidateStatus = "pending" | "active" | "missing"
+
+function toValidateStatus(state: string): ValidateStatus {
+  if (state === "active" || state === "pending") {
+    return state
+  }
+  return "missing"
+}
+
 export async function POST(request: Request) {
   const auth = await requireApiAuth(request)
   if (auth instanceof Response) {
@@ -29,9 +38,13 @@ export async function POST(request: Request) {
     const validation = await validateApiKey(body.apiPrivateKey as Hex, isTestnet)
 
     if (!validation.valid) {
+      const derived = missing("error" in validation ? validation.error : undefined)
       return NextResponse.json({
         ok: false,
-        ...missing(validation.error),
+        state: derived.state,
+        status: toValidateStatus(derived.state),
+        reason: derived.reason,
+        apiWalletAddress: null,
         approvalUrl: getApprovalUrl(isTestnet),
       })
     }
@@ -39,7 +52,9 @@ export async function POST(request: Request) {
     if (validation.masterAddress.toLowerCase() !== body.userAddress.toLowerCase()) {
       return NextResponse.json({
         ok: false,
-        ...missing(`API key belongs to ${validation.masterAddress}, not ${body.userAddress}`),
+        state: "missing",
+        status: "missing",
+        reason: `API key belongs to ${validation.masterAddress}, not ${body.userAddress}`,
         apiWalletAddress: validation.apiWalletAddress,
         approvalUrl: getApprovalUrl(isTestnet),
       })
@@ -55,6 +70,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       ok: true,
       state: derived.state,
+      status: toValidateStatus(derived.state),
       reason: derived.reason,
       validUntil: derived.validUntil,
       masterAddress: validation.masterAddress,
