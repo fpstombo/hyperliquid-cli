@@ -26,6 +26,7 @@ export type DashboardOrderVm = {
   side: string
   size: string
   limitPrice: string
+  timestamp: number
 }
 
 export type DashboardSecondaryItemVm = {
@@ -133,6 +134,7 @@ export function buildDashboardViewModel(params: {
       side: order.side,
       size: order.sz,
       limitPrice: order.limitPx,
+      timestamp: order.timestamp,
     })),
     opportunities: summarizeBalances(balances),
     intents: summarizeOrderContext(orders),

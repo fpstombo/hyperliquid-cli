@@ -1,51 +1,94 @@
-import type { ReactNode } from "react"
+import type { CSSProperties, ReactNode } from "react"
+
+type TableDensity = "compact" | "regular"
 
 type TableColumn<T> = {
-  key: keyof T
+  key: keyof T | string
   header: string
   align?: "left" | "right"
-  render?: (row: T) => ReactNode
+  className?: string
+  width?: CSSProperties["width"]
+  minWidth?: CSSProperties["minWidth"]
+  render?: (row: T, index: number) => ReactNode
 }
 
-type TableProps<T extends { id?: string | number }> = {
+type TableRowRenderer<T> = (params: { index: number; row: T | undefined }) => ReactNode
+
+type TableProps<T> = {
   columns: TableColumn<T>[]
-  rows: T[]
+  rows?: T[]
+  rowKey?: (row: T, index: number) => string | number
   emptyState?: string
+  stickyHeader?: boolean
+  density?: TableDensity
+  itemCount?: number
+  itemSize?: number
+  rowRenderer?: TableRowRenderer<T>
 }
 
-export function Table<T extends { id?: string | number }>({ columns, rows, emptyState = "No data available." }: TableProps<T>) {
+export function Table<T>({
+  columns,
+  rows = [],
+  rowKey,
+  emptyState = "No data available.",
+  stickyHeader = true,
+  density = "compact",
+  itemCount,
+  itemSize,
+  rowRenderer,
+}: TableProps<T>) {
+  const resolvedItemCount = itemCount ?? rows.length
+  const resolvedRowHeight = itemSize ?? (density === "compact" ? 40 : 48)
+
   return (
     <div className="table-wrap">
-      <table className="table">
+      <table className={`table table--${density} ${stickyHeader ? "table--sticky-header" : ""}`}>
         <thead>
           <tr>
             {columns.map((column) => (
-              <th key={String(column.key)} style={{ textAlign: column.align ?? "left" }}>
+              <th
+                key={String(column.key)}
+                className={column.className}
+                style={{ textAlign: column.align ?? "left", width: column.width, minWidth: column.minWidth }}
+              >
                 {column.header}
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {rows.length === 0 ? (
+          {resolvedItemCount === 0 ? (
             <tr>
               <td className="table-empty" colSpan={columns.length}>
                 {emptyState}
               </td>
             </tr>
           ) : (
-            rows.map((row, index) => (
-              <tr key={row.id ?? index}>
-                {columns.map((column) => (
-                  <td key={String(column.key)} style={{ textAlign: column.align ?? "left" }}>
-                    {column.render ? column.render(row) : String(row[column.key])}
-                  </td>
-                ))}
-              </tr>
-            ))
+            Array.from({ length: resolvedItemCount }, (_, index) => {
+              const row = rows[index]
+              if (rowRenderer) {
+                return rowRenderer({ index, row })
+              }
+
+              if (!row) {
+                return null
+              }
+
+              return (
+                <tr key={rowKey ? rowKey(row, index) : index} style={{ height: `${resolvedRowHeight}px` }}>
+                  {columns.map((column) => (
+                    <td key={String(column.key)} className={column.className} style={{ textAlign: column.align ?? "left" }}>
+                      {column.render ? column.render(row, index) : String((row as Record<string, unknown>)[column.key as string] ?? "")}
+                    </td>
+                  ))}
+                </tr>
+              )
+            })
           )}
         </tbody>
       </table>
     </div>
   )
 }
+
+export type { TableColumn, TableDensity, TableProps, TableRowRenderer }
