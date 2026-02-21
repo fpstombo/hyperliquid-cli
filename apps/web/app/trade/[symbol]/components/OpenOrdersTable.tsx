@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useAuth } from "../../../../../components/providers"
+import { useAuth } from "../../../../components/providers"
 
 type Order = {
   oid: number
