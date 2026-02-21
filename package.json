@@ -43,7 +43,8 @@
     "prepublishOnly": "pnpm build",
     "web:dev": "pnpm --filter @hyperliquid/web dev",
     "web:build": "pnpm --filter @hyperliquid/web build",
-    "web:lint": "pnpm --filter @hyperliquid/web lint"
+    "web:lint": "pnpm --filter @hyperliquid/web lint",
+    "web:session-token": "pnpm --filter @hyperliquid/web dev:session-token"
   },
   "workspaces": [
     "apps/*"

@@ -454,6 +454,7 @@ Use this flow if you want to verify protected routes locally without a real Priv
 # from repo root
 cd /workspace/hyperliquid-cli
 pnpm install
+git pull --rebase
 
 # tell the client provider to run in no-Privy mode
 export NEXT_PUBLIC_DISABLE_PRIVY=true
@@ -462,16 +463,19 @@ export NEXT_PUBLIC_DISABLE_PRIVY=true
 export PRIVY_SESSION_SECRET="dev-secret-please-change-me"
 
 # mint a valid hl_session token from web workspace deps
-pnpm --filter web dev:session-token
+pnpm --filter @hyperliquid/web dev:session-token
+
+# (optional) equivalent shortcuts from repo root
+pnpm web:session-token
 
 # start the web app
-pnpm --filter web dev
+pnpm --filter @hyperliquid/web dev
 ```
 
 Then in browser DevTools for `http://localhost:3000`, create cookie:
 
 - **Name:** `hl_session`
-- **Value:** token printed by `pnpm --filter web dev:session-token`
+- **Value:** token printed by `pnpm --filter @hyperliquid/web dev:session-token`
 - **Path:** `/`
 
 Refresh `/dashboard` or `/trade/BTC`.
