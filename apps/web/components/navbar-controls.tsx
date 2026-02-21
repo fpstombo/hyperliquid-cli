@@ -1,20 +1,9 @@
 "use client"
 
-import type { CSSProperties } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { shortenAddress } from "../lib/auth"
 import { useAuth } from "./providers"
-
-const buttonStyle: CSSProperties = {
-  border: "1px solid #3a4a78",
-  borderRadius: "0.6rem",
-  background: "#101628",
-  color: "#e5ecff",
-  padding: "0.35rem 0.65rem",
-  fontSize: "0.85rem",
-  cursor: "pointer",
-}
 
 export function NavbarControls() {
   const pathname = usePathname()
@@ -25,6 +14,7 @@ export function NavbarControls() {
   const nextParam = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "")
 
   const isMainnet = session.environment === "mainnet"
+  const symbolContext = pathname?.startsWith("/trade/") ? pathname.split("/")[2]?.toUpperCase() : null
 
   const handleLogin = () => {
     login()
@@ -37,33 +27,50 @@ export function NavbarControls() {
   }
 
   return (
-    <div style={{ marginLeft: "auto", display: "flex", gap: "0.55rem", alignItems: "center", flexWrap: "wrap" }}>
-      <span className="pill">{ready ? shortenAddress(session.walletAddress) : "Loading session…"}</span>
-      <span className="pill">{session.chainName}</span>
-      <button style={buttonStyle} onClick={() => void switchChain()} type="button">
-        Switch chain
-      </button>
-      <button style={buttonStyle} onClick={() => switchEnvironment(isMainnet ? "testnet" : "mainnet")} type="button">
-        {isMainnet ? "Use testnet" : "Use mainnet"}
-      </button>
-      {isMainnet ? <span className="warning-pill">Mainnet is live. Double-check every order.</span> : <span className="ok-pill">Testnet mode</span>}
-      <button style={buttonStyle} onClick={() => void connectWallet()} type="button">
-        Connect wallet
-      </button>
-      {session.authenticated ? (
-        <button style={buttonStyle} onClick={handleLogout} type="button">
-          Logout
+    <div className="top-nav-controls">
+      <div className="top-nav-slot" aria-label="Symbol context">
+        <span className="top-nav-slot-label">Symbol</span>
+        <span className="pill">{symbolContext ?? "Global"}</span>
+      </div>
+
+      <div className="top-nav-slot" aria-label="Session and health">
+        <span className="top-nav-slot-label">Session</span>
+        <span className="pill">{ready ? shortenAddress(session.walletAddress) : "Loading session…"}</span>
+        <span className="pill">{session.chainName}</span>
+        <span className="ok-pill">API healthy</span>
+      </div>
+
+      <div className="top-nav-slot" aria-label="Environment">
+        <span className="top-nav-slot-label">Mode</span>
+        <span className="sim-pill">SIM</span>
+        {isMainnet ? <span className="warning-pill">Mainnet live</span> : <span className="ok-pill">Testnet</span>}
+      </div>
+
+      <div className="top-nav-actions">
+        <button className="top-nav-button" onClick={() => void switchChain()} type="button">
+          Switch chain
         </button>
-      ) : (
-        <>
-          <button style={buttonStyle} onClick={handleLogin} type="button">
-            Login
+        <button className="top-nav-button" onClick={() => switchEnvironment(isMainnet ? "testnet" : "mainnet")} type="button">
+          {isMainnet ? "Use testnet" : "Use mainnet"}
+        </button>
+        <button className="top-nav-button" onClick={() => void connectWallet()} type="button">
+          Connect wallet
+        </button>
+        {session.authenticated ? (
+          <button className="top-nav-button" onClick={handleLogout} type="button">
+            Logout
           </button>
-          <Link className="muted" href={`/auth?next=${encodeURIComponent(nextParam)}`}>
-            Auth flow
-          </Link>
-        </>
-      )}
+        ) : (
+          <>
+            <button className="top-nav-button" onClick={handleLogin} type="button">
+              Login
+            </button>
+            <Link className="muted top-nav-auth-link" href={`/auth?next=${encodeURIComponent(nextParam)}`}>
+              Auth flow
+            </Link>
+          </>
+        )}
+      </div>
     </div>
   )
 }
