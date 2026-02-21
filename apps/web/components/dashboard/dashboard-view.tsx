@@ -1,21 +1,13 @@
+import { ExposureValue } from "../ui/ExposureValue"
 import { PanelShell } from "../ui/PanelShell"
+import { PnlValue } from "../ui/PnlValue"
 import { StatusBadge } from "../ui/StatusBadge"
 import { Table, type TableColumn } from "../ui/table"
+import { formatTimestamp } from "../../lib/formatters"
 import type { DashboardOrderVm, DashboardPositionVm, DashboardViewModel } from "./dashboard-view-model"
 
 type DashboardViewProps = {
   model: DashboardViewModel
-}
-
-function formatTimestamp(timestamp: number): string {
-  return new Date(timestamp).toLocaleString("en-US", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  })
 }
 
 const positionColumns: TableColumn<DashboardPositionVm>[] = [
@@ -28,6 +20,7 @@ const positionColumns: TableColumn<DashboardPositionVm>[] = [
     width: 130,
     minWidth: 120,
     className: "table-col--numeric",
+    render: (position) => <PnlValue value={position.unrealizedPnl} />,
   },
 ]
 
@@ -68,7 +61,10 @@ export function DashboardView({ model }: DashboardViewProps) {
       <section className="dashboard-status-row">
         <StatusBadge variant="neutral">Session {model.status.session}</StatusBadge>
         <StatusBadge variant="sim">{model.status.mode}</StatusBadge>
+        <StatusBadge variant={model.status.connectionTone}>{model.status.connection}</StatusBadge>
         <StatusBadge variant={model.status.apiHealthTone}>{model.status.apiHealth}</StatusBadge>
+        <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>
+        <span className="dashboard-status-hint muted">Updated {model.status.updatedHint}</span>
       </section>
 
       <section className="dashboard-metrics-grid">
@@ -78,11 +74,15 @@ export function DashboardView({ model }: DashboardViewProps) {
         </article>
         <article className="dashboard-metric-card">
           <p className="dashboard-metric-label">{model.metrics.unrealizedPnl.label}</p>
-          <p className="dashboard-metric-value">{model.metrics.unrealizedPnl.value}</p>
+          <p className="dashboard-metric-value">
+            <PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} />
+          </p>
         </article>
         <article className="dashboard-metric-card">
           <p className="dashboard-metric-label">{model.metrics.exposure.label}</p>
-          <p className="dashboard-metric-value">{model.metrics.exposure.value}</p>
+          <p className="dashboard-metric-value">
+            <ExposureValue value={model.metrics.exposure.rawValue ?? 0} />
+          </p>
         </article>
       </section>
 

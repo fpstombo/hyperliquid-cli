@@ -7,6 +7,8 @@ export interface PollingState<T> {
   isLoading: boolean
   isRefreshing: boolean
   error: string | null
+  lastSuccessAt: number | null
+  lastAttemptAt: number | null
   retry: () => Promise<void>
 }
 
@@ -40,9 +42,12 @@ export function usePollingResource<T>({
   const [isLoading, setIsLoading] = useState(true)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [lastSuccessAt, setLastSuccessAt] = useState<number | null>(null)
+  const [lastAttemptAt, setLastAttemptAt] = useState<number | null>(null)
   const mountedRef = useRef(true)
 
   const refresh = useCallback(async () => {
+    setLastAttemptAt(Date.now())
     setIsRefreshing(true)
     try {
       const nextData = await fetcher()
@@ -51,6 +56,7 @@ export function usePollingResource<T>({
       }
       setData(nextData)
       setError(null)
+      setLastSuccessAt(Date.now())
     } catch (err) {
       if (!mountedRef.current) {
         return
@@ -87,6 +93,8 @@ export function usePollingResource<T>({
     isLoading,
     isRefreshing,
     error,
+    lastSuccessAt,
+    lastAttemptAt,
     retry: refresh,
   }
 }

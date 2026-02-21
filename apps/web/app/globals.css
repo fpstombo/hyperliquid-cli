@@ -830,6 +830,34 @@ button {
   color: var(--fg-primary);
 }
 
+
+.ui-pnl-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.ui-exposure-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding-left: 0.45rem;
+  border-left: 2px solid var(--border);
+  font-size: clamp(1rem, 2vw, 1.15rem);
+}
+
+.ui-exposure-value--low {
+  border-left-color: color-mix(in srgb, var(--fg-muted) 55%, var(--border));
+}
+
+.ui-exposure-value--medium {
+  border-left-color: color-mix(in srgb, var(--semantic-warning) 55%, var(--border));
+}
+
+.ui-exposure-value--high {
+  border-left-color: color-mix(in srgb, var(--semantic-negative) 50%, var(--border));
+}
+
 .ui-skeleton-block {
   border-radius: var(--radius-sm);
   background: linear-gradient(
@@ -984,6 +1012,11 @@ button {
   flex-wrap: wrap;
   gap: var(--space-2);
   margin-top: var(--space-1);
+}
+
+.dashboard-status-hint {
+  font-size: var(--text-xs);
+  align-self: center;
 }
 
 .dashboard-metrics-grid {

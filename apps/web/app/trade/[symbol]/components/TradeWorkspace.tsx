@@ -1,6 +1,8 @@
 "use client"
 
 import { useMemo, useState } from "react"
+import { PnlValue } from "../../../../components/ui"
+import { formatMagnitude } from "../../../../lib/formatters"
 import { OpenOrdersTable } from "./OpenOrdersTable"
 import { OrderTicket } from "./OrderTicket"
 
@@ -22,7 +24,7 @@ const mockPosition = {
   size: "0.42",
   entry: "102,145",
   liq: "98,430",
-  pnl: "+124.80",
+  pnl: 124.8,
 }
 
 export function TradeWorkspace({ symbol }: { symbol: string }) {
@@ -30,7 +32,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
   const spread = useMemo(() => {
     const bestBid = Number(mockBook.bids[0][0].replaceAll(",", ""))
     const bestAsk = Number(mockBook.asks[0][0].replaceAll(",", ""))
-    return (bestAsk - bestBid).toFixed(0)
+    return bestAsk - bestBid
   }, [])
 
   return (
@@ -50,7 +52,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
         <header className="trade-section-header">
           <h2>Market & Depth</h2>
           <div className="trade-meta-bar">
-            <span>Spread {spread}</span>
+            <span>Spread {formatMagnitude(spread)}</span>
             <span>Best Bid {mockBook.bids[0][0]}</span>
             <span>Best Ask {mockBook.asks[0][0]}</span>
           </div>
@@ -87,7 +89,9 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           <div className="trade-meta-bar">
             <span>Position {mockPosition.side}</span>
             <span>Size {mockPosition.size}</span>
-            <span>PNL {mockPosition.pnl}</span>
+            <span>
+              PNL <PnlValue value={mockPosition.pnl} />
+            </span>
           </div>
         </header>
 
