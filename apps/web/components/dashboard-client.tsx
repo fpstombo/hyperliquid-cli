@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useMemo, useState } from "react"
 import { Toast } from "./Toast"
 import { useBalances, useOrders, usePositions } from "../lib/hooks/use-dashboard-data"
 import { useAuth } from "./providers"
@@ -13,9 +13,9 @@ export function DashboardClient() {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const { session } = useAuth()
 
-  const onTransientError = (message: string) => {
+  const onTransientError = useCallback((message: string) => {
     setToastMessage(`Transient API issue: ${message}`)
-  }
+  }, [])
 
   const balances = useBalances(onTransientError)
   const positions = usePositions(onTransientError)
@@ -32,16 +32,20 @@ export function DashboardClient() {
     null,
   )
 
-  const model = buildDashboardViewModel({
-    balances: balances.data,
-    positions: positions.data,
-    orders: orders.data,
-    session,
-    apiHealthy: !error,
-    stale,
-    lastSuccessAt,
-    pollMs: DASHBOARD_POLL_MS,
-  })
+  const model = useMemo(
+    () =>
+      buildDashboardViewModel({
+        balances: balances.data,
+        positions: positions.data,
+        orders: orders.data,
+        session,
+        apiHealthy: !error,
+        stale,
+        lastSuccessAt,
+        pollMs: DASHBOARD_POLL_MS,
+      }),
+    [balances.data, error, lastSuccessAt, orders.data, positions.data, session, stale],
+  )
 
   return (
     <main className="grid">
@@ -52,9 +56,7 @@ export function DashboardClient() {
         </p>
       </section>
 
-      <DashboardView model={model} />
-
-      {loading ? <section className="card">Loading account data…</section> : null}
+      <DashboardView model={model} isInitialLoading={loading} />
 
       {error ? (
         <section className="card">

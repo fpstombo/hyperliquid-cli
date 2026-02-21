@@ -1,4 +1,8 @@
-import { TradeClient } from "../../../components/trade-client"
+import dynamic from "next/dynamic"
+
+const TradeClient = dynamic(() => import("../../../components/trade-client").then((module) => module.TradeClient), {
+  ssr: false,
+})
 
 type TradePageProps = {
   params: {
