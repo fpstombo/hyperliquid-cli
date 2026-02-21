@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { fetchPrices } from "../../../../../src/lib/web-readonly-adapter"
+import { fetchPrices } from "../../../lib/web-readonly-adapter"
 import { createRouteRuntimeConfig, requireApiAuth } from "../../../lib/api-auth"
 import { createApiError, type PricesResponse } from "../../../lib/api-types"
 

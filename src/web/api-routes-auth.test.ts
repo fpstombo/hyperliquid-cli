@@ -44,7 +44,7 @@ vi.mock("/workspace/hyperliquid-cli/apps/web/lib/api-auth.ts", () => ({
   verifyAuthorizedTradingAccount: mocks.verifyAuthorizedTradingAccountMock,
 }))
 
-vi.mock("/workspace/hyperliquid-cli/src/lib/web-readonly-adapter.ts", () => ({
+vi.mock("/workspace/hyperliquid-cli/apps/web/lib/web-readonly-adapter.ts", () => ({
   fetchBalances: mocks.fetchBalancesMock,
 }))
 

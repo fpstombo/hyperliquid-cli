@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { fetchPositions } from "../../../../../src/lib/web-readonly-adapter"
+import { fetchPositions } from "../../../lib/web-readonly-adapter"
 import { createRouteRuntimeConfig, requireApiAuth } from "../../../lib/api-auth"
 import { createApiError, type PositionsResponse } from "../../../lib/api-types"
 
