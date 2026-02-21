@@ -451,28 +451,29 @@ hl --help
 Use this flow if you want to verify protected routes locally without a real Privy App ID.
 
 ```bash
-# from repo root
 cd /workspace/hyperliquid-cli
 pnpm install
-
-# update branch only if working tree is clean
-# (if this fails, run: git stash -u && git pull --rebase && git stash pop)
 git pull --rebase
 
-# tell the client provider to run in no-Privy mode
 export NEXT_PUBLIC_DISABLE_PRIVY=true
-
-# required for signing/verifying the local session JWT
 export PRIVY_SESSION_SECRET="dev-secret-please-change-me"
 
-# mint a valid hl_session token (choose ONE)
-# A) root shortcut (available on latest branch)
 pnpm web:session-token
-# B) explicit workspace script (works even if root shortcut is missing)
-pnpm --filter @hyperliquid/web dev:session-token
-
-# start the web app
 pnpm --filter @hyperliquid/web dev
+```
+
+If `git pull --rebase` fails because of local edits, run:
+
+```bash
+git stash -u
+git pull --rebase
+git stash pop
+```
+
+If `pnpm web:session-token` is unavailable on an older branch, run:
+
+```bash
+pnpm --filter @hyperliquid/web dev:session-token
 ```
 
 Then in browser DevTools for `http://localhost:3000`, create cookie:

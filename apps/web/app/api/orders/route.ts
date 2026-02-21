@@ -33,6 +33,20 @@ export async function GET(request: Request) {
 
     return NextResponse.json(response)
   } catch (error) {
+    if (error instanceof Error && error.message.includes("No trading account resolved")) {
+      const response: OrdersResponse = {
+        orders: [],
+        updatedAt: new Date().toISOString(),
+        context: {
+          environment: auth.environment,
+          user: auth.tradingAccount,
+          accountSource: "environment_variables",
+          accountAlias: null,
+        },
+      }
+      return NextResponse.json(response)
+    }
+
     const body = toApiError(error)
     return NextResponse.json(body, { status: 400 })
   }
