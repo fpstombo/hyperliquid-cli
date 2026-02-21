@@ -24,6 +24,51 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null)
 
+function NoPrivyAuthContextProvider({ children }: { children: ReactNode }) {
+  const [environment, setEnvironment] = useState<AppEnvironment>(DEFAULT_SESSION.environment)
+  const [chainId, setChainId] = useState<number>(DEFAULT_SESSION.chainId)
+
+  const switchEnvironment = useCallback((nextEnvironment: AppEnvironment) => {
+    setEnvironment(nextEnvironment)
+    setChainId(nextEnvironment === "mainnet" ? 42161 : 421614)
+  }, [])
+
+  const switchChain = useCallback(async () => {
+    const nextChain = chainId === 42161 ? 421614 : 42161
+    setChainId(nextChain)
+    setEnvironment(nextChain === 42161 ? "mainnet" : "testnet")
+  }, [chainId])
+
+  const logout = useCallback(async () => {
+    await fetch("/api/auth/session", { method: "DELETE", credentials: "include" })
+  }, [])
+
+  const session = useMemo<SessionState>(
+    () => ({
+      ...DEFAULT_SESSION,
+      chainId,
+      chainName: chainId === 42161 ? "Arbitrum" : "Arbitrum Sepolia",
+      environment,
+    }),
+    [chainId, environment],
+  )
+
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      ready: true,
+      session,
+      login: () => undefined,
+      logout,
+      connectWallet: () => undefined,
+      switchEnvironment,
+      switchChain,
+    }),
+    [logout, session, switchChain, switchEnvironment],
+  )
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}
+
 function AuthContextProvider({ children }: { children: ReactNode }) {
   const { ready, authenticated, user, login, logout, connectWallet, getAccessToken } = usePrivy()
   const [environment, setEnvironment] = useState<AppEnvironment>(DEFAULT_SESSION.environment)
@@ -93,9 +138,15 @@ function AuthContextProvider({ children }: { children: ReactNode }) {
 
 export function AppPrivyProvider({ children }: { children: ReactNode }) {
   const appId = process.env.NEXT_PUBLIC_PRIVY_APP_ID
+  const disablePrivy = process.env.NEXT_PUBLIC_DISABLE_PRIVY === "true"
+  const isLocalPlaceholderAppId = !appId || appId.startsWith("local-") || appId === "test"
+
+  if (disablePrivy || (process.env.NODE_ENV !== "production" && isLocalPlaceholderAppId)) {
+    return <NoPrivyAuthContextProvider>{children}</NoPrivyAuthContextProvider>
+  }
 
   if (!appId) {
-    throw new Error("Missing NEXT_PUBLIC_PRIVY_APP_ID")
+    throw new Error("Missing NEXT_PUBLIC_PRIVY_APP_ID (or set NEXT_PUBLIC_DISABLE_PRIVY=true for local dev)")
   }
 
   return (
