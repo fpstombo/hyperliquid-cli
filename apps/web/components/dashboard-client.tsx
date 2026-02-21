@@ -23,6 +23,7 @@ export function DashboardClient() {
 
   const loading = balances.isLoading || positions.isLoading || orders.isLoading
   const error = balances.error ?? positions.error ?? orders.error
+  const stale = balances.isStale || positions.isStale || orders.isStale
   const lastSuccessAt = [balances.lastSuccessAt, positions.lastSuccessAt, orders.lastSuccessAt].reduce<number | null>(
     (latest, timestamp) => {
       if (!timestamp) return latest
@@ -37,6 +38,7 @@ export function DashboardClient() {
     orders: orders.data,
     session,
     apiHealthy: !error,
+    stale,
     lastSuccessAt,
     pollMs: DASHBOARD_POLL_MS,
   })
