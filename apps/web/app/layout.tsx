@@ -1,7 +1,9 @@
 import type { Metadata } from "next"
 import Link from "next/link"
+import { AppKeyboardShortcuts } from "../components/app-keyboard-shortcuts"
 import { NavbarControls } from "../components/navbar-controls"
 import { AppPrivyProvider } from "../components/providers"
+import { SymbolQuickSwitcher } from "../components/symbol-quick-switcher"
 import "./globals.css"
 
 const navItems = [
@@ -23,6 +25,7 @@ export default function RootLayout({ children }: { children: import("react").Rea
     <html lang="en">
       <body>
         <AppPrivyProvider>
+          <AppKeyboardShortcuts />
           <div className="app-shell">
             <header className="top-nav shell-surface" role="banner">
               <div className="top-nav-inner">
@@ -64,6 +67,7 @@ export default function RootLayout({ children }: { children: import("react").Rea
                       </button>
                     </div>
                   </section>
+                  <SymbolQuickSwitcher />
                 </aside>
 
                 <main className="content-panel">{children}</main>

@@ -42,7 +42,7 @@ export function NavbarControls() {
 
       <div className="top-nav-slot" aria-label="Environment">
         <span className="top-nav-slot-label">Mode</span>
-        <span className="sim-pill">SIM</span>
+        <span className="sim-pill" role="status" aria-label="Simulation mode badge">SIM</span>
         {isMainnet ? <span className="warning-pill">Mainnet live</span> : <span className="ok-pill">Testnet</span>}
       </div>
 

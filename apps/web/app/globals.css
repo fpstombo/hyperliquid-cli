@@ -104,6 +104,17 @@ body {
     filter var(--motion-normal) ease;
 }
 
+
+:where(a, button, input, select, summary, .top-nav-link, .sidebar-link, .top-nav-button, .cta, .button):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 2px rgb(5 7 13 / 85%), 0 0 0 4px rgb(82 192 255 / 55%);
+}
+
+:where(button, .top-nav-button, .sidebar-link-button, .cta, .button):not(:disabled) {
+  border-color: color-mix(in srgb, var(--border-strong) 75%, var(--accent));
+}
+
 :where(.metric, .table td, .table th, .input, input, select) {
   font-variant-numeric: var(--numeric-figure);
 }
@@ -288,6 +299,46 @@ a {
   background: transparent;
   font: inherit;
   cursor: pointer;
+}
+
+
+
+.sidebar-shortcuts {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-subtle);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sidebar-shortcuts-form {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.sidebar-shortcuts-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+.inline-disclosure {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  padding: var(--space-2);
+  background: color-mix(in srgb, var(--surface-base) 85%, black);
+}
+
+.inline-disclosure summary {
+  cursor: pointer;
+  color: var(--fg-secondary);
+  font-weight: 600;
+}
+
+.inline-disclosure p {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
 }
 
 .content-panel {
