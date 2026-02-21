@@ -3,6 +3,7 @@ import { PanelShell } from "../ui/PanelShell"
 import { PnlValue } from "../ui/PnlValue"
 import { StatusBadge } from "../ui/StatusBadge"
 import { Table, type TableColumn } from "../ui/table"
+import { ValueFlash } from "../ui/ValueFlash"
 import { formatTimestamp } from "../../lib/formatters"
 import type { DashboardOrderVm, DashboardPositionVm, DashboardViewModel } from "./dashboard-view-model"
 
@@ -70,18 +71,18 @@ export function DashboardView({ model }: DashboardViewProps) {
       <section className="dashboard-metrics-grid">
         <article className="dashboard-metric-card">
           <p className="dashboard-metric-label">{model.metrics.equity.label}</p>
-          <p className="dashboard-metric-value">{model.metrics.equity.value}</p>
+          <p className="dashboard-metric-value"><ValueFlash value={model.metrics.equity.value}>{model.metrics.equity.value}</ValueFlash></p>
         </article>
         <article className="dashboard-metric-card">
           <p className="dashboard-metric-label">{model.metrics.unrealizedPnl.label}</p>
           <p className="dashboard-metric-value">
-            <PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} />
+            <ValueFlash value={model.metrics.unrealizedPnl.rawValue ?? 0}><PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} /></ValueFlash>
           </p>
         </article>
         <article className="dashboard-metric-card">
           <p className="dashboard-metric-label">{model.metrics.exposure.label}</p>
           <p className="dashboard-metric-value">
-            <ExposureValue value={model.metrics.exposure.rawValue ?? 0} />
+            <ValueFlash value={model.metrics.exposure.rawValue ?? 0}><ExposureValue value={model.metrics.exposure.rawValue ?? 0} /></ValueFlash>
           </p>
         </article>
       </section>

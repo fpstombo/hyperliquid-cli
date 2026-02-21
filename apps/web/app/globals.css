@@ -1092,3 +1092,14 @@ button {
     grid-column: 1 / -1;
   }
 }
+
+.value-flash {
+  display: inline-block;
+  transition: color 220ms ease, text-shadow 280ms ease;
+  will-change: color, text-shadow;
+}
+
+.value-flash--active {
+  color: color-mix(in srgb, var(--fg-primary) 72%, #9ad8ff);
+  text-shadow: 0 0 10px rgb(82 192 255 / 32%);
+}

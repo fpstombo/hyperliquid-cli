@@ -79,8 +79,8 @@ function summarizeOrderContext(orders?: OrdersResponse | null): DashboardSeconda
   ]
 }
 
-function getFreshness(lastSuccessAt: number | null, pollMs: number): { label: "Fresh" | "Stale"; tone: "positive" | "warning" } {
-  if (!lastSuccessAt) {
+function getFreshness(lastSuccessAt: number | null, pollMs: number, stale: boolean): { label: "Fresh" | "Stale"; tone: "positive" | "warning" } {
+  if (stale || !lastSuccessAt) {
     return { label: "Stale", tone: "warning" }
   }
 
@@ -94,17 +94,18 @@ export function buildDashboardViewModel(params: {
   orders?: OrdersResponse | null
   session: SessionState
   apiHealthy: boolean
+  stale: boolean
   lastSuccessAt: number | null
   pollMs: number
 }): DashboardViewModel {
-  const { balances, positions, orders, session, apiHealthy, lastSuccessAt, pollMs } = params
+  const { balances, positions, orders, session, apiHealthy, stale, lastSuccessAt, pollMs } = params
 
   const totalUnrealized = (positions?.positions ?? []).reduce((sum, position) => sum + parseNumber(position.unrealizedPnl), 0)
   const totalExposure = (positions?.positions ?? []).reduce(
     (sum, position) => sum + Math.abs(parseNumber(position.positionValue)),
     0,
   )
-  const freshness = getFreshness(lastSuccessAt, pollMs)
+  const freshness = getFreshness(lastSuccessAt, pollMs, stale)
 
   return {
     status: {
