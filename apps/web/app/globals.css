@@ -132,23 +132,34 @@ a {
   min-height: 100vh;
 }
 
+.shell-surface {
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 6px 24px rgb(2 7 18 / 28%);
+}
+
 .top-nav {
-  position: sticky;
+  position: fixed;
   top: 0;
-  z-index: 50;
-  border-bottom: 1px solid var(--border);
-  background: rgb(6 10 19 / 92%);
-  backdrop-filter: blur(8px);
+  left: 0;
+  right: 0;
+  z-index: 60;
+  background: rgb(6 10 19 / 94%);
+  backdrop-filter: blur(10px);
 }
 
 .top-nav-inner {
   margin: 0 auto;
-  max-width: 1400px;
+  width: min(1520px, 100%);
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) clamp(var(--space-4), 2vw, var(--space-5));
+}
+
+.brand-wrap {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: var(--space-4);
-  padding: var(--space-4) var(--space-5);
 }
 
 .brand {
@@ -157,7 +168,7 @@ a {
 
 .top-nav-links {
   display: flex;
-  gap: var(--space-3);
+  gap: var(--space-2);
 }
 
 .top-nav-link {
@@ -171,23 +182,74 @@ a {
   color: var(--fg-primary);
 }
 
+.top-nav-controls {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.top-nav-slot {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-base) 82%, black);
+}
+
+.top-nav-slot-label {
+  color: var(--fg-muted);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.top-nav-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.top-nav-button {
+  border: 1px solid #3a4a78;
+  border-radius: 0.6rem;
+  background: #101628;
+  color: #e5ecff;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.85rem;
+}
+
+.top-nav-auth-link {
+  padding: var(--space-1) var(--space-2);
+}
+
+.shell-grid-wrap {
+  padding: calc(82px + clamp(var(--space-4), 2vw, var(--space-5))) clamp(var(--space-4), 2vw, var(--space-5))
+    clamp(var(--space-4), 2vw, var(--space-5));
+}
+
 .shell-grid {
   margin: 0 auto;
-  max-width: 1400px;
+  width: min(1520px, 100%);
   display: grid;
-  grid-template-columns: 240px minmax(0, 1fr);
-  gap: var(--space-5);
-  padding: var(--space-5);
+  grid-template-columns: 252px minmax(0, 1fr);
+  gap: clamp(var(--space-4), 2vw, var(--space-5));
 }
 
 .sidebar {
-  border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--surface-base);
   padding: var(--space-4);
   height: fit-content;
   position: sticky;
-  top: 86px;
+  top: calc(82px + var(--space-4));
+  max-height: calc(100vh - 110px);
+  overflow: auto;
 }
 
 .sidebar-section + .sidebar-section {
@@ -230,6 +292,20 @@ a {
 
 .content-panel {
   min-width: 0;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-subtle);
+  background: color-mix(in srgb, var(--surface-base) 92%, black);
+  box-shadow: 0 8px 26px rgb(2 7 18 / 24%);
+  padding: clamp(var(--space-4), 2vw, var(--space-5));
+}
+
+.grid {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.columns-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .page-header {
@@ -488,28 +564,36 @@ a {
 }
 
 @media (max-width: 720px) {
-  .top-nav-inner,
-  .shell-grid {
-    padding: var(--space-4);
+  .top-nav-inner {
+    grid-template-columns: 1fr;
+    justify-items: start;
   }
 
-  .top-nav-inner,
-  .page-header {
-    flex-direction: column;
-    align-items: flex-start;
+  .top-nav-controls {
+    margin-left: 0;
+    justify-content: flex-start;
   }
 
   .top-nav-links {
     width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .shell-grid-wrap {
+    padding-top: 230px;
   }
 
   .stats-grid,
-  .split-grid {
+  .split-grid,
+  .columns-3,
+  .trade-layout {
     grid-template-columns: 1fr;
   }
 
+  .page-header,
   .button-row {
     flex-direction: column;
+    align-items: flex-start;
   }
 }
 
@@ -647,9 +731,10 @@ button {
 
 /* UI primitives */
 .ui-panel-shell {
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  background: var(--surface-base);
+  background: color-mix(in srgb, var(--surface-base) 94%, black);
+  box-shadow: 0 4px 18px rgb(2 7 18 / 22%);
   padding: var(--space-4);
   display: grid;
   gap: var(--space-4);

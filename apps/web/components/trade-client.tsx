@@ -24,7 +24,7 @@ export function TradeClient({ symbol }: TradeClientProps) {
   )
 
   return (
-    <main className="grid" style={{ gridTemplateColumns: "2fr 1fr" }}>
+    <main className="grid trade-layout">
       <section className="card">
         <h1 style={{ marginTop: 0 }}>{symbol} Market Snapshot</h1>
 
