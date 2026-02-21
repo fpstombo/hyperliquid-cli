@@ -1,17 +1,30 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { Toast } from "./Toast"
 import { useSymbolPrice, useTradeOrders } from "../lib/hooks/use-trade-data"
 import { useDebouncedValue } from "../lib/hooks/use-debounced-value"
 import { StatusBadge } from "./ui/StatusBadge"
 import { ValueFlash } from "./ui/ValueFlash"
+import { SkeletonBlock } from "./ui/SkeletonBlock"
+import type { OrderItem } from "../lib/api-types"
 
 type TradeClientProps = {
   symbol: string
 }
 
 const SORT_FREEZE_WINDOW_MS = 3000
+
+const TradeOrderRow = memo(function TradeOrderRow({ order }: { order: OrderItem }) {
+  return (
+    <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <span>
+        #{order.oid} · {order.side} · {order.sz}
+      </span>
+      <ValueFlash value={`${order.oid}:${order.limitPx}`}>{order.limitPx}</ValueFlash>
+    </div>
+  )
+})
 
 export function TradeClient({ symbol }: TradeClientProps) {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
@@ -20,9 +33,9 @@ export function TradeClient({ symbol }: TradeClientProps) {
   const [displayedOrderIds, setDisplayedOrderIds] = useState<number[]>([])
   const debouncedSearch = useDebouncedValue(search, 300)
 
-  const onTransientError = (message: string) => {
+  const onTransientError = useCallback((message: string) => {
     setToastMessage(`Transient API issue: ${message}`)
-  }
+  }, [])
 
   const priceState = useSymbolPrice(symbol, onTransientError)
   const ordersState = useTradeOrders(onTransientError)
@@ -78,8 +91,6 @@ export function TradeClient({ symbol }: TradeClientProps) {
           </StatusBadge>
         </div>
 
-        {priceState.isLoading ? <p className="muted">Loading latest price…</p> : null}
-
         {priceState.error ? (
           <div>
             <p style={{ color: "#ff9ba3" }}>Failed to load price: {priceState.error}</p>
@@ -87,7 +98,9 @@ export function TradeClient({ symbol }: TradeClientProps) {
           </div>
         ) : null}
 
-        {priceState.data?.price ? (
+        {priceState.isLoading ? (
+          <SkeletonBlock width="14rem" height="2rem" style={{ margin: "0.4rem 0 1rem" }} aria-label="Loading latest price" />
+        ) : priceState.data?.price ? (
           <p style={{ fontSize: "2rem", margin: "0.4rem 0 1rem" }}>
             <ValueFlash value={priceState.data.price}>{priceState.data.price}</ValueFlash>
           </p>
@@ -109,7 +122,6 @@ export function TradeClient({ symbol }: TradeClientProps) {
             Live sorting
           </label>
         </div>
-        {ordersState.isLoading ? <p className="muted">Loading orders…</p> : null}
         {ordersState.error ? (
           <div>
             <p style={{ color: "#ff9ba3" }}>Failed to load orders: {ordersState.error}</p>
@@ -117,16 +129,15 @@ export function TradeClient({ symbol }: TradeClientProps) {
           </div>
         ) : null}
 
-        {displayedOrders.length ? (
+        {ordersState.isLoading && displayedOrders.length === 0 ? (
+          <div className="grid" style={{ gap: "0.5rem" }} aria-label="Loading orders">
+            <SkeletonBlock height="1rem" />
+            <SkeletonBlock height="1rem" width="80%" />
+            <SkeletonBlock height="1rem" width="90%" />
+          </div>
+        ) : displayedOrders.length ? (
           <div className="grid">
-            {displayedOrders.map((order) => (
-              <div key={order.oid} style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>
-                  #{order.oid} · {order.side} · {order.sz}
-                </span>
-                <ValueFlash value={`${order.oid}:${order.limitPx}`}>{order.limitPx}</ValueFlash>
-              </div>
-            ))}
+            {displayedOrders.map((order) => <TradeOrderRow key={order.oid} order={order} />)}
           </div>
         ) : (
           <p className="muted">No open orders for {symbol}.</p>

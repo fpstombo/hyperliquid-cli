@@ -1,6 +1,8 @@
+import dynamic from "next/dynamic"
 import { ExposureValue } from "../ui/ExposureValue"
 import { PanelShell } from "../ui/PanelShell"
 import { PnlValue } from "../ui/PnlValue"
+import { SkeletonBlock } from "../ui/SkeletonBlock"
 import { StatusBadge } from "../ui/StatusBadge"
 import { Table, type TableColumn } from "../ui/table"
 import { ValueFlash } from "../ui/ValueFlash"
@@ -9,6 +11,41 @@ import type { DashboardOrderVm, DashboardPositionVm, DashboardViewModel } from "
 
 type DashboardViewProps = {
   model: DashboardViewModel
+  isInitialLoading?: boolean
+}
+
+const DashboardSecondaryPanels = dynamic(
+  () => import("./dashboard-secondary-panels").then((module) => module.DashboardSecondaryPanels),
+  {
+    loading: () => (
+      <section className="dashboard-secondary-grid" aria-label="Loading secondary panels">
+        <PanelShell title="Opportunities" subtitle="Secondary context" className="dashboard-panel-secondary">
+          <div className="dashboard-secondary-list">
+            <SkeletonBlock height="1rem" />
+            <SkeletonBlock height="1rem" width="80%" />
+            <SkeletonBlock height="1rem" width="65%" />
+          </div>
+        </PanelShell>
+        <PanelShell title="Intent" subtitle="Execution metadata" className="dashboard-panel-secondary">
+          <div className="dashboard-secondary-list">
+            <SkeletonBlock height="1rem" />
+            <SkeletonBlock height="1rem" width="76%" />
+            <SkeletonBlock height="1rem" width="90%" />
+          </div>
+        </PanelShell>
+      </section>
+    ),
+  },
+)
+
+function tableLoadingSkeleton(rows = 4) {
+  return (
+    <div className="grid" style={{ gap: "0.5rem" }} aria-label="Loading table data">
+      {Array.from({ length: rows }).map((_, idx) => (
+        <SkeletonBlock key={idx} height="1rem" width={idx % 2 ? "88%" : "100%"} />
+      ))}
+    </div>
+  )
 }
 
 const positionColumns: TableColumn<DashboardPositionVm>[] = [
@@ -56,7 +93,7 @@ function renderEmpty(label: string) {
   return <p className="muted" style={{ margin: 0 }}>{label}</p>
 }
 
-export function DashboardView({ model }: DashboardViewProps) {
+export function DashboardView({ model, isInitialLoading = false }: DashboardViewProps) {
   return (
     <>
       <section className="dashboard-status-row">
@@ -89,7 +126,9 @@ export function DashboardView({ model }: DashboardViewProps) {
 
       <section className="dashboard-core-grid">
         <PanelShell title="Open Positions" className="dashboard-panel-primary">
-          {model.positions.length ? (
+          {isInitialLoading && model.positions.length === 0 ? (
+            tableLoadingSkeleton()
+          ) : model.positions.length ? (
             <Table
               columns={positionColumns}
               rows={model.positions}
@@ -103,7 +142,9 @@ export function DashboardView({ model }: DashboardViewProps) {
         </PanelShell>
 
         <PanelShell title="Open Orders" className="dashboard-panel-primary">
-          {model.orders.length ? (
+          {isInitialLoading && model.orders.length === 0 ? (
+            tableLoadingSkeleton()
+          ) : model.orders.length ? (
             <Table
               columns={orderColumns}
               rows={model.orders}
@@ -117,29 +158,7 @@ export function DashboardView({ model }: DashboardViewProps) {
         </PanelShell>
       </section>
 
-      <section className="dashboard-secondary-grid">
-        <PanelShell title="Opportunities" subtitle="Secondary context" className="dashboard-panel-secondary">
-          <div className="dashboard-secondary-list">
-            {model.opportunities.map((item) => (
-              <div key={item.label} className="dashboard-list-row">
-                <span>{item.label}</span>
-                <span>{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </PanelShell>
-
-        <PanelShell title="Intent" subtitle="Execution metadata" className="dashboard-panel-secondary">
-          <div className="dashboard-secondary-list">
-            {model.intents.map((item) => (
-              <div key={item.label} className="dashboard-list-row">
-                <span>{item.label}</span>
-                <span>{item.value}</span>
-              </div>
-            ))}
-          </div>
-        </PanelShell>
-      </section>
+      <DashboardSecondaryPanels model={model} isLoading={isInitialLoading} />
     </>
   )
 }
