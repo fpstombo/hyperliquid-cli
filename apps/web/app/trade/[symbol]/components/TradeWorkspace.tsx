@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { OpenOrdersTable } from "./OpenOrdersTable"
 import { OrderTicket } from "./OrderTicket"
 
@@ -17,42 +17,92 @@ const mockBook = {
   ],
 }
 
+const mockPosition = {
+  side: "Long",
+  size: "0.42",
+  entry: "102,145",
+  liq: "98,430",
+  pnl: "+124.80",
+}
+
 export function TradeWorkspace({ symbol }: { symbol: string }) {
   const [refreshKey, setRefreshKey] = useState(0)
+  const spread = useMemo(() => {
+    const bestBid = Number(mockBook.bids[0][0].replaceAll(",", ""))
+    const bestAsk = Number(mockBook.asks[0][0].replaceAll(",", ""))
+    return (bestAsk - bestBid).toFixed(0)
+  }, [])
 
   return (
-    <>
-      <main className="grid trade-layout">
-        <section className="card">
-          <h1 style={{ marginTop: 0 }}>{symbol} Order Book</h1>
-          <div className="grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
+    <main className="trade-workspace-grid">
+      <section className="trade-panel trade-panel--ticket">
+        <header className="trade-section-header">
+          <h2>Ticket</h2>
+          <div className="trade-meta-bar">
+            <span className="muted">Execution</span>
+            <strong>{symbol}</strong>
+          </div>
+        </header>
+        <OrderTicket symbol={symbol} onOrderPlaced={() => setRefreshKey((k) => k + 1)} />
+      </section>
+
+      <section className="trade-panel trade-panel--market">
+        <header className="trade-section-header">
+          <h2>Market & Depth</h2>
+          <div className="trade-meta-bar">
+            <span>Spread {spread}</span>
+            <span>Best Bid {mockBook.bids[0][0]}</span>
+            <span>Best Ask {mockBook.asks[0][0]}</span>
+          </div>
+        </header>
+
+        <div className="card trade-depth-card">
+          <h3 style={{ marginTop: 0 }}>Order Book</h3>
+          <div className="trade-depth-grid">
             <div>
-              <h3>Bids</h3>
+              <h4>Bids</h4>
               {mockBook.bids.map(([price, size]) => (
-                <div key={`bid-${price}`} style={{ display: "flex", justifyContent: "space-between" }}>
+                <div key={`bid-${price}`} className="trade-depth-row">
                   <span>{price}</span>
                   <span>{size}</span>
                 </div>
               ))}
             </div>
             <div>
-              <h3>Asks</h3>
+              <h4>Asks</h4>
               {mockBook.asks.map(([price, size]) => (
-                <div key={`ask-${price}`} style={{ display: "flex", justifyContent: "space-between" }}>
+                <div key={`ask-${price}`} className="trade-depth-row">
                   <span>{price}</span>
                   <span>{size}</span>
                 </div>
               ))}
             </div>
           </div>
-        </section>
+        </div>
+      </section>
 
-        <OrderTicket symbol={symbol} onOrderPlaced={() => setRefreshKey((k) => k + 1)} />
-      </main>
+      <section className="trade-panel trade-panel--orders">
+        <header className="trade-section-header">
+          <h2>Open Orders & Position</h2>
+          <div className="trade-meta-bar">
+            <span>Position {mockPosition.side}</span>
+            <span>Size {mockPosition.size}</span>
+            <span>PNL {mockPosition.pnl}</span>
+          </div>
+        </header>
 
-      <main>
+        <div className="card trade-position-card">
+          <h3 style={{ marginTop: 0 }}>Position Summary</h3>
+          <div className="trade-position-grid">
+            <span className="muted">Entry</span>
+            <strong>{mockPosition.entry}</strong>
+            <span className="muted">Liq.</span>
+            <strong>{mockPosition.liq}</strong>
+          </div>
+        </div>
+
         <OpenOrdersTable refreshKey={refreshKey} />
-      </main>
-    </>
+      </section>
+    </main>
   )
 }

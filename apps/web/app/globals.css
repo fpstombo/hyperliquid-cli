@@ -874,6 +874,102 @@ button {
   }
 }
 
+.trade-workspace-grid {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.95fr) minmax(380px, 1.2fr) minmax(360px, 1.05fr);
+  gap: 1rem;
+  align-items: start;
+}
+
+.trade-panel {
+  display: grid;
+  gap: 0.75rem;
+  min-height: 640px;
+  align-content: start;
+}
+
+.trade-panel > .card,
+.trade-panel .order-ticket {
+  min-height: 280px;
+}
+
+.trade-section-header {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.trade-section-header h2 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.trade-meta-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  font-size: 0.75rem;
+}
+
+.trade-meta-bar > span,
+.trade-meta-bar > strong {
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-base) 88%, black);
+  padding: 0.15rem 0.5rem;
+}
+
+.trade-depth-card {
+  min-height: 520px;
+}
+
+.trade-depth-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.trade-depth-row {
+  display: flex;
+  justify-content: space-between;
+  font-variant-numeric: tabular-nums;
+  padding: 0.2rem 0;
+}
+
+.trade-position-card {
+  min-height: 110px;
+}
+
+.trade-position-grid {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  row-gap: 0.35rem;
+}
+
+.ticket-primary-actions,
+.ticket-confirm-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ticket-primary-actions .sim-pill {
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+
+@media (max-width: 1200px) {
+  .trade-workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .trade-panel {
+    min-height: auto;
+  }
+
+  .trade-depth-card,
+  .trade-panel > .card,
+  .trade-panel .order-ticket {
+    min-height: 0;
 .dashboard-status-row {
   display: flex;
   flex-wrap: wrap;

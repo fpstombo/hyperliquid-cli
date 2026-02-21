@@ -136,7 +136,10 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
           Reduce only
         </label>
 
-        <button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</button>
+        <div className="ticket-primary-actions">
+          <button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</button>
+          {session.environment === "testnet" ? <span className="sim-pill">SIM MODE</span> : null}
+        </div>
       </form>
 
       {confirming ? (
@@ -144,7 +147,7 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
           <p style={{ marginTop: 0 }}>
             Confirm {orderType} {side.toUpperCase()} {size} {symbol} on {session.environment.toUpperCase()}?
           </p>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+          <div className="ticket-confirm-actions">
             <button onClick={() => void submitOrder()} disabled={pending || hasChainMismatch}>Confirm</button>
             <button onClick={() => setConfirming(false)} disabled={pending}>Edit</button>
           </div>
