@@ -1,35 +1,82 @@
+/*
+  Design token usage:
+  - Background tiers define page canvas, elevated surfaces, and overlay backdrops.
+  - Surface tiers support cards, controls, and interactive hover states.
+  - Text hierarchy covers primary, secondary, muted, and inverse emphasis.
+  - Semantic colors represent positive, negative, warning, and informational states.
+  - Border tones define subtle, default, and strong separators.
+  - Focus ring is the shared accessible focus indicator for interactive elements.
+  - SIM semantic tokens provide consistent badge colors for simulated trading state.
+*/
 :root {
   color-scheme: dark;
+
+  /* Background tiers */
   --bg-canvas: #05070d;
+  --bg-canvas-raised: #0b1222;
   --bg-surface: #0f1627;
   --bg-surface-2: #151f37;
+  --bg-surface-3: #1a243a;
   --bg-overlay: rgb(2 7 18 / 72%);
+
+  /* Surface tiers */
+  --surface-base: var(--bg-surface);
+  --surface-elevated: var(--bg-surface-2);
+  --surface-interactive: var(--bg-surface-3);
+
+  /* Text hierarchy */
   --fg-primary: #edf2ff;
   --fg-secondary: #b6c2e6;
   --fg-muted: #8592ba;
-  --accent: #52c0ff;
+  --fg-inverse: #041127;
+
+  /* Semantic colors */
+  --semantic-positive: #4fe0a4;
+  --semantic-negative: #ff7f8f;
+  --semantic-warning: #ffcc70;
+  --semantic-info: #52c0ff;
+  --accent: var(--semantic-info);
   --accent-strong: #2b8ee5;
+
+  /* Border tones */
+  --border-subtle: #1f2a46;
   --border: #273455;
   --border-strong: #374d79;
-  --success: #4fe0a4;
-  --warning: #ffcc70;
 
-  --space-1: 0.25rem;
-  --space-2: 0.5rem;
-  --space-3: 0.75rem;
-  --space-4: 1rem;
-  --space-5: 1.5rem;
-  --space-6: 2rem;
+  /* Focus ring */
+  --focus-ring: rgb(82 192 255 / 40%);
+
+  /* SIM state tokens */
+  --sim-badge-bg: rgb(82 192 255 / 16%);
+  --sim-badge-fg: #9ad8ff;
+  --sim-badge-border: rgb(82 192 255 / 45%);
+
+  /* Spacing scale */
+  --space-1: 0.25rem; /* 4px */
+  --space-2: 0.5rem; /* 8px */
+  --space-3: 0.75rem; /* 12px */
+  --space-4: 1rem; /* 16px */
+  --space-5: 1.5rem; /* 24px */
+  --space-6: 2rem; /* 32px */
 
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
 
+  /* Typography scale */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-md: 1rem;
   --text-lg: 1.25rem;
   --text-xl: 1.625rem;
+
+  /* Numeric typography */
+  --numeric-figure: tabular-nums lining-nums;
+
+  /* Motion timings */
+  --motion-fast: 120ms;
+  --motion-normal: 200ms;
+  --motion-slow: 320ms;
 }
 
 * {
@@ -47,6 +94,18 @@ body {
   color: var(--fg-primary);
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, sans-serif;
   font-size: var(--text-md);
+}
+
+:where(a, button, input, select, .btn, .top-nav-link, .sidebar-link, .cta) {
+  transition:
+    background-color var(--motion-fast) ease,
+    color var(--motion-fast) ease,
+    border-color var(--motion-fast) ease,
+    filter var(--motion-normal) ease;
+}
+
+:where(.metric, .table td, .table th, .input, input, select) {
+  font-variant-numeric: var(--numeric-figure);
 }
 
 h1,
@@ -108,7 +167,7 @@ a {
 }
 
 .top-nav-link:hover {
-  background: var(--bg-surface);
+  background: var(--surface-base);
   color: var(--fg-primary);
 }
 
@@ -124,7 +183,7 @@ a {
 .sidebar {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: var(--bg-surface);
+  background: var(--surface-base);
   padding: var(--space-4);
   height: fit-content;
   position: sticky;
@@ -157,7 +216,7 @@ a {
 
 .sidebar-link:hover {
   border-color: var(--border);
-  background: var(--bg-surface-2);
+  background: var(--surface-elevated);
   color: var(--fg-primary);
 }
 
@@ -235,7 +294,7 @@ a {
 .card {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, rgb(26 35 58 / 38%) 0%, var(--bg-surface) 100%);
+  background: linear-gradient(180deg, rgb(26 35 58 / 38%) 0%, var(--surface-base) 100%);
   padding: var(--space-4);
 }
 
@@ -268,12 +327,12 @@ a {
 
 .btn-primary {
   background: linear-gradient(180deg, #4fbcff 0%, var(--accent-strong) 100%);
-  color: #041127;
+  color: var(--fg-inverse);
 }
 
 .btn-secondary {
   border-color: var(--border-strong);
-  background: var(--bg-surface-2);
+  background: var(--surface-elevated);
   color: var(--fg-primary);
 }
 
@@ -315,14 +374,14 @@ a {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: #0b1222;
+  background: var(--bg-canvas-raised);
   color: var(--fg-primary);
   padding: var(--space-2) var(--space-3);
   font: inherit;
 }
 
 .input:focus {
-  outline: 2px solid rgb(82 192 255 / 36%);
+  outline: 2px solid var(--focus-ring);
   border-color: var(--accent);
 }
 
@@ -365,7 +424,7 @@ a {
   width: min(480px, 100%);
   border-radius: var(--radius-md);
   border: 1px solid var(--border);
-  background: var(--bg-surface);
+  background: var(--surface-base);
   padding: var(--space-5);
 }
 
@@ -382,7 +441,7 @@ a {
   border: 1px solid var(--border);
   border-left-width: 3px;
   border-radius: var(--radius-sm);
-  background: #0b1222;
+  background: var(--bg-canvas-raised);
   padding: var(--space-3);
 }
 
@@ -391,11 +450,11 @@ a {
 }
 
 .toast-success {
-  border-left-color: var(--success);
+  border-left-color: var(--semantic-positive);
 }
 
 .toast-warning {
-  border-left-color: var(--warning);
+  border-left-color: var(--semantic-warning);
 }
 
 .toast-title {
@@ -456,12 +515,13 @@ a {
 
 .pill,
 .ok-pill,
-.warning-pill {
+.warning-pill,
+.sim-pill {
   border-radius: 999px;
   padding: 0.25rem 0.6rem;
   font-size: 0.75rem;
   border: 1px solid var(--border);
-  background: color-mix(in srgb, var(--card) 80%, black);
+  background: color-mix(in srgb, var(--surface-base) 80%, black);
 }
 
 .ok-pill {
@@ -474,11 +534,17 @@ a {
   color: #f9d69a;
 }
 
+.sim-pill {
+  border-color: var(--sim-badge-border);
+  background: var(--sim-badge-bg);
+  color: var(--sim-badge-fg);
+}
+
 .cta {
   border: 1px solid #3a4a78;
   border-radius: 0.7rem;
   background: #101628;
-  color: var(--foreground);
+  color: var(--fg-primary);
   padding: 0.65rem 0.8rem;
   cursor: pointer;
 }
@@ -501,9 +567,9 @@ a {
 input,
 select,
 button {
-  background: #0f1730;
+  background: var(--surface-elevated);
   border: 1px solid var(--border);
-  color: var(--foreground);
+  color: var(--fg-primary);
   border-radius: 0.5rem;
   padding: 0.45rem 0.6rem;
 }
@@ -552,7 +618,7 @@ button {
   border: 1px solid var(--border);
   border-radius: 0.5rem;
   background: #0c1222;
-  color: var(--foreground);
+  color: var(--fg-primary);
   padding: 0.6rem 0.75rem;
 }
 
@@ -577,4 +643,15 @@ button {
 .button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 1ms !important;
+    scroll-behavior: auto !important;
+  }
 }
