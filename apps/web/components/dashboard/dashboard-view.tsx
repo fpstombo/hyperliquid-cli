@@ -1,10 +1,62 @@
 import { PanelShell } from "../ui/PanelShell"
 import { StatusBadge } from "../ui/StatusBadge"
-import type { DashboardViewModel } from "./dashboard-view-model"
+import { Table, type TableColumn } from "../ui/table"
+import type { DashboardOrderVm, DashboardPositionVm, DashboardViewModel } from "./dashboard-view-model"
 
 type DashboardViewProps = {
   model: DashboardViewModel
 }
+
+function formatTimestamp(timestamp: number): string {
+  return new Date(timestamp).toLocaleString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  })
+}
+
+const positionColumns: TableColumn<DashboardPositionVm>[] = [
+  { key: "market", header: "Market", minWidth: 92 },
+  { key: "size", header: "Size", align: "right", width: 120, minWidth: 110, className: "table-col--numeric" },
+  {
+    key: "unrealizedPnl",
+    header: "PnL",
+    align: "right",
+    width: 130,
+    minWidth: 120,
+    className: "table-col--numeric",
+  },
+]
+
+const orderColumns: TableColumn<DashboardOrderVm>[] = [
+  { key: "market", header: "Market", minWidth: 82 },
+  {
+    key: "side",
+    header: "Side",
+    minWidth: 74,
+    render: (order) => (order.side === "B" ? "Buy" : "Sell"),
+  },
+  { key: "size", header: "Size", align: "right", width: 110, minWidth: 100, className: "table-col--numeric" },
+  {
+    key: "limitPrice",
+    header: "Price",
+    align: "right",
+    width: 120,
+    minWidth: 110,
+    className: "table-col--numeric",
+  },
+  {
+    key: "timestamp",
+    header: "Timestamp",
+    width: 188,
+    minWidth: 170,
+    className: "table-col--numeric",
+    render: (order) => formatTimestamp(order.timestamp),
+  },
+]
 
 function renderEmpty(label: string) {
   return <p className="muted" style={{ margin: 0 }}>{label}</p>
@@ -37,14 +89,13 @@ export function DashboardView({ model }: DashboardViewProps) {
       <section className="dashboard-core-grid">
         <PanelShell title="Open Positions" className="dashboard-panel-primary">
           {model.positions.length ? (
-            <div className="dashboard-list">
-              {model.positions.map((position) => (
-                <div key={position.id} className="dashboard-list-row">
-                  <span>{position.market} · {position.size}</span>
-                  <span>{position.unrealizedPnl}</span>
-                </div>
-              ))}
-            </div>
+            <Table
+              columns={positionColumns}
+              rows={model.positions}
+              rowKey={(position) => position.id}
+              itemCount={model.positions.length}
+              itemSize={40}
+            />
           ) : (
             renderEmpty("No open positions.")
           )}
@@ -52,14 +103,13 @@ export function DashboardView({ model }: DashboardViewProps) {
 
         <PanelShell title="Open Orders" className="dashboard-panel-primary">
           {model.orders.length ? (
-            <div className="dashboard-list">
-              {model.orders.map((order) => (
-                <div key={order.id} className="dashboard-list-row">
-                  <span>{order.market} · {order.side} · {order.size}</span>
-                  <span>{order.limitPrice}</span>
-                </div>
-              ))}
-            </div>
+            <Table
+              columns={orderColumns}
+              rows={model.orders}
+              rowKey={(order) => order.id}
+              itemCount={model.orders.length}
+              itemSize={40}
+            />
           ) : (
             renderEmpty("No open orders.")
           )}

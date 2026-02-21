@@ -1,6 +1,7 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
+import { Table, type TableColumn } from "../../../../components/ui"
 import { useAuth } from "../../../../components/providers"
 
 type Order = {
@@ -21,6 +22,19 @@ type Context = {
 
 type Props = {
   refreshKey: number
+}
+
+function formatTimestamp(timestamp?: number): string {
+  if (!timestamp) return "—"
+
+  return new Date(timestamp).toLocaleString("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  })
 }
 
 export function OpenOrdersTable({ refreshKey }: Props) {
@@ -76,6 +90,55 @@ export function OpenOrdersTable({ refreshKey }: Props) {
 
   const hasEnvironmentMismatch = context ? context.environment !== session.environment : false
 
+  const columns = useMemo<TableColumn<Order>[]>(
+    () => [
+      { key: "oid", header: "OID", minWidth: 96, className: "table-col--numeric" },
+      { key: "coin", header: "Coin", minWidth: 88 },
+      {
+        key: "side",
+        header: "Side",
+        minWidth: 84,
+        render: (order) => (order.side === "B" ? "Buy" : "Sell"),
+      },
+      {
+        key: "sz",
+        header: "Size",
+        align: "right",
+        minWidth: 110,
+        width: 120,
+        className: "table-col--numeric",
+      },
+      {
+        key: "limitPx",
+        header: "Price",
+        align: "right",
+        minWidth: 120,
+        width: 140,
+        className: "table-col--numeric",
+      },
+      {
+        key: "timestamp",
+        header: "Timestamp",
+        minWidth: 170,
+        width: 190,
+        className: "table-col--numeric",
+        render: (order) => formatTimestamp(order.timestamp),
+      },
+      {
+        key: "actions",
+        header: "",
+        minWidth: 90,
+        width: 90,
+        render: (order) => (
+          <button onClick={() => void cancelOrder(order)} disabled={hasEnvironmentMismatch}>
+            Cancel
+          </button>
+        ),
+      },
+    ],
+    [hasEnvironmentMismatch],
+  )
+
   return (
     <section className="card">
       <h2 style={{ marginTop: 0 }}>Open Orders</h2>
@@ -90,36 +153,14 @@ export function OpenOrdersTable({ refreshKey }: Props) {
         </p>
       ) : null}
       {error ? <p className="status-error">{error}</p> : null}
-      {orders.length === 0 ? (
-        <p className="muted">No open orders.</p>
-      ) : (
-        <table className="orders-table">
-          <thead>
-            <tr>
-              <th>OID</th>
-              <th>Coin</th>
-              <th>Side</th>
-              <th>Size</th>
-              <th>Price</th>
-              <th />
-            </tr>
-          </thead>
-          <tbody>
-            {orders.map((order) => (
-              <tr key={order.oid}>
-                <td>{order.oid}</td>
-                <td>{order.coin}</td>
-                <td>{order.side === "B" ? "Buy" : "Sell"}</td>
-                <td>{order.sz}</td>
-                <td>{order.limitPx}</td>
-                <td>
-                  <button onClick={() => void cancelOrder(order)} disabled={hasEnvironmentMismatch}>Cancel</button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <Table
+        columns={columns}
+        rows={orders}
+        rowKey={(order) => order.oid}
+        emptyState="No open orders."
+        itemCount={orders.length}
+        itemSize={40}
+      />
     </section>
   )
 }
