@@ -1,4 +1,5 @@
 import type { BalancesResponse, OrdersResponse, PositionsResponse } from "../../lib/api-types"
+import { formatCurrencyUsd, formatSignedValue, formatTimestampHint, getSignedValueState, parseNumber } from "../../lib/formatters"
 import type { SessionState } from "../../lib/auth"
 
 export type DashboardStatusVm = {
@@ -6,18 +7,25 @@ export type DashboardStatusVm = {
   mode: string
   apiHealth: string
   apiHealthTone: "positive" | "warning"
+  connection: "Connected" | "Degraded"
+  connectionTone: "positive" | "warning"
+  freshness: "Fresh" | "Stale"
+  freshnessTone: "positive" | "warning"
+  updatedHint: string
 }
 
 export type DashboardMetricVm = {
   label: string
   value: string
+  rawValue?: number
+  tone?: "positive" | "negative" | "neutral"
 }
 
 export type DashboardPositionVm = {
   id: string
   market: string
   size: string
-  unrealizedPnl: string
+  unrealizedPnl: number
 }
 
 export type DashboardOrderVm = {
@@ -47,21 +55,6 @@ export type DashboardViewModel = {
   intents: DashboardSecondaryItemVm[]
 }
 
-function parseNumber(value: string): number {
-  const parsed = Number.parseFloat(value)
-  return Number.isFinite(parsed) ? parsed : 0
-}
-
-function formatUsd(value: number): string {
-  return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(value)
-}
-
-function formatSignedUsd(value: number): string {
-  if (value === 0) return "$0.00"
-  const formatted = formatUsd(Math.abs(value))
-  return `${value > 0 ? "+" : "-"}${formatted}`
-}
-
 function summarizeBalances(balances?: BalancesResponse | null): DashboardSecondaryItemVm[] {
   if (!balances || balances.spotBalances.length === 0) {
     return [{ label: "Spot balances", value: "No balances" }]
@@ -86,20 +79,32 @@ function summarizeOrderContext(orders?: OrdersResponse | null): DashboardSeconda
   ]
 }
 
+function getFreshness(lastSuccessAt: number | null, pollMs: number): { label: "Fresh" | "Stale"; tone: "positive" | "warning" } {
+  if (!lastSuccessAt) {
+    return { label: "Stale", tone: "warning" }
+  }
+
+  const isFresh = Date.now() - lastSuccessAt <= pollMs * 3
+  return isFresh ? { label: "Fresh", tone: "positive" } : { label: "Stale", tone: "warning" }
+}
+
 export function buildDashboardViewModel(params: {
   balances?: BalancesResponse | null
   positions?: PositionsResponse | null
   orders?: OrdersResponse | null
   session: SessionState
   apiHealthy: boolean
+  lastSuccessAt: number | null
+  pollMs: number
 }): DashboardViewModel {
-  const { balances, positions, orders, session, apiHealthy } = params
+  const { balances, positions, orders, session, apiHealthy, lastSuccessAt, pollMs } = params
 
   const totalUnrealized = (positions?.positions ?? []).reduce((sum, position) => sum + parseNumber(position.unrealizedPnl), 0)
   const totalExposure = (positions?.positions ?? []).reduce(
     (sum, position) => sum + Math.abs(parseNumber(position.positionValue)),
     0,
   )
+  const freshness = getFreshness(lastSuccessAt, pollMs)
 
   return {
     status: {
@@ -107,26 +112,34 @@ export function buildDashboardViewModel(params: {
       mode: session.environment === "testnet" ? "SIM" : "LIVE",
       apiHealth: apiHealthy ? "Healthy" : "Degraded",
       apiHealthTone: apiHealthy ? "positive" : "warning",
+      connection: apiHealthy ? "Connected" : "Degraded",
+      connectionTone: apiHealthy ? "positive" : "warning",
+      freshness: freshness.label,
+      freshnessTone: freshness.tone,
+      updatedHint: formatTimestampHint(lastSuccessAt ?? undefined),
     },
     metrics: {
       equity: {
         label: "Equity",
-        value: formatUsd(parseNumber(positions?.accountValue ?? "0")),
+        value: formatCurrencyUsd(parseNumber(positions?.accountValue ?? "0")),
       },
       unrealizedPnl: {
         label: "Unrealized PnL",
-        value: formatSignedUsd(totalUnrealized),
+        value: formatSignedValue(totalUnrealized, formatCurrencyUsd),
+        rawValue: totalUnrealized,
+        tone: getSignedValueState(totalUnrealized),
       },
       exposure: {
         label: "Exposure",
-        value: formatUsd(totalExposure),
+        value: formatCurrencyUsd(totalExposure),
+        rawValue: totalExposure,
       },
     },
     positions: (positions?.positions ?? []).map((position) => ({
       id: `${position.coin}-${position.entryPx}`,
       market: position.coin,
       size: position.size,
-      unrealizedPnl: position.unrealizedPnl,
+      unrealizedPnl: parseNumber(position.unrealizedPnl),
     })),
     orders: (orders?.orders ?? []).slice(0, 5).map((order) => ({
       id: order.oid,

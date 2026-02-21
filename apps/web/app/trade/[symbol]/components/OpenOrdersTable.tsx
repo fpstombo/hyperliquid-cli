@@ -1,8 +1,9 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Table, type TableColumn } from "../../../../components/ui"
+import { StatusBadge, Table, type TableColumn } from "../../../../components/ui"
 import { useAuth } from "../../../../components/providers"
+import { formatTimestamp, formatTimestampHint } from "../../../../lib/formatters"
 
 type Order = {
   oid: number
@@ -24,24 +25,12 @@ type Props = {
   refreshKey: number
 }
 
-function formatTimestamp(timestamp?: number): string {
-  if (!timestamp) return "—"
-
-  return new Date(timestamp).toLocaleString("en-US", {
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-  })
-}
-
 export function OpenOrdersTable({ refreshKey }: Props) {
   const { session } = useAuth()
   const [orders, setOrders] = useState<Order[]>([])
   const [error, setError] = useState<string | null>(null)
   const [context, setContext] = useState<Context | null>(null)
+  const [lastLoadedAt, setLastLoadedAt] = useState<number | null>(null)
 
   async function loadOrders() {
     try {
@@ -54,6 +43,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
       setError(null)
       setOrders(json.orders || [])
       setContext(json.context || null)
+      setLastLoadedAt(Date.now())
     } catch {
       setError("Failed to load open orders")
     }
@@ -142,6 +132,11 @@ export function OpenOrdersTable({ refreshKey }: Props) {
   return (
     <section className="card">
       <h2 style={{ marginTop: 0 }}>Open Orders</h2>
+      <div className="dashboard-status-row" style={{ marginBottom: "0.5rem" }}>
+        <StatusBadge variant={error ? "warning" : "positive"}>{error ? "Degraded" : "Connected"}</StatusBadge>
+        <StatusBadge variant={lastLoadedAt ? "positive" : "warning"}>{lastLoadedAt ? "Fresh" : "Stale"}</StatusBadge>
+        <span className="muted">Updated {formatTimestampHint(lastLoadedAt ?? undefined)}</span>
+      </div>
       {context ? (
         <p className="muted">
           API context: {context.environment.toUpperCase()} · {context.user} · {context.accountAlias ?? context.accountSource}

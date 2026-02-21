@@ -7,6 +7,8 @@ import { useAuth } from "./providers"
 import { DashboardView } from "./dashboard/dashboard-view"
 import { buildDashboardViewModel } from "./dashboard/dashboard-view-model"
 
+const DASHBOARD_POLL_MS = 5000
+
 export function DashboardClient() {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const { session } = useAuth()
@@ -21,6 +23,13 @@ export function DashboardClient() {
 
   const loading = balances.isLoading || positions.isLoading || orders.isLoading
   const error = balances.error ?? positions.error ?? orders.error
+  const lastSuccessAt = [balances.lastSuccessAt, positions.lastSuccessAt, orders.lastSuccessAt].reduce<number | null>(
+    (latest, timestamp) => {
+      if (!timestamp) return latest
+      return latest ? Math.max(latest, timestamp) : timestamp
+    },
+    null,
+  )
 
   const model = buildDashboardViewModel({
     balances: balances.data,
@@ -28,6 +37,8 @@ export function DashboardClient() {
     orders: orders.data,
     session,
     apiHealthy: !error,
+    lastSuccessAt,
+    pollMs: DASHBOARD_POLL_MS,
   })
 
   return (
