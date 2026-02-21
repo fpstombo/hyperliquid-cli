@@ -446,6 +446,36 @@ pnpm link --global
 hl --help
 ```
 
+### Web app local retest without Privy
+
+Use this flow if you want to verify protected routes locally without a real Privy App ID.
+
+```bash
+# from repo root
+cd /workspace/hyperliquid-cli
+pnpm install
+
+# tell the client provider to run in no-Privy mode
+export NEXT_PUBLIC_DISABLE_PRIVY=true
+
+# required for signing/verifying the local session JWT
+export PRIVY_SESSION_SECRET="dev-secret-please-change-me"
+
+# mint a valid hl_session token from web workspace deps
+pnpm --filter web dev:session-token
+
+# start the web app
+pnpm --filter web dev
+```
+
+Then in browser DevTools for `http://localhost:3000`, create cookie:
+
+- **Name:** `hl_session`
+- **Value:** token printed by `pnpm --filter web dev:session-token`
+- **Path:** `/`
+
+Refresh `/dashboard` or `/trade/BTC`.
+
 ### Commands
 
 ```bash

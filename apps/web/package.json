@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "eslint . --max-warnings=0",
+    "typecheck": "tsc --noEmit",
+    "test": "pnpm -w test src/web",
+    "dev:session-token": "node ./scripts/dev-session-token.mjs"
   },
   "dependencies": {
     "next": "14.2.33",
