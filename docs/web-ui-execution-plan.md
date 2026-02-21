@@ -23,6 +23,9 @@ Mitigation:
 
 We will build in vertical slices, each resulting in a usable increment.
 
+### v1 scope guardrails
+Follow the hard caps and out-of-scope rules in [Web UI v1 Scope Guardrails](./web-ui-v1-scope-guardrails.md) for all planning and implementation PRs.
+
 ---
 
 ## Slice 1 — Web App Foundation + Design System
