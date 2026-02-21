@@ -446,6 +446,44 @@ pnpm link --global
 hl --help
 ```
 
+### Web app local retest without Privy
+
+Use this flow if you want to verify protected routes locally without a real Privy App ID.
+
+```bash
+cd /workspace/hyperliquid-cli
+pnpm install
+git pull --rebase
+
+export NEXT_PUBLIC_DISABLE_PRIVY=true
+export PRIVY_SESSION_SECRET="dev-secret-please-change-me"
+
+pnpm web:session-token
+pnpm --filter @hyperliquid/web dev
+```
+
+If `git pull --rebase` fails because of local edits, run:
+
+```bash
+git stash -u
+git pull --rebase
+git stash pop
+```
+
+If `pnpm web:session-token` is unavailable on an older branch, run:
+
+```bash
+pnpm --filter @hyperliquid/web dev:session-token
+```
+
+Then in browser DevTools for `http://localhost:3000`, create cookie:
+
+- **Name:** `hl_session`
+- **Value:** token printed by session-token command
+- **Path:** `/`
+
+Refresh `/dashboard` or `/trade/BTC`.
+
 ### Commands
 
 ```bash

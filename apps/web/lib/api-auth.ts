@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server"
-import { loadConfig } from "../../../src/lib/config.js"
-import { validateAddress } from "../../../src/lib/validation.js"
+import { getAddress } from "viem"
 import { SESSION_COOKIE } from "./auth"
 import { type AppEnvironment } from "./auth"
 import { createApiError, type ApiError } from "./api-types"
@@ -34,7 +33,7 @@ function parseCookie(rawCookie: string | null, cookieName: string): string | nul
 }
 
 function normalizeAddress(address: string): string {
-  return validateAddress(address).toLowerCase()
+  return getAddress(address).toLowerCase()
 }
 
 function resolveTradingAccount(walletAddress: string): string {
@@ -96,12 +95,12 @@ export async function requireApiAuth(request: Request): Promise<AuthenticatedReq
 }
 
 export function verifyAuthorizedTradingAccount(context: AuthenticatedRequestContext): NextResponse<ApiError> | null {
-  const config = loadConfig(context.environment === "testnet")
-  if (!config.privateKey) {
+  const privateKey = process.env.HYPERLIQUID_PRIVATE_KEY
+  if (!privateKey) {
     return null
   }
 
-  const configuredAccount = config.walletAddress
+  const configuredAccount = process.env.HYPERLIQUID_WALLET_ADDRESS
   if (!configuredAccount) {
     return authError(403, "FORBIDDEN", "Trading account is not configured")
   }
@@ -120,7 +119,7 @@ export function verifyAuthorizedTradingAccount(context: AuthenticatedRequestCont
 
 export function createRouteRuntimeConfig(context: AuthenticatedRequestContext) {
   return {
-    user: validateAddress(context.tradingAccount),
+    user: getAddress(context.tradingAccount),
     isTestnet: context.environment === "testnet",
   }
 }

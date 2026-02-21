@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { fetchBalances } from "../../../../../src/lib/web-readonly-adapter"
+import { fetchBalances } from "../../../lib/web-readonly-adapter"
 import { createRouteRuntimeConfig, requireApiAuth } from "../../../lib/api-auth"
 import { createApiError, type BalancesResponse } from "../../../lib/api-types"
 
