@@ -23,6 +23,68 @@ Mitigation:
 
 We will build in vertical slices, each resulting in a usable increment.
 
+## UI v1 PR sequence
+
+All UI v1 implementation work must ship through the following PR sequence. Each PR must stay scoped to `apps/web` only. If a change is required outside `apps/web`, defer it to a separately approved cross-package follow-up PR.
+
+### PR1 — Tokens + primitives only
+**In scope**
+- Design tokens, theme variables, and shared style foundations under `apps/web`.
+- UI primitives (button, input, card, table, modal, toast, etc.) and their local tests/stories/fixtures in `apps/web`.
+
+**Out of scope**
+- Any page-level composition (dashboard, trade workspace, onboarding flows).
+- Data hooks, API routes, auth wiring, trading logic, or state orchestration.
+- Any non-`apps/web` package changes.
+
+### PR2 — Dashboard composition
+**In scope**
+- Dashboard page composition using existing primitives and mock/static data wiring in `apps/web`.
+- Dashboard-specific layout containers, sections, and empty/loading/error view composition.
+
+**Out of scope**
+- Trade page composition or order-ticket interactions.
+- New API integrations, server routes, or cross-package abstractions.
+- Performance hardening or accessibility/keyboard polish beyond baseline semantic correctness.
+
+### PR3 — Trade composition
+**In scope**
+- Trade route composition (order ticket shell, book/panel layout, open orders presentation) in `apps/web`.
+- UI state composition needed for interactive trade screen behavior using existing app-local utilities.
+
+**Out of scope**
+- Rendering/performance optimization passes.
+- Cross-cutting accessibility keyboard refinement work (reserved for PR5).
+- Changes outside `apps/web`.
+
+### PR4 — Rendering/perf optimizations
+**In scope**
+- Rendering optimizations (memoization, virtualization, suspense/loading boundary tuning, re-render reduction) confined to `apps/web`.
+- Performance instrumentation/measurement helpers that live in `apps/web` and support UI-level regressions.
+
+**Out of scope**
+- New product features or major UX/layout rewrites.
+- Accessibility polish, keyboard shortcut systems, and focus-management upgrades (reserved for PR5).
+- Any non-`apps/web` refactors.
+
+### PR5 — Polish + accessibility + keyboard
+**In scope**
+- Visual polish pass (spacing, typography, states, consistency) within established UI structures in `apps/web`.
+- Accessibility remediation (roles, labels, contrast fixes, focus treatment, screen-reader text).
+- Keyboard support and navigation/shortcut behavior for critical UI workflows.
+
+**Out of scope**
+- Net-new feature additions or architecture rewrites.
+- Broad performance refactors not directly needed for a11y/keyboard correctness.
+- Cross-package updates unless they are split into a separately approved follow-up.
+
+### Required PR reporting (PR1–PR5)
+Each PR in this sequence must include all of the following before merge:
+- Lint status report for web (`pnpm --filter web lint`).
+- Typecheck status report for web (`pnpm --filter web typecheck`).
+- Test status report for web (`pnpm --filter web test`).
+- Visual QA checklist completion for the changed surfaces (responsive breakpoints, dark mode, interaction states, and regressions).
+
 ### v1 scope guardrails
 Follow the hard caps and out-of-scope rules in [Web UI v1 Scope Guardrails](./web-ui-v1-scope-guardrails.md) for all planning and implementation PRs.
 
