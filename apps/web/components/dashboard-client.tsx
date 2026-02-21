@@ -1,11 +1,15 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useState } from "react"
 import { Toast } from "./Toast"
 import { useBalances, useOrders, usePositions } from "../lib/hooks/use-dashboard-data"
+import { useAuth } from "./providers"
+import { DashboardView } from "./dashboard/dashboard-view"
+import { buildDashboardViewModel } from "./dashboard/dashboard-view-model"
 
 export function DashboardClient() {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const { session } = useAuth()
 
   const onTransientError = (message: string) => {
     setToastMessage(`Transient API issue: ${message}`)
@@ -18,8 +22,13 @@ export function DashboardClient() {
   const loading = balances.isLoading || positions.isLoading || orders.isLoading
   const error = balances.error ?? positions.error ?? orders.error
 
-  const positionRows = positions.data?.positions ?? []
-  const orderRows = useMemo(() => orders.data?.orders.slice(0, 5) ?? [], [orders.data])
+  const model = buildDashboardViewModel({
+    balances: balances.data,
+    positions: positions.data,
+    orders: orders.data,
+    session,
+    apiHealthy: !error,
+  })
 
   return (
     <main className="grid">
@@ -30,6 +39,8 @@ export function DashboardClient() {
         </p>
       </section>
 
+      <DashboardView model={model} />
+
       {loading ? <section className="card">Loading account data…</section> : null}
 
       {error ? (
@@ -38,65 +49,6 @@ export function DashboardClient() {
           <button onClick={() => void Promise.all([balances.retry(), positions.retry(), orders.retry()])}>Retry</button>
         </section>
       ) : null}
-
-      <section className="grid columns-3">
-        {balances.data?.spotBalances.length ? (
-          balances.data.spotBalances.map((balance) => (
-            <article key={balance.token} className="card">
-              <p className="muted" style={{ marginTop: 0 }}>
-                {balance.token}
-              </p>
-              <p style={{ fontSize: "1.3rem", marginBottom: 0 }}>{balance.total}</p>
-            </article>
-          ))
-        ) : (
-          <article className="card">
-            <p className="muted" style={{ marginTop: 0, marginBottom: 0 }}>
-              No spot balances.
-            </p>
-          </article>
-        )}
-      </section>
-
-      <section className="card">
-        <h2 style={{ marginTop: 0 }}>Open Positions</h2>
-        {positionRows.length ? (
-          <div className="grid">
-            {positionRows.map((position) => (
-              <div key={`${position.coin}-${position.entryPx}`} style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>
-                  {position.coin} · {position.size}
-                </span>
-                <span>{position.unrealizedPnl}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="muted" style={{ marginBottom: 0 }}>
-            No open positions.
-          </p>
-        )}
-      </section>
-
-      <section className="card">
-        <h2 style={{ marginTop: 0 }}>Open Orders</h2>
-        {orderRows.length ? (
-          <div className="grid">
-            {orderRows.map((order) => (
-              <div key={order.oid} style={{ display: "flex", justifyContent: "space-between" }}>
-                <span>
-                  {order.coin} · {order.side} · {order.sz}
-                </span>
-                <span>{order.limitPx}</span>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="muted" style={{ marginBottom: 0 }}>
-            No open orders.
-          </p>
-        )}
-      </section>
 
       {toastMessage ? <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} /> : null}
     </main>
