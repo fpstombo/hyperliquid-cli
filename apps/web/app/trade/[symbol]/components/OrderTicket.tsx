@@ -82,10 +82,18 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
   return (
     <div className="card order-ticket">
       <h2 style={{ marginTop: 0 }}>Order Ticket</h2>
-      <p className={session.environment === "mainnet" ? "warning-pill" : "ok-pill"}>
+      <p
+        className={session.environment === "mainnet" ? "warning-pill" : "ok-pill"}
+        role="status"
+        aria-label={`Active trading environment ${session.environment.toUpperCase()} on ${session.chainName}`}
+      >
         Active environment: {session.environment.toUpperCase()} ({session.chainName})
       </p>
-      {hasChainMismatch ? <p className="status-error">Wallet chain and selected environment do not match. Order submission is blocked.</p> : null}
+      {hasChainMismatch ? (
+        <p className="status-error" role="status" aria-live="polite">
+          Wallet chain and selected environment do not match. Order submission is blocked.
+        </p>
+      ) : null}
 
       <form onSubmit={onSubmit} className="grid">
         <label>
@@ -138,7 +146,14 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
 
         <div className="ticket-primary-actions">
           <button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</button>
-          {session.environment === "testnet" ? <span className="sim-pill">SIM MODE</span> : null}
+          {session.environment === "testnet" ? <span className="sim-pill" role="status" aria-label="Simulation mode enabled">SIM MODE</span> : null}
+          <span
+            className={hasChainMismatch ? "warning-pill" : "ok-pill"}
+            role="status"
+            aria-label={`Kill switch ${hasChainMismatch ? "engaged" : "ready"}`}
+          >
+            Kill switch {hasChainMismatch ? "engaged" : "ready"}
+          </span>
         </div>
       </form>
 
@@ -154,7 +169,11 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
         </div>
       ) : null}
 
-      {status ? <p className={status.type === "error" ? "status-error" : "status-success"}>{status.text}</p> : null}
+      {status ? (
+        <p className={status.type === "error" ? "status-error" : "status-success"} role="status" aria-live="polite">
+          {status.text}
+        </p>
+      ) : null}
     </div>
   )
 }

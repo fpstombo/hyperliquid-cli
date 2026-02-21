@@ -34,7 +34,7 @@ export function DashboardSecondaryPanels({ model, isLoading = false }: Dashboard
       <PanelShell title="Opportunities" subtitle="Secondary context" className="dashboard-panel-secondary">
         <div className="dashboard-secondary-list">
           {model.opportunities.map((item) => (
-            <div key={item.label} className="dashboard-list-row">
+            <div key={item.label} className="dashboard-list-row" aria-label={`${item.label}: ${item.value}`}>
               <span>{item.label}</span>
               <span>{item.value}</span>
             </div>
@@ -43,9 +43,9 @@ export function DashboardSecondaryPanels({ model, isLoading = false }: Dashboard
       </PanelShell>
 
       <PanelShell title="Intent" subtitle="Execution metadata" className="dashboard-panel-secondary">
-        <div className="dashboard-secondary-list">
+        <div className="dashboard-secondary-list" role="status" aria-label="Intent state indicators">
           {model.intents.map((item) => (
-            <div key={item.label} className="dashboard-list-row">
+            <div key={item.label} className="dashboard-list-row" aria-label={`${item.label}: ${item.value}`}>
               <span>{item.label}</span>
               <span>{item.value}</span>
             </div>

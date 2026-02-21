@@ -114,6 +114,8 @@ export function TradeClient({ symbol }: TradeClientProps) {
             className="input"
             style={{ maxWidth: "220px" }}
             placeholder="Search order id / side"
+            data-global-search
+            aria-label="Search open orders"
             value={search}
             onChange={(event) => setSearch(event.target.value)}
           />

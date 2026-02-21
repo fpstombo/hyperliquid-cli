@@ -98,8 +98,8 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
     <>
       <section className="dashboard-status-row">
         <StatusBadge variant="neutral">Session {model.status.session}</StatusBadge>
-        <StatusBadge variant="sim">{model.status.mode}</StatusBadge>
-        <StatusBadge variant={model.status.connectionTone}>{model.status.connection}</StatusBadge>
+        <StatusBadge variant="sim" role="status" aria-label={`Mode ${model.status.mode}`}>{model.status.mode}</StatusBadge>
+        <StatusBadge variant={model.status.connectionTone} role="status" aria-label={`Connection ${model.status.connection}`}>{model.status.connection}</StatusBadge>
         <StatusBadge variant={model.status.apiHealthTone}>{model.status.apiHealth}</StatusBadge>
         <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>
         <span className="dashboard-status-hint muted">Updated {model.status.updatedHint}</span>
