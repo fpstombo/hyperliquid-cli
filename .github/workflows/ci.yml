@@ -10,39 +10,17 @@ jobs:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     steps:
-      - name: Validate performance regression declaration + approval
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate PR performance evidence + regression approval
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
-        run: |
-          set -euo pipefail
-
-          if [[ -z "${PR_BODY:-}" ]]; then
-            echo "PR body is empty; cannot validate performance regression gate."
-            exit 1
-          fi
-
-          no_regression_checked=$(printf '%s' "$PR_BODY" | rg -F -c -- "- [x] No performance regression versus the latest trend-table row." || true)
-          regression_approved_checked=$(printf '%s' "$PR_BODY" | rg -F -c -- "- [x] Regression present and explicitly approved (approval link required):" || true)
-
-          if [[ "$no_regression_checked" -gt 0 && "$regression_approved_checked" -gt 0 ]]; then
-            echo "Choose exactly one regression declaration checkbox in PR template."
-            exit 1
-          fi
-
-          if [[ "$no_regression_checked" -eq 0 && "$regression_approved_checked" -eq 0 ]]; then
-            echo "A regression declaration checkbox must be selected in PR template."
-            exit 1
-          fi
-
-          if [[ "$regression_approved_checked" -gt 0 ]]; then
-            approval_line=$(printf '%s' "$PR_BODY" | rg -F -- "- [x] Regression present and explicitly approved (approval link required):" || true)
-            if ! printf '%s' "$approval_line" | rg -q "https?://"; then
-              echo "Regression marked as approved, but no approval URL found on the declaration line."
-              exit 1
-            fi
-          fi
-
-          echo "Performance regression declaration gate passed."
+          PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node scripts/ci/validate-pr-performance-metadata.mjs
 
   quality-gates:
     runs-on: ubuntu-latest
@@ -84,3 +62,11 @@ jobs:
 
       - name: API route targeted regression tests
         run: pnpm --filter web test src/web/agent-onboarding-routes.test.ts src/web/api-routes-auth.test.ts
+
+      - name: Build web app for route/chunk budget checks
+        env:
+          NEXT_PUBLIC_DISABLE_PRIVY: true
+        run: pnpm --filter @hyperliquid/web build
+
+      - name: Route/chunk budget checks
+        run: node scripts/ci/check-web-route-budgets.mjs

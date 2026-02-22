@@ -74,6 +74,7 @@ Additional chunk limits:
 - Any hard-limit miss is a **merge blocker**.
 - Any measurable regression vs the latest row in the trend table requires explicit approval (link to issue/comment/decision record) before merge.
 - "No approval link" + "regression present" is a CI failure condition.
+- CI also fails UI PRs that do not append a new trend-table row in this file and link that row in the PR template.
 
 ## Running trend table (append one row per PR slice)
 
