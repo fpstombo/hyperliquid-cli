@@ -48,6 +48,11 @@ All UI v1 implementation work must ship through the following PR sequence. Each 
 - Performance hardening or accessibility/keyboard polish beyond baseline semantic correctness.
 
 ### PR3 — Trade composition
+**Canonical v1 entrypoint (mandatory)**
+- The canonical trade composition path is `apps/web/app/trade/[symbol]/page.tsx` delegating to `apps/web/app/trade/[symbol]/components/TradeWorkspace.tsx`.
+- All trade UI composition (ticket, market snapshot/depth, open orders, and trade status surfaces) must be implemented under `apps/web/app/trade/[symbol]/components/**`.
+- `apps/web/components/trade-client.tsx` is decommissioned for v1 composition and must not be revived as a parallel page-level trade assembly path.
+
 **In scope**
 - Trade route composition (order ticket shell, book/panel layout, open orders presentation) in `apps/web`.
 - UI state composition needed for interactive trade screen behavior using existing app-local utilities.
@@ -317,14 +322,14 @@ We will maintain this file as the live status board. Each task uses one of:
 - [x] C2: Add read-only API routes. _(Artifacts: `apps/web/app/api/balances/route.ts`, `apps/web/app/api/positions/route.ts`)_
 - [x] C3: Implement client hooks for data fetching + cache. _(Artifacts: `apps/web/lib/hooks/use-dashboard-data.ts`, `apps/web/lib/hooks/use-trade-data.ts`)_
 - [x] C4: Add near-real-time updates (polling first, SSE second). _(Artifacts: `apps/web/lib/hooks/use-polling-resource.ts`)_
-- [x] C5: Replace mock state with live data in dashboard/trade pages. _(Artifacts: `apps/web/components/dashboard-client.tsx`, `apps/web/components/trade-client.tsx`)_
+- [x] C5: Replace mock state with live data in dashboard/trade pages. _(Artifacts: `apps/web/components/dashboard-client.tsx`, `apps/web/app/trade/[symbol]/components/TradeWorkspace.tsx`)_
 
 ## Epic D — Trading
 - [x] D1: Extract shared order validation/construction into `src/core`. _(Artifacts: `src/core/order.ts`, `src/core/order.test.ts`)_
 - [x] D2: Implement order execution API endpoints. _(Artifacts: `apps/web/app/api/orders/market/route.ts`, `apps/web/app/api/orders/limit/route.ts`, `apps/web/app/api/orders/cancel/route.ts`, `src/web/api-routes-auth.test.ts`)_
 - [x] D3: Build order ticket form (market + limit + reduce-only + tif). _(Artifacts: `apps/web/app/trade/[symbol]/components/OrderTicket.tsx`)_
 - [x] D4: Build open orders table with cancel action. _(Artifacts: `apps/web/app/trade/[symbol]/components/OpenOrdersTable.tsx`)_
-- [x] D5: Add status UX (pending/filled/rejected) + detailed errors. _(Artifacts: `apps/web/components/Toast.tsx`, `apps/web/app/trade/[symbol]/components/TradeWorkspace.tsx`)_
+- [x] D5: Add status UX (pending/filled/rejected) + detailed errors. _(Artifacts: `apps/web/components/ui/toast.tsx`, `apps/web/app/trade/[symbol]/components/TradeWorkspace.tsx`)_
 
 ## Epic E — API Wallet Workflow
 - [x] E1a (prototype/simulated): Build onboarding wizard shell for API wallet/agent approval. _(Artifacts: `apps/web/app/onboarding/page.tsx`)_

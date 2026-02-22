@@ -2,7 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react"
 import { useAuth } from "../../../../components/providers"
-import { PanelShell, StatusBadge } from "../../../../components/ui"
+import { Button, Input, PanelShell, StatusBadge } from "../../../../components/ui"
 import { formatSimStatusLabel, getSimStatusTone } from "../../../../lib/sim-state"
 
 type OrderType = "market" | "limit"
@@ -104,7 +104,7 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
       <form onSubmit={onSubmit} className="grid">
         <label>
           Type
-          <select value={orderType} onChange={(e) => setOrderType(e.target.value as OrderType)}>
+          <select className="input" value={orderType} onChange={(e) => setOrderType(e.target.value as OrderType)}>
             <option value="market">Market</option>
             <option value="limit">Limit</option>
           </select>
@@ -112,26 +112,20 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
 
         <label>
           Side
-          <select value={side} onChange={(e) => setSide(e.target.value as Side)}>
+          <select className="input" value={side} onChange={(e) => setSide(e.target.value as Side)}>
             <option value="buy">Buy</option>
             <option value="sell">Sell</option>
           </select>
         </label>
 
-        <label>
-          Size
-          <input value={size} onChange={(e) => setSize(e.target.value)} />
-        </label>
+        <Input label="Size" value={size} onChange={(e) => setSize(e.target.value)} />
 
         {orderType === "limit" ? (
           <>
-            <label>
-              Price
-              <input value={price} onChange={(e) => setPrice(e.target.value)} />
-            </label>
+            <Input label="Price" value={price} onChange={(e) => setPrice(e.target.value)} />
             <label>
               Time in force
-              <select value={tif} onChange={(e) => setTif(e.target.value)}>
+              <select className="input" value={tif} onChange={(e) => setTif(e.target.value)}>
                 <option value="Gtc">GTC</option>
                 <option value="Ioc">IOC</option>
                 <option value="Alo">ALO</option>
@@ -139,10 +133,7 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
             </label>
           </>
         ) : (
-          <label>
-            Slippage (%)
-            <input value={slippage} onChange={(e) => setSlippage(e.target.value)} />
-          </label>
+          <Input label="Slippage (%)" value={slippage} onChange={(e) => setSlippage(e.target.value)} />
         )}
 
         <label className="checkbox-row">
@@ -151,7 +142,7 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
         </label>
 
         <div className="ticket-primary-actions">
-          <button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</button>
+          <Button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</Button>
           {session.environment === "testnet" ? <StatusBadge variant={simStatusTone}>{simStatusLabel}</StatusBadge> : null}
           <StatusBadge variant={hasChainMismatch ? "degraded" : "confirmed"}>Kill switch {hasChainMismatch ? "engaged" : "ready"}</StatusBadge>
         </div>
@@ -163,8 +154,8 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
             Confirm {orderType} {side.toUpperCase()} {size} {symbol} on {session.environment.toUpperCase()}?
           </p>
           <div className="ticket-confirm-actions">
-            <button onClick={() => void submitOrder()} disabled={pending || hasChainMismatch}>Confirm</button>
-            <button onClick={() => setConfirming(false)} disabled={pending}>Edit</button>
+            <Button onClick={() => void submitOrder()} disabled={pending || hasChainMismatch}>Confirm</Button>
+            <Button variant="secondary" onClick={() => setConfirming(false)} disabled={pending}>Edit</Button>
           </div>
         </div>
       ) : null}
