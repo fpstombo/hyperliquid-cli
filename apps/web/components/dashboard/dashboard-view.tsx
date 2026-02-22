@@ -99,6 +99,11 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
       <section className="dashboard-status-row">
         <StatusBadge variant="neutral">Session {model.status.session}</StatusBadge>
         <StatusBadge variant={model.status.mode === "SIM" ? "sim" : "confirmed"} role="status" aria-label={`Mode ${model.status.mode}`}>{model.status.mode}</StatusBadge>
+        {model.status.mode === "SIM" ? (
+          <StatusBadge variant={model.status.simStateTone} role="status" aria-label={model.status.simStateLabel}>
+            {model.status.simStateLabel}
+          </StatusBadge>
+        ) : null}
         <StatusBadge variant={model.status.connectionTone} role="status" aria-label={`Connection ${model.status.connection}`}>{model.status.connection}</StatusBadge>
         <StatusBadge variant={model.status.apiHealthTone}>{model.status.apiHealth}</StatusBadge>
         <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>

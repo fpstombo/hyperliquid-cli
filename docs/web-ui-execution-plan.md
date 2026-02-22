@@ -84,6 +84,7 @@ Each PR in this sequence must include all of the following before merge:
 - Typecheck status report for web (`pnpm --filter web typecheck`).
 - Test status report for web (`pnpm --filter web test`).
 - Visual QA rubric completion for the changed surfaces (responsive breakpoints, dark mode, interaction states, regressions, and semantic consistency).
+- SIM viewport checklist completion (`docs/sim-viewport-qa-checklist.md`) for 1280×720, 1366×768, 1440×900, and 1920×1080 without scrolling.
 - PR screenshots showing above-the-fold captures for `/dashboard` and `/trade/[symbol]` in the active theme(s) impacted by the change.
 
 ### Visual QA rubric (required)

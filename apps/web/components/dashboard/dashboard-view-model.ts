@@ -1,6 +1,7 @@
 import type { BalancesResponse, OrdersResponse, PositionsResponse } from "../../lib/api-types"
 import { formatCurrencyUsd, formatSignedValue, formatTimestampHint, getSignedValueState, parseNumber } from "../../lib/formatters"
 import type { SessionState } from "../../lib/auth"
+import { formatSimStatusLabel, getSimStatusTone, type SimStatusTone } from "../../lib/sim-state"
 
 export type DashboardStatusVm = {
   session: string
@@ -12,6 +13,8 @@ export type DashboardStatusVm = {
   freshness: "Fresh" | "Stale"
   freshnessTone: "confirmed" | "stale"
   updatedHint: string
+  simStateLabel: "SIM Pending" | "SIM Confirmed" | "SIM Rejected"
+  simStateTone: SimStatusTone
 }
 
 export type DashboardMetricVm = {
@@ -66,16 +69,17 @@ function summarizeBalances(balances?: BalancesResponse | null): DashboardSeconda
   }))
 }
 
-function summarizeOrderContext(orders?: OrdersResponse | null): DashboardSecondaryItemVm[] {
+function summarizeOrderContext(orders?: OrdersResponse | null, simStateLabel?: string): DashboardSecondaryItemVm[] {
   if (!orders?.context) {
-    return [{ label: "Order context", value: "Unavailable" }]
+    return [{ label: simStateLabel ? "SIM Order context" : "Order context", value: "Unavailable" }]
   }
 
   return [
-    { label: "Environment", value: orders.context.environment },
-    { label: "Account source", value: orders.context.accountSource },
-    { label: "Alias", value: orders.context.accountAlias ?? "Not set" },
-    { label: "User", value: orders.context.user.slice(0, 10) + "…" },
+    ...(simStateLabel ? [{ label: "SIM State", value: simStateLabel }] : []),
+    { label: simStateLabel ? "SIM Environment" : "Environment", value: orders.context.environment },
+    { label: simStateLabel ? "SIM Account source" : "Account source", value: orders.context.accountSource },
+    { label: simStateLabel ? "SIM Alias" : "Alias", value: orders.context.accountAlias ?? "Not set" },
+    { label: simStateLabel ? "SIM User" : "User", value: orders.context.user.slice(0, 10) + "…" },
   ]
 }
 
@@ -106,6 +110,12 @@ export function buildDashboardViewModel(params: {
     0,
   )
   const freshness = getFreshness(lastSuccessAt, pollMs, stale)
+  const simStatusTone = getSimStatusTone({
+    isSim: session.environment === "testnet",
+    apiHealthy,
+    stale,
+  })
+  const simStateLabel = formatSimStatusLabel(simStatusTone)
 
   return {
     status: {
@@ -118,6 +128,8 @@ export function buildDashboardViewModel(params: {
       freshness: freshness.label,
       freshnessTone: freshness.tone,
       updatedHint: formatTimestampHint(lastSuccessAt ?? undefined),
+      simStateLabel,
+      simStateTone: simStatusTone,
     },
     metrics: {
       equity: {
@@ -151,6 +163,6 @@ export function buildDashboardViewModel(params: {
       timestamp: order.timestamp,
     })),
     opportunities: summarizeBalances(balances),
-    intents: summarizeOrderContext(orders),
+    intents: summarizeOrderContext(orders, session.environment === "testnet" ? simStateLabel : undefined),
   }
 }
