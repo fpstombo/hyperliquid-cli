@@ -80,6 +80,12 @@
   --motion-micro-fast: 120ms;
   --motion-micro-normal: 200ms;
   --motion-micro-slow: 320ms;
+  --motion-hover-duration: 120ms;
+  --motion-focus-duration: 160ms;
+  --motion-value-update-duration: 220ms;
+  --motion-panel-duration: 200ms;
+  --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
+  --motion-ease-standard: cubic-bezier(0.3, 0, 0.2, 1);
 
   /* Backward-compatible aliases (prefer semantic tokens above) */
   --bg-canvas: var(--canvas-base);
@@ -853,6 +859,16 @@ button {
   padding: var(--space-4);
   display: grid;
   gap: var(--space-4);
+  transition:
+    border-color var(--motion-panel-duration) var(--motion-ease-standard),
+    background-color var(--motion-panel-duration) var(--motion-ease-standard),
+    box-shadow var(--motion-panel-duration) var(--motion-ease-emphasized);
+}
+
+.ui-panel-shell:hover,
+.ui-panel-shell:focus-within {
+  border-color: color-mix(in srgb, var(--border-subtle) 70%, var(--accent));
+  box-shadow: 0 6px 20px rgb(2 7 18 / 30%), 0 0 0 1px rgb(82 192 255 / 12%);
 }
 
 .ui-panel-shell-header {
@@ -1089,6 +1105,11 @@ button {
     transition-duration: 1ms !important;
     scroll-behavior: auto !important;
   }
+
+  .value-flash--active {
+    color: inherit;
+    text-shadow: none;
+  }
 }
 
 .trade-workspace-grid {
@@ -1284,6 +1305,16 @@ button {
   background: color-mix(in srgb, var(--surface-base) 95%, black);
   padding: var(--space-4);
   min-height: 108px;
+  transition:
+    border-color var(--motion-panel-duration) var(--motion-ease-standard),
+    background-color var(--motion-panel-duration) var(--motion-ease-standard),
+    box-shadow var(--motion-panel-duration) var(--motion-ease-emphasized);
+}
+
+.dashboard-metric-card:hover,
+.dashboard-metric-card:focus-within {
+  border-color: color-mix(in srgb, var(--border-subtle) 68%, var(--accent));
+  box-shadow: 0 8px 24px rgb(2 7 18 / 28%);
 }
 
 .dashboard-metric-card--hero {
@@ -1442,12 +1473,20 @@ button {
 .value-flash {
   display: inline-block;
   contain: paint;
-  transition: color 220ms ease, text-shadow 280ms ease;
+  transition:
+    color var(--motion-value-update-duration) var(--motion-ease-standard),
+    text-shadow var(--motion-value-update-duration) var(--motion-ease-standard);
 }
 
 .value-flash--active {
   color: color-mix(in srgb, var(--fg-primary) 72%, #9ad8ff);
   text-shadow: 0 0 10px rgb(82 192 255 / 32%);
+}
+
+.table-value-update {
+  transition:
+    color var(--motion-value-update-duration) var(--motion-ease-standard),
+    text-shadow var(--motion-value-update-duration) var(--motion-ease-standard);
 }
 
 

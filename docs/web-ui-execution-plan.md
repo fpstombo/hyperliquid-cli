@@ -444,6 +444,7 @@ Any red item below is an immediate stop-ship for v1:
 - **Semantic inconsistency:** Conflicting badge/status semantics, token misuse, or meaning drift across equivalent UI states.
 - **Budget regressions:** Perf budget regressions beyond approved thresholds (render, interaction, or data-update pathways).
 - **Token drift:** Unauthorized design-token drift (hardcoded style values replacing tokenized semantics without explicit approval).
+- Motion behavior must follow [Web UI Motion Specification](./web-ui-motion-spec.md) across panel, metric, and value-update surfaces.
 
 ### Completion artifacts (link all before release signoff)
 

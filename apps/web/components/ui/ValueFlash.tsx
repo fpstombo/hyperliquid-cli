@@ -19,7 +19,7 @@ export function ValueFlash({ value, className = "", children }: ValueFlashProps)
 
     previousValueRef.current = value
     setIsActive(true)
-    const timer = setTimeout(() => setIsActive(false), 360)
+    const timer = setTimeout(() => setIsActive(false), 220)
     return () => clearTimeout(timer)
   }, [value])
 
