@@ -91,9 +91,29 @@ Each PR in this sequence must include all of the following before merge:
 - Visual QA rubric completion for the changed surfaces (responsive breakpoints, dark mode, interaction states, regressions, and semantic consistency).
 - SIM viewport checklist completion (`docs/sim-viewport-qa-checklist.md`) for 1280×720, 1366×768, 1440×900, and 1920×1080 without scrolling.
 - PR screenshots showing above-the-fold captures for `/dashboard` and `/trade/[symbol]` in the active theme(s) impacted by the change.
+- Reviewer sign-off that Signature Brand Layer rules were validated and pass for changed surfaces before merge.
 
 ### Visual QA rubric (required)
 Treat this rubric as a release gate for UI slices. A PR touching web UI is incomplete unless all applicable checks pass.
+
+### Signature Brand Layer (required)
+The Hyperliquid web UI must preserve a consistent signature visual layer that is recognizable without overwhelming trading readability.
+
+**Visual motifs (exact rules)**
+- **Liquid-accent placement:** apply liquid accents only to structural anchors (page-title rows, primary panel headers, key action controls, and active navigation indicators). Do not use liquid accents as decoration inside dense tabular regions.
+- **Glow intensity budget:** keep glow subtle and sparse per viewport. Limit simultaneous glow-bearing surfaces to hero context + at most two major panels, and do not allow glow effects to reduce text/chart legibility.
+- **Edge highlights:** use restrained directional edge highlights for panel affordances (rim/top-edge/focus-edge treatment) instead of full-frame neon borders.
+- **Gradient behavior:** use smooth brand-aligned 2-stop or 3-stop gradients with low-noise transitions. Gradients provide depth/hierarchy only and must not carry semantic state meaning.
+
+**Component mapping (implementation anchors)**
+- `apps/web/components/dashboard/dashboard-view.tsx`: confine signature accents to dashboard headers and high-priority summary cards; keep positions/orders tables neutral-first.
+- `apps/web/components/ui/PanelShell.tsx`: centralize shared panel edge-highlight and glow-token behavior so panel chrome stays consistent across pages.
+- `apps/web/app/globals.css`: define signature token utilities (accent gradient variables, glow intensity ceilings, edge-highlight opacity caps) that components consume.
+
+**Anti-patterns (must not ship)**
+- No full-screen glow wash/background bloom treatments.
+- No rainbow or multi-hue gradients used as semantic risk/status/action encoding.
+- No accent overuse in trading tables (rows/cells remain data-first with minimal decorative color).
 
 **Required visual checks**
 - **Spacing rhythm:** consistent spacing scale usage and predictable vertical rhythm between panels, headers, tables, and form controls.
