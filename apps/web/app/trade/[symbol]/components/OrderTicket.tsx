@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react"
 import { useAuth } from "../../../../components/providers"
 import { Button, Input, PanelShell, StatusBadge } from "../../../../components/ui"
+import { isCriticalStatusVariant, type StatusVariant } from "../../../../components/ui/StatusBadge"
 
 type OrderType = "market" | "limit"
 type Side = "buy" | "sell"
@@ -28,6 +29,9 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
   const endpoint = useMemo(() => `/api/orders/${orderType}`, [orderType])
   const expectedChainId = session.environment === "mainnet" ? 42161 : 421614
   const hasChainMismatch = session.chainId !== expectedChainId
+  const environmentTone: StatusVariant = session.environment === "mainnet" ? "warning" : "sim"
+  const submitTone: StatusVariant = pending ? "pending" : "confirmed"
+  const submitLabel = pending ? "Submitting" : "Ready"
 
   async function submitOrder() {
     setPending(true)
@@ -84,8 +88,8 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
     <PanelShell
       className="order-ticket"
       title="Order Ticket"
-      contextTag={<StatusBadge variant={session.environment === "mainnet" ? "rejected" : "sim"}>{session.environment.toUpperCase()}</StatusBadge>}
-      actions={<StatusBadge variant={pending ? "pending" : "confirmed"}>{pending ? "Submitting" : "Ready"}</StatusBadge>}
+      contextTag={<span className="muted">Execution · Env: {session.environment.toUpperCase()}</span>}
+      actions={isCriticalStatusVariant(environmentTone) ? <StatusBadge variant={environmentTone}>{session.environment.toUpperCase()}</StatusBadge> : isCriticalStatusVariant(submitTone) ? <StatusBadge variant={submitTone}>{submitLabel}</StatusBadge> : null}
     >
       {hasChainMismatch ? (
         <p className="status-error" role="status" aria-live="polite">
@@ -135,7 +139,7 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
 
         <div className="ticket-primary-actions">
           <Button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</Button>
-          <StatusBadge variant={hasChainMismatch ? "degraded" : "confirmed"}>Kill switch {hasChainMismatch ? "engaged" : "ready"}</StatusBadge>
+          <span className="muted">Kill switch: {hasChainMismatch ? "engaged" : "ready"}</span>
         </div>
       </form>
 
@@ -152,9 +156,9 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
       ) : null}
 
       {status ? (
-        <StatusBadge variant={status.type === "error" ? "rejected" : "confirmed"} role="status" aria-live="polite">
+        <p className={status.type === "error" ? "status-error" : "muted"} role="status" aria-live="polite">
           {status.text}
-        </StatusBadge>
+        </p>
       ) : null}
     </PanelShell>
   )

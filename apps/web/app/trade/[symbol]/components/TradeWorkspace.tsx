@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react"
 import { PanelShell, PnlValue, SkeletonBlock, StatusBadge, Toast } from "../../../../components/ui"
+import { isCriticalStatusVariant, type StatusVariant } from "../../../../components/ui/StatusBadge"
 import { formatMagnitude } from "../../../../lib/formatters"
 import { useSymbolPrice } from "../../../../lib/hooks/use-trade-data"
 import { OpenOrdersTable } from "./OpenOrdersTable"
@@ -42,14 +43,20 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
     return bestAsk - bestBid
   }, [])
 
+  const marketStatus: { label: string; tone: StatusVariant } = priceState.error
+    ? { label: "Feed degraded", tone: "degraded" }
+    : priceState.isStale
+      ? { label: "Feed stale", tone: "stale" }
+      : { label: "Feed live", tone: "confirmed" }
+
   return (
     <>
       <main className="trade-workspace-grid">
       <PanelShell
         className="trade-panel trade-panel--ticket"
         title="Ticket"
-        contextTag={<span className="muted">Execution</span>}
-        actions={<StatusBadge variant="pending">{symbol}</StatusBadge>}
+        contextTag={<span className="muted">Execution · Symbol: {symbol}</span>}
+        actions={null}
       >
         <OrderTicket symbol={symbol} onOrderPlaced={() => setRefreshKey((k) => k + 1)} />
       </PanelShell>
@@ -57,8 +64,8 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
       <PanelShell
         className="trade-panel trade-panel--market trade-depth-card"
         title="Market & Depth"
-        contextTag={<span className="muted">Spread {formatMagnitude(spread)}</span>}
-        actions={<StatusBadge variant={priceState.error ? "degraded" : priceState.isStale ? "stale" : "confirmed"}>{priceState.error ? "Degraded" : priceState.isStale ? "Stale" : "Live"}</StatusBadge>}
+        contextTag={<span className="muted">Market · Spread: {formatMagnitude(spread)} · {marketStatus.label}</span>}
+        actions={isCriticalStatusVariant(marketStatus.tone) ? <StatusBadge variant={marketStatus.tone}>{marketStatus.label}</StatusBadge> : null}
       >
         {priceState.error ? <p className="status-error">Failed to load price: {priceState.error}</p> : null}
         {priceState.isLoading ? (

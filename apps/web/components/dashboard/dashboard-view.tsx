@@ -3,7 +3,7 @@ import { ExposureValue } from "../ui/ExposureValue"
 import { PanelShell } from "../ui/PanelShell"
 import { PnlValue } from "../ui/PnlValue"
 import { SkeletonBlock } from "../ui/SkeletonBlock"
-import { StatusBadge } from "../ui/StatusBadge"
+import { StatusBadge, getStatusVariantPriority, isCriticalStatusVariant, type StatusVariant } from "../ui/StatusBadge"
 import { Table, type TableColumn } from "../ui/table"
 import { ValueFlash } from "../ui/ValueFlash"
 import { formatTimestamp } from "../../lib/formatters"
@@ -120,6 +120,14 @@ function renderEmpty(label: string) {
 
 export function DashboardView({ model, isInitialLoading = false }: DashboardViewProps) {
   const isSim = model.status.mode === "SIM"
+  const statusRail: Array<{ label: string; value: string; tone: StatusVariant }> = [
+    { label: "Connection", value: model.status.connection, tone: model.status.connectionTone },
+    { label: "API", value: model.status.apiHealth, tone: model.status.apiHealthTone },
+    { label: "Freshness", value: model.status.freshness, tone: model.status.freshnessTone },
+  ]
+  const criticalStatus = [...statusRail]
+    .sort((a, b) => getStatusVariantPriority(b.tone) - getStatusVariantPriority(a.tone))
+    .find((item) => isCriticalStatusVariant(item.tone))
 
   return (
     <>
@@ -163,18 +171,15 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
             </section>
 
             <section className="dashboard-status-rail" aria-label="Session and system status">
-              <div className="dashboard-status-item">
-                <p className="dashboard-status-label">Connection</p>
-                <StatusBadge variant={model.status.connectionTone}>{model.status.connection}</StatusBadge>
-              </div>
-              <div className="dashboard-status-item">
-                <p className="dashboard-status-label">API</p>
-                <StatusBadge variant={model.status.apiHealthTone}>{model.status.apiHealth}</StatusBadge>
-              </div>
-              <div className="dashboard-status-item">
-                <p className="dashboard-status-label">Freshness</p>
-                <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>
-              </div>
+              {criticalStatus ? (
+                <div className="dashboard-status-item">
+                  <p className="dashboard-status-label">Alert</p>
+                  <StatusBadge variant={criticalStatus.tone}>{criticalStatus.label}: {criticalStatus.value}</StatusBadge>
+                </div>
+              ) : null}
+              <p className="muted layout-m-0">
+                <strong>System</strong> · {statusRail.map((item) => `${item.label}: ${item.value}`).join(" · ")}
+              </p>
               <p className="dashboard-status-hint muted">Updated {model.status.updatedHint}</p>
             </section>
           </section>
