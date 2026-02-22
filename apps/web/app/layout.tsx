@@ -25,7 +25,7 @@ export default function RootLayout({ children }: { children: import("react").Rea
         <AppPrivyProvider>
           <AppKeyboardShortcuts />
           <div className="app-shell">
-            <header className="top-nav shell-surface" role="banner">
+            <header className="top-nav shell-surface signature-top-bar" role="banner">
               <div className="top-nav-inner">
                 <div className="brand-wrap">
                   <div className="brand">Hyperliquid Web</div>
