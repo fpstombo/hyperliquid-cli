@@ -1,30 +1,26 @@
 import type { HTMLAttributes, ReactNode } from "react"
 
 type PanelShellProps = HTMLAttributes<HTMLElement> & {
-  title?: ReactNode
-  subtitle?: ReactNode
+  title: ReactNode
+  contextTag?: ReactNode
   actions?: ReactNode
   footer?: ReactNode
 }
 
 /**
  * Usage example:
- * <PanelShell title="Portfolio" subtitle="Unified account" actions={<StatusBadge variant="sim">SIM</StatusBadge>}>
- *   <InlineStat label="Equity" value={<ValueText value="+15234.12" />} />
+ * <PanelShell title="Portfolio" contextTag="Unified account" actions={<StatusBadge variant="sim">SIM</StatusBadge>}>
+ *   <InlineStat label="Equity" value={<ValueText mode="signed" value="+15234.12" state="positive" />} />
  * </PanelShell>
  */
-export function PanelShell({ title, subtitle, actions, footer, className = "", children, ...props }: PanelShellProps) {
+export function PanelShell({ title, contextTag, actions, footer, className = "", children, ...props }: PanelShellProps) {
   return (
     <section className={`ui-panel-shell ${className}`.trim()} {...props}>
-      {title || subtitle || actions ? (
-        <header className="ui-panel-shell-header">
-          <div>
-            {title ? <h2 className="ui-panel-shell-title">{title}</h2> : null}
-            {subtitle ? <p className="ui-panel-shell-subtitle">{subtitle}</p> : null}
-          </div>
-          {actions ? <div>{actions}</div> : null}
-        </header>
-      ) : null}
+      <header className="ui-panel-shell-header">
+        <h2 className="ui-panel-shell-title">{title}</h2>
+        <div className="ui-panel-shell-context">{contextTag}</div>
+        <div className="ui-panel-shell-actions">{actions}</div>
+      </header>
       {children}
       {footer ? <footer>{footer}</footer> : null}
     </section>

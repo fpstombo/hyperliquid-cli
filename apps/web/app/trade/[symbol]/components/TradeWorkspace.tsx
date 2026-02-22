@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { PanelShell, PnlValue } from "../../../../components/ui"
+import { PanelShell, PnlValue, StatusBadge } from "../../../../components/ui"
 import { formatMagnitude } from "../../../../lib/formatters"
 import { OpenOrdersTable } from "./OpenOrdersTable"
 import { OrderTicket } from "./OrderTicket"
@@ -37,64 +37,59 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
 
   return (
     <main className="trade-workspace-grid">
-      <section className="trade-panel trade-panel--ticket">
-        <header className="trade-section-header">
-          <h2>Ticket</h2>
-          <div className="trade-meta-bar">
-            <span className="muted">Execution</span>
-            <strong>{symbol}</strong>
-          </div>
-        </header>
+      <PanelShell
+        className="trade-panel trade-panel--ticket"
+        title="Ticket"
+        contextTag={<span className="muted">Execution</span>}
+        actions={<StatusBadge variant="pending">{symbol}</StatusBadge>}
+      >
         <OrderTicket symbol={symbol} onOrderPlaced={() => setRefreshKey((k) => k + 1)} />
-      </section>
+      </PanelShell>
 
-      <section className="trade-panel trade-panel--market">
-        <header className="trade-section-header">
-          <h2>Market & Depth</h2>
-          <div className="trade-meta-bar">
-            <span>Spread {formatMagnitude(spread)}</span>
-            <span>Best Bid {mockBook.bids[0][0]}</span>
-            <span>Best Ask {mockBook.asks[0][0]}</span>
+      <PanelShell
+        className="trade-panel trade-panel--market trade-depth-card"
+        title="Market & Depth"
+        contextTag={<span className="muted">Spread {formatMagnitude(spread)}</span>}
+        actions={<StatusBadge variant="confirmed">Order Book</StatusBadge>}
+      >
+        <div className="trade-meta-bar">
+          <span>Best Bid {mockBook.bids[0][0]}</span>
+          <span>Best Ask {mockBook.asks[0][0]}</span>
+        </div>
+        <div className="trade-depth-grid">
+          <div>
+            <h4>Bids</h4>
+            {mockBook.bids.map(([price, size]) => (
+              <div key={`bid-${price}`} className="trade-depth-row">
+                <span>{price}</span>
+                <span>{size}</span>
+              </div>
+            ))}
           </div>
-        </header>
-
-        <PanelShell className="trade-depth-card" title="Order Book">
-          <div className="trade-depth-grid">
-            <div>
-              <h4>Bids</h4>
-              {mockBook.bids.map(([price, size]) => (
-                <div key={`bid-${price}`} className="trade-depth-row">
-                  <span>{price}</span>
-                  <span>{size}</span>
-                </div>
-              ))}
-            </div>
-            <div>
-              <h4>Asks</h4>
-              {mockBook.asks.map(([price, size]) => (
-                <div key={`ask-${price}`} className="trade-depth-row">
-                  <span>{price}</span>
-                  <span>{size}</span>
-                </div>
-              ))}
-            </div>
+          <div>
+            <h4>Asks</h4>
+            {mockBook.asks.map(([price, size]) => (
+              <div key={`ask-${price}`} className="trade-depth-row">
+                <span>{price}</span>
+                <span>{size}</span>
+              </div>
+            ))}
           </div>
-        </PanelShell>
-      </section>
+        </div>
+      </PanelShell>
 
-      <section className="trade-panel trade-panel--orders">
-        <header className="trade-section-header">
-          <h2>Open Orders & Position</h2>
-          <div className="trade-meta-bar">
-            <span>Position {mockPosition.side}</span>
-            <span>Size {mockPosition.size}</span>
-            <span>
-              PNL <PnlValue value={mockPosition.pnl} />
-            </span>
-          </div>
-        </header>
-
-        <PanelShell className="trade-position-card" title="Position Summary">
+      <PanelShell
+        className="trade-panel trade-panel--orders"
+        title="Open Orders & Position"
+        contextTag={<span className="muted">Position {mockPosition.side}</span>}
+        actions={<StatusBadge variant="confirmed">Size {mockPosition.size}</StatusBadge>}
+      >
+        <div className="trade-meta-bar">
+          <span>
+            PNL <PnlValue value={mockPosition.pnl} />
+          </span>
+        </div>
+        <PanelShell className="trade-position-card" title="Position Summary" contextTag="Risk" actions={<StatusBadge variant="stale">Snapshot</StatusBadge>}>
           <div className="trade-position-grid">
             <span className="muted">Entry</span>
             <strong>{mockPosition.entry}</strong>
@@ -104,7 +99,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
         </PanelShell>
 
         <OpenOrdersTable refreshKey={refreshKey} />
-      </section>
+      </PanelShell>
     </main>
   )
 }

@@ -10,7 +10,7 @@ type InlineStatProps = HTMLAttributes<HTMLDivElement> & {
  * Usage example:
  * <InlineStat
  *   label="Funding"
- *   value={<ValueText value={0.0045} signDisplay="always" state="positive" />}
+ *   value={<ValueText mode="signed" value={0.0045} state="positive" />}
  *   meta="8h"
  * />
  */

@@ -6,11 +6,11 @@ export type DashboardStatusVm = {
   session: string
   mode: string
   apiHealth: string
-  apiHealthTone: "positive" | "warning"
+  apiHealthTone: "confirmed" | "degraded"
   connection: "Connected" | "Degraded"
-  connectionTone: "positive" | "warning"
+  connectionTone: "confirmed" | "degraded"
   freshness: "Fresh" | "Stale"
-  freshnessTone: "positive" | "warning"
+  freshnessTone: "confirmed" | "stale"
   updatedHint: string
 }
 
@@ -79,13 +79,13 @@ function summarizeOrderContext(orders?: OrdersResponse | null): DashboardSeconda
   ]
 }
 
-function getFreshness(lastSuccessAt: number | null, pollMs: number, stale: boolean): { label: "Fresh" | "Stale"; tone: "positive" | "warning" } {
+function getFreshness(lastSuccessAt: number | null, pollMs: number, stale: boolean): { label: "Fresh" | "Stale"; tone: "confirmed" | "stale" } {
   if (stale || !lastSuccessAt) {
-    return { label: "Stale", tone: "warning" }
+    return { label: "Stale", tone: "stale" }
   }
 
   const isFresh = Date.now() - lastSuccessAt <= pollMs * 3
-  return isFresh ? { label: "Fresh", tone: "positive" } : { label: "Stale", tone: "warning" }
+  return isFresh ? { label: "Fresh", tone: "confirmed" } : { label: "Stale", tone: "stale" }
 }
 
 export function buildDashboardViewModel(params: {
@@ -112,9 +112,9 @@ export function buildDashboardViewModel(params: {
       session: session.walletAddress ? `${session.walletAddress.slice(0, 6)}…${session.walletAddress.slice(-4)}` : "No wallet",
       mode: session.environment === "testnet" ? "SIM" : "LIVE",
       apiHealth: apiHealthy ? "Healthy" : "Degraded",
-      apiHealthTone: apiHealthy ? "positive" : "warning",
+      apiHealthTone: apiHealthy ? "confirmed" : "degraded",
       connection: apiHealthy ? "Connected" : "Degraded",
-      connectionTone: apiHealthy ? "positive" : "warning",
+      connectionTone: apiHealthy ? "confirmed" : "degraded",
       freshness: freshness.label,
       freshnessTone: freshness.tone,
       updatedHint: formatTimestampHint(lastSuccessAt ?? undefined),
