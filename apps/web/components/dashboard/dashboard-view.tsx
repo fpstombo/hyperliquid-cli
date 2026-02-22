@@ -94,73 +94,97 @@ function renderEmpty(label: string) {
 }
 
 export function DashboardView({ model, isInitialLoading = false }: DashboardViewProps) {
+  const isSim = model.status.mode === "SIM"
+
   return (
     <>
-      <section className="dashboard-status-row">
-        <StatusBadge variant="neutral">Session {model.status.session}</StatusBadge>
-        <StatusBadge variant={model.status.mode === "SIM" ? "sim" : "confirmed"} role="status" aria-label={`Mode ${model.status.mode}`}>{model.status.mode}</StatusBadge>
-        {model.status.mode === "SIM" ? (
-          <StatusBadge variant={model.status.simStateTone} role="status" aria-label={model.status.simStateLabel}>
-            {model.status.simStateLabel}
-          </StatusBadge>
-        ) : null}
-        <StatusBadge variant={model.status.connectionTone} role="status" aria-label={`Connection ${model.status.connection}`}>{model.status.connection}</StatusBadge>
-        <StatusBadge variant={model.status.apiHealthTone}>{model.status.apiHealth}</StatusBadge>
-        <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>
-        <span className="dashboard-status-hint muted">Updated {model.status.updatedHint}</span>
-      </section>
+      <section className="dashboard-first-viewport">
+        <section className="dashboard-hero-grid">
+          <article className="dashboard-metric-card dashboard-metric-card--hero">
+            <p className="dashboard-metric-label">{model.metrics.equity.label}</p>
+            <p className="dashboard-metric-value dashboard-metric-value--hero">
+              <ValueFlash value={model.metrics.equity.value}>{model.metrics.equity.value}</ValueFlash>
+            </p>
+            <p className="dashboard-metric-tertiary">Session {model.status.session}</p>
+          </article>
 
-      <section className="dashboard-metrics-grid">
-        <article className="dashboard-metric-card">
-          <p className="dashboard-metric-label">{model.metrics.equity.label}</p>
-          <p className="dashboard-metric-value"><ValueFlash value={model.metrics.equity.value}>{model.metrics.equity.value}</ValueFlash></p>
-        </article>
-        <article className="dashboard-metric-card">
-          <p className="dashboard-metric-label">{model.metrics.unrealizedPnl.label}</p>
-          <p className="dashboard-metric-value">
-            <ValueFlash value={model.metrics.unrealizedPnl.rawValue ?? 0}><PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} /></ValueFlash>
-          </p>
-        </article>
-        <article className="dashboard-metric-card">
-          <p className="dashboard-metric-label">{model.metrics.exposure.label}</p>
-          <p className="dashboard-metric-value">
-            <ValueFlash value={model.metrics.exposure.rawValue ?? 0}><ExposureValue value={model.metrics.exposure.rawValue ?? 0} /></ValueFlash>
-          </p>
-        </article>
-      </section>
+          <article className="dashboard-metric-card dashboard-metric-card--supporting">
+            <p className="dashboard-metric-label">{model.metrics.unrealizedPnl.label}</p>
+            <p className="dashboard-metric-value">
+              <ValueFlash value={model.metrics.unrealizedPnl.rawValue ?? 0}><PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} /></ValueFlash>
+            </p>
+          </article>
 
-      <section className="dashboard-core-grid">
-        <PanelShell title="Open Positions" className="dashboard-panel-primary">
-          {isInitialLoading && model.positions.length === 0 ? (
-            tableLoadingSkeleton()
-          ) : model.positions.length ? (
-            <Table
-              columns={positionColumns}
-              rows={model.positions}
-              rowKey={(position) => position.id}
-              itemCount={model.positions.length}
-              itemSize={40}
-            />
-          ) : (
-            renderEmpty("No open positions.")
-          )}
-        </PanelShell>
+          <article className="dashboard-metric-card dashboard-metric-card--supporting">
+            <p className="dashboard-metric-label">{model.metrics.exposure.label}</p>
+            <p className="dashboard-metric-value">
+              <ValueFlash value={model.metrics.exposure.rawValue ?? 0}><ExposureValue value={model.metrics.exposure.rawValue ?? 0} /></ValueFlash>
+            </p>
+          </article>
+        </section>
 
-        <PanelShell title="Open Orders" className="dashboard-panel-primary">
-          {isInitialLoading && model.orders.length === 0 ? (
-            tableLoadingSkeleton()
-          ) : model.orders.length ? (
-            <Table
-              columns={orderColumns}
-              rows={model.orders}
-              rowKey={(order) => order.id}
-              itemCount={model.orders.length}
-              itemSize={40}
-            />
-          ) : (
-            renderEmpty("No open orders.")
-          )}
-        </PanelShell>
+        <section className="dashboard-status-rail" aria-label="Session and system status">
+          <div className="dashboard-status-primary">
+            <p className="dashboard-status-label">Mode</p>
+            <div className="dashboard-status-primary-content">
+              <StatusBadge variant={isSim ? "sim" : "confirmed"} role="status" aria-label={`Mode ${model.status.mode}`}>
+                {model.status.mode}
+              </StatusBadge>
+              {isSim ? (
+                <span className={`dashboard-status-simstate dashboard-status-simstate--${model.status.simStateTone}`} role="status" aria-label={model.status.simStateLabel}>
+                  {model.status.simStateLabel}
+                </span>
+              ) : null}
+            </div>
+          </div>
+          <div className="dashboard-status-item">
+            <p className="dashboard-status-label">Connection</p>
+            <StatusBadge variant={model.status.connectionTone}>{model.status.connection}</StatusBadge>
+          </div>
+          <div className="dashboard-status-item">
+            <p className="dashboard-status-label">API</p>
+            <StatusBadge variant={model.status.apiHealthTone}>{model.status.apiHealth}</StatusBadge>
+          </div>
+          <div className="dashboard-status-item">
+            <p className="dashboard-status-label">Freshness</p>
+            <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>
+          </div>
+          <p className="dashboard-status-hint muted">Updated {model.status.updatedHint}</p>
+        </section>
+
+        <section className="dashboard-core-grid">
+          <PanelShell title="Open Positions" className="dashboard-panel-primary">
+            {isInitialLoading && model.positions.length === 0 ? (
+              tableLoadingSkeleton()
+            ) : model.positions.length ? (
+              <Table
+                columns={positionColumns}
+                rows={model.positions}
+                rowKey={(position) => position.id}
+                itemCount={model.positions.length}
+                itemSize={40}
+              />
+            ) : (
+              renderEmpty("No open positions.")
+            )}
+          </PanelShell>
+
+          <PanelShell title="Open Orders" className="dashboard-panel-primary">
+            {isInitialLoading && model.orders.length === 0 ? (
+              tableLoadingSkeleton()
+            ) : model.orders.length ? (
+              <Table
+                columns={orderColumns}
+                rows={model.orders}
+                rowKey={(order) => order.id}
+                itemCount={model.orders.length}
+                itemSize={40}
+              />
+            ) : (
+              renderEmpty("No open orders.")
+            )}
+          </PanelShell>
+        </section>
       </section>
 
       <DashboardSecondaryPanels model={model} isLoading={isInitialLoading} />
