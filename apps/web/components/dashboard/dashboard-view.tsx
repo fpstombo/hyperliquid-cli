@@ -19,14 +19,14 @@ const DashboardSecondaryPanels = dynamic(
   {
     loading: () => (
       <section className="dashboard-secondary-grid" aria-label="Loading secondary panels">
-        <PanelShell title="Opportunities" subtitle="Secondary context" className="dashboard-panel-secondary">
+        <PanelShell title="Opportunities" contextTag="Secondary context" className="dashboard-panel-secondary">
           <div className="dashboard-secondary-list">
             <SkeletonBlock height="1rem" />
             <SkeletonBlock height="1rem" width="80%" />
             <SkeletonBlock height="1rem" width="65%" />
           </div>
         </PanelShell>
-        <PanelShell title="Intent" subtitle="Execution metadata" className="dashboard-panel-secondary">
+        <PanelShell title="Intent" contextTag="Execution metadata" className="dashboard-panel-secondary">
           <div className="dashboard-secondary-list">
             <SkeletonBlock height="1rem" />
             <SkeletonBlock height="1rem" width="76%" />
@@ -98,7 +98,7 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
     <>
       <section className="dashboard-status-row">
         <StatusBadge variant="neutral">Session {model.status.session}</StatusBadge>
-        <StatusBadge variant="sim" role="status" aria-label={`Mode ${model.status.mode}`}>{model.status.mode}</StatusBadge>
+        <StatusBadge variant={model.status.mode === "SIM" ? "sim" : "confirmed"} role="status" aria-label={`Mode ${model.status.mode}`}>{model.status.mode}</StatusBadge>
         <StatusBadge variant={model.status.connectionTone} role="status" aria-label={`Connection ${model.status.connection}`}>{model.status.connection}</StatusBadge>
         <StatusBadge variant={model.status.apiHealthTone}>{model.status.apiHealth}</StatusBadge>
         <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>

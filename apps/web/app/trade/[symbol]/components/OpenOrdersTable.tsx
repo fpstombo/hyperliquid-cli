@@ -130,10 +130,14 @@ export function OpenOrdersTable({ refreshKey }: Props) {
   )
 
   return (
-    <PanelShell title="Open Orders">
+    <PanelShell
+      title="Open Orders"
+      contextTag={<StatusBadge variant={lastLoadedAt ? "confirmed" : "stale"}>{lastLoadedAt ? "Fresh" : "Stale"}</StatusBadge>}
+      actions={<StatusBadge variant={error ? "degraded" : "confirmed"}>{error ? "Degraded" : "Connected"}</StatusBadge>}
+    >
       <div className="dashboard-status-row" style={{ marginBottom: "0.5rem" }}>
-        <StatusBadge variant={error ? "warning" : "positive"}>{error ? "Degraded" : "Connected"}</StatusBadge>
-        <StatusBadge variant={lastLoadedAt ? "positive" : "warning"}>{lastLoadedAt ? "Fresh" : "Stale"}</StatusBadge>
+        <StatusBadge variant={error ? "degraded" : "confirmed"}>{error ? "Degraded" : "Connected"}</StatusBadge>
+        <StatusBadge variant={lastLoadedAt ? "confirmed" : "stale"}>{lastLoadedAt ? "Fresh" : "Stale"}</StatusBadge>
         <span className="muted">Updated {formatTimestampHint(lastLoadedAt ?? undefined)}</span>
       </div>
       {context ? (

@@ -13,6 +13,6 @@ export function PnlValue({ value, className = "", ...props }: PnlValueProps) {
   const rendered = formatSignedValue(amount, formatCurrencyUsd)
 
   return (
-    <ValueText value={`${direction} ${rendered}`} state={state} className={`ui-pnl-value ${className}`.trim()} {...props} />
+    <ValueText mode="signed" value={`${direction} ${rendered}`} state={state} className={`ui-pnl-value ${className}`.trim()} {...props} />
   )
 }

@@ -81,14 +81,12 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
   }
 
   return (
-    <PanelShell className="order-ticket" title="Order Ticket">
-      <StatusBadge
-        variant={session.environment === "mainnet" ? "warning" : "sim"}
-        role="status"
-        aria-label={`Active trading environment ${session.environment.toUpperCase()} on ${session.chainName}`}
-      >
-        Active environment: {session.environment.toUpperCase()} ({session.chainName})
-      </StatusBadge>
+    <PanelShell
+      className="order-ticket"
+      title="Order Ticket"
+      contextTag={<StatusBadge variant={session.environment === "mainnet" ? "rejected" : "sim"}>{session.environment.toUpperCase()}</StatusBadge>}
+      actions={<StatusBadge variant={pending ? "pending" : "confirmed"}>{pending ? "Submitting" : "Ready"}</StatusBadge>}
+    >
       {hasChainMismatch ? (
         <p className="status-error" role="status" aria-live="polite">
           Wallet chain and selected environment do not match. Order submission is blocked.
@@ -146,14 +144,8 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
 
         <div className="ticket-primary-actions">
           <button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</button>
-          {session.environment === "testnet" ? <StatusBadge variant="sim" role="status" aria-label="Simulation mode enabled">SIM MODE</StatusBadge> : null}
-          <StatusBadge
-            variant={hasChainMismatch ? "warning" : "positive"}
-            role="status"
-            aria-label={`Kill switch ${hasChainMismatch ? "engaged" : "ready"}`}
-          >
-            Kill switch {hasChainMismatch ? "engaged" : "ready"}
-          </StatusBadge>
+          {session.environment === "testnet" ? <StatusBadge variant="sim">SIM MODE</StatusBadge> : null}
+          <StatusBadge variant={hasChainMismatch ? "degraded" : "confirmed"}>Kill switch {hasChainMismatch ? "engaged" : "ready"}</StatusBadge>
         </div>
       </form>
 
@@ -170,9 +162,9 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
       ) : null}
 
       {status ? (
-        <p className={status.type === "error" ? "status-error" : "status-success"} role="status" aria-live="polite">
+        <StatusBadge variant={status.type === "error" ? "rejected" : "confirmed"} role="status" aria-live="polite">
           {status.text}
-        </p>
+        </StatusBadge>
       ) : null}
     </PanelShell>
   )
