@@ -50,7 +50,15 @@ function tableLoadingSkeleton(rows = 4) {
 
 const positionColumns: TableColumn<DashboardPositionVm>[] = [
   { key: "market", header: "Market", minWidth: 92 },
-  { key: "size", header: "Size", align: "right", width: 120, minWidth: 110, className: "table-col--numeric" },
+  {
+    key: "size",
+    header: "Size",
+    align: "right",
+    width: 120,
+    minWidth: 110,
+    className: "table-col--numeric",
+    render: (position) => <ValueFlash value={position.size} className="table-value-update">{position.size}</ValueFlash>,
+  },
   {
     key: "unrealizedPnl",
     header: "PnL",
@@ -58,7 +66,11 @@ const positionColumns: TableColumn<DashboardPositionVm>[] = [
     width: 130,
     minWidth: 120,
     className: "table-col--numeric",
-    render: (position) => <PnlValue value={position.unrealizedPnl} />,
+    render: (position) => (
+      <ValueFlash value={position.unrealizedPnl} className="table-value-update">
+        <PnlValue value={position.unrealizedPnl} />
+      </ValueFlash>
+    ),
   },
 ]
 
@@ -70,7 +82,15 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
     minWidth: 74,
     render: (order) => (order.side === "B" ? "Buy" : "Sell"),
   },
-  { key: "size", header: "Size", align: "right", width: 110, minWidth: 100, className: "table-col--numeric" },
+  {
+    key: "size",
+    header: "Size",
+    align: "right",
+    width: 110,
+    minWidth: 100,
+    className: "table-col--numeric",
+    render: (order) => <ValueFlash value={order.size} className="table-value-update">{order.size}</ValueFlash>,
+  },
   {
     key: "limitPrice",
     header: "Price",
@@ -78,6 +98,7 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
     width: 120,
     minWidth: 110,
     className: "table-col--numeric",
+    render: (order) => <ValueFlash value={order.limitPrice} className="table-value-update">{order.limitPrice}</ValueFlash>,
   },
   {
     key: "timestamp",
@@ -85,7 +106,11 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
     width: 188,
     minWidth: 170,
     className: "table-col--numeric",
-    render: (order) => formatTimestamp(order.timestamp),
+    render: (order) => (
+      <ValueFlash value={order.timestamp ?? ""} className="table-value-update">
+        {formatTimestamp(order.timestamp)}
+      </ValueFlash>
+    ),
   },
 ]
 

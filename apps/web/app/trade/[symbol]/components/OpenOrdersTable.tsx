@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Button, PanelShell, StatusBadge, Table, type TableColumn } from "../../../../components/ui"
+import { Button, PanelShell, StatusBadge, Table, ValueFlash, type TableColumn } from "../../../../components/ui"
 import { useAuth } from "../../../../components/providers"
 import { formatTimestamp, formatTimestampHint } from "../../../../lib/formatters"
 
@@ -97,6 +97,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
         minWidth: 110,
         width: 120,
         className: "table-col--numeric",
+        render: (order) => <ValueFlash value={order.sz} className="table-value-update">{order.sz}</ValueFlash>,
       },
       {
         key: "limitPx",
@@ -105,6 +106,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
         minWidth: 120,
         width: 140,
         className: "table-col--numeric",
+        render: (order) => <ValueFlash value={order.limitPx} className="table-value-update">{order.limitPx}</ValueFlash>,
       },
       {
         key: "timestamp",
@@ -112,7 +114,11 @@ export function OpenOrdersTable({ refreshKey }: Props) {
         minWidth: 170,
         width: 190,
         className: "table-col--numeric",
-        render: (order) => formatTimestamp(order.timestamp),
+        render: (order) => (
+          <ValueFlash value={order.timestamp ?? ""} className="table-value-update">
+            {formatTimestamp(order.timestamp)}
+          </ValueFlash>
+        ),
       },
       {
         key: "actions",
