@@ -58,12 +58,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
         className="trade-panel trade-panel--market trade-depth-card"
         title="Market & Depth"
         contextTag={<span className="muted">Spread {formatMagnitude(spread)}</span>}
-        actions={
-          <div className="dashboard-status-row">
-            <StatusBadge variant={priceState.isStale ? "stale" : "confirmed"}>{priceState.isStale ? "Stale" : "Live"}</StatusBadge>
-            <StatusBadge variant={priceState.error ? "degraded" : "confirmed"}>{priceState.error ? "Degraded" : "Connected"}</StatusBadge>
-          </div>
-        }
+        actions={<StatusBadge variant={priceState.error ? "degraded" : priceState.isStale ? "stale" : "confirmed"}>{priceState.error ? "Degraded" : priceState.isStale ? "Stale" : "Live"}</StatusBadge>}
       >
         {priceState.error ? <p className="status-error">Failed to load price: {priceState.error}</p> : null}
         {priceState.isLoading ? (
@@ -103,14 +98,13 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
         className="trade-panel trade-panel--orders"
         title="Open Orders & Position"
         contextTag={<span className="muted">Position {mockPosition.side}</span>}
-        actions={<StatusBadge variant="confirmed">Size {mockPosition.size}</StatusBadge>}
+        actions={null}
       >
         <div className="trade-meta-bar">
-          <span>
-            PNL <PnlValue value={mockPosition.pnl} />
-          </span>
+          <span>PNL <PnlValue value={mockPosition.pnl} /></span>
+          <span>Size {mockPosition.size}</span>
         </div>
-        <PanelShell className="trade-position-card" title="Position Summary" contextTag="Risk" actions={<StatusBadge variant="stale">Snapshot</StatusBadge>}>
+        <PanelShell className="trade-position-card" title="Position Summary" contextTag="Risk" actions={null}>
           <div className="trade-position-grid">
             <span className="muted">Entry</span>
             <strong>{mockPosition.entry}</strong>
