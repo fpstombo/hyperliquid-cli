@@ -896,10 +896,16 @@ button {
 
 /* UI primitives */
 .ui-panel-shell {
-  border: 1px solid var(--border-subtle);
+  --panel-bg: color-mix(in srgb, var(--surface-base) 94%, black);
+  --panel-border: color-mix(in srgb, var(--border-subtle) 88%, transparent);
+  --panel-inner-highlight: rgb(150 224 255 / 7%);
+  --panel-edge-glow: rgb(86 200 255 / 11%);
+  border: 1px solid var(--panel-border);
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--surface-base) 94%, black);
-  box-shadow: 0 4px 18px rgb(2 7 18 / 22%);
+  background: linear-gradient(180deg, var(--panel-inner-highlight) 0%, transparent 14%), var(--panel-bg);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 3%),
+    0 4px 18px rgb(2 7 18 / 22%);
   padding: var(--space-4);
   display: grid;
   gap: var(--space-4);
@@ -911,31 +917,35 @@ button {
 
 .ui-panel-shell:hover,
 .ui-panel-shell:focus-within {
-  border-color: color-mix(in srgb, var(--border-subtle) 70%, var(--accent));
-  box-shadow: 0 6px 20px rgb(2 7 18 / 30%), 0 0 0 1px rgb(82 192 255 / 12%);
+  border-color: color-mix(in srgb, var(--panel-border) 68%, var(--accent));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 4%),
+    0 6px 20px rgb(2 7 18 / 30%),
+    0 0 0 1px var(--panel-edge-glow);
 }
 
 .ui-panel-shell-header {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto;
-  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
   gap: var(--space-3);
-}
-
-:is(.dashboard-shell, .trade-shell) .ui-panel-shell-header {
   border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 72%, var(--signature-edge-highlight));
-  padding-bottom: var(--space-2);
+  padding-bottom: var(--space-3);
   box-shadow: inset 0 -1px 0 rgb(86 200 255 / 9%);
 }
 
-:is(.dashboard-shell, .trade-shell) .ui-panel-shell-title {
-  text-shadow: 0 0 10px var(--signature-accent-glow-soft);
+.ui-panel-shell-heading {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
 }
 
 .ui-panel-shell-title {
   margin: 0;
   font-size: var(--text-md);
   font-weight: 600;
+  line-height: 1.2;
+  text-shadow: 0 0 10px var(--signature-accent-glow-soft);
 }
 
 .ui-panel-shell-context {
@@ -950,6 +960,25 @@ button {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
+  min-height: 1.5rem;
+  padding-top: 1px;
+}
+
+.ui-panel-shell--primary {
+  --panel-bg: color-mix(in srgb, var(--surface-base) 94%, black);
+}
+
+.ui-panel-shell--secondary {
+  --panel-bg: color-mix(in srgb, var(--surface-base) 92%, black);
+  --panel-border: color-mix(in srgb, var(--border-subtle) 80%, var(--signature-edge-highlight));
+  --panel-inner-highlight: rgb(150 224 255 / 5%);
+}
+
+.ui-panel-shell--overlay {
+  --panel-bg: color-mix(in srgb, var(--surface-base) 88%, black);
+  --panel-border: color-mix(in srgb, var(--border-subtle) 64%, var(--accent));
+  --panel-inner-highlight: rgb(157 212 255 / 11%);
+  --panel-edge-glow: rgb(82 192 255 / 18%);
 }
 
 .ui-status-badge {
@@ -1437,11 +1466,11 @@ button {
   gap: var(--space-4);
 }
 
-.dashboard-panel-primary {
+.dashboard-grid-span-6 {
   grid-column: span 6;
 }
 
-.dashboard-panel-secondary {
+.dashboard-secondary-panel {
   grid-column: span 6;
   min-height: 292px;
 }
@@ -1550,8 +1579,8 @@ button {
     align-items: start;
   }
 
-  .dashboard-panel-primary,
-  .dashboard-panel-secondary {
+  .dashboard-grid-span-6,
+  .dashboard-secondary-panel {
     grid-column: 1 / -1;
   }
 }

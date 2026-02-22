@@ -86,6 +86,7 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
 
   return (
     <PanelShell
+      tier="overlay"
       className="order-ticket"
       title="Order Ticket"
       contextTag={<span className="muted">Execution · Env: {session.environment.toUpperCase()}</span>}

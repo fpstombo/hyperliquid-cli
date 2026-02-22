@@ -137,6 +137,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
 
   return (
     <PanelShell
+      tier="secondary"
       title="Open Orders"
       contextTag={<span className="muted">Updated {formatTimestampHint(lastLoadedAt ?? undefined)}</span>}
       actions={null}
