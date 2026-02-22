@@ -582,6 +582,18 @@ a {
   font-feature-settings: "tnum";
 }
 
+.table th.table-col--numeric,
+.table td.table-col--numeric {
+  width: max-content;
+}
+
+.table-numeric-text {
+  display: inline-block;
+  min-width: 100%;
+  text-align: inherit;
+  padding-inline-start: 1ch;
+}
+
 .table-empty {
   color: var(--fg-muted);
   text-align: center;
@@ -1231,8 +1243,8 @@ button {
 
 .value-flash {
   display: inline-block;
+  contain: paint;
   transition: color 220ms ease, text-shadow 280ms ease;
-  will-change: color, text-shadow;
 }
 
 .value-flash--active {

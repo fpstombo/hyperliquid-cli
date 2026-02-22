@@ -14,7 +14,7 @@ type TradeClientProps = {
   symbol: string
 }
 
-const SORT_FREEZE_WINDOW_MS = 3000
+const SORT_HOLD_WINDOW_MS = 1200
 
 const TradeOrderRow = memo(function TradeOrderRow({ order }: { order: OrderItem }) {
   return (
@@ -32,6 +32,7 @@ export function TradeClient({ symbol }: TradeClientProps) {
   const [search, setSearch] = useState("")
   const [liveSort, setLiveSort] = useState(false)
   const [displayedOrderIds, setDisplayedOrderIds] = useState<number[]>([])
+  const [lastResortAt, setLastResortAt] = useState(0)
   const debouncedSearch = useDebouncedValue(search, 300)
 
   const onTransientError = useCallback((message: string) => {
@@ -52,20 +53,33 @@ export function TradeClient({ symbol }: TradeClientProps) {
   useEffect(() => {
     if (symbolOrders.length === 0) {
       setDisplayedOrderIds([])
+      setLastResortAt(0)
       return
     }
+
+    const nextOrderIds = symbolOrders.map((order) => order.oid)
 
     if (liveSort || displayedOrderIds.length === 0) {
-      setDisplayedOrderIds(symbolOrders.map((order) => order.oid))
+      setDisplayedOrderIds(nextOrderIds)
+      setLastResortAt(Date.now())
       return
     }
 
-    const freezeTimer = setTimeout(() => {
-      setDisplayedOrderIds(symbolOrders.map((order) => order.oid))
-    }, SORT_FREEZE_WINDOW_MS)
+    const now = Date.now()
+    const elapsed = now - lastResortAt
+    if (elapsed >= SORT_HOLD_WINDOW_MS) {
+      setDisplayedOrderIds(nextOrderIds)
+      setLastResortAt(now)
+      return
+    }
 
-    return () => clearTimeout(freezeTimer)
-  }, [displayedOrderIds.length, liveSort, symbolOrders])
+    const holdTimer = setTimeout(() => {
+      setDisplayedOrderIds(nextOrderIds)
+      setLastResortAt(Date.now())
+    }, SORT_HOLD_WINDOW_MS - elapsed)
+
+    return () => clearTimeout(holdTimer)
+  }, [displayedOrderIds.length, lastResortAt, liveSort, symbolOrders])
 
   const symbolOrdersById = useMemo(() => new Map(symbolOrders.map((order) => [order.oid, order])), [symbolOrders])
   const displayedOrders = useMemo(() => {
