@@ -145,37 +145,39 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
             </p>
           </article>
 
-          <section className="dashboard-secondary-metrics" aria-label="Secondary metrics">
-            <article className="dashboard-metric-card dashboard-metric-card--supporting">
-              <p className="dashboard-metric-label">{model.metrics.unrealizedPnl.label}</p>
-              <p className="dashboard-metric-value">
-                <ValueFlash value={model.metrics.unrealizedPnl.rawValue ?? 0}><PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} /></ValueFlash>
-              </p>
-            </article>
+          <section className="dashboard-hero-side" aria-label="Risk and status context">
+            <section className="dashboard-secondary-metrics" aria-label="Secondary metrics">
+              <article className="dashboard-metric-card dashboard-metric-card--supporting">
+                <p className="dashboard-metric-label">{model.metrics.unrealizedPnl.label}</p>
+                <p className="dashboard-metric-value">
+                  <ValueFlash value={model.metrics.unrealizedPnl.rawValue ?? 0}><PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} /></ValueFlash>
+                </p>
+              </article>
 
-            <article className="dashboard-metric-card dashboard-metric-card--supporting">
-              <p className="dashboard-metric-label">{model.metrics.exposure.label}</p>
-              <p className="dashboard-metric-value">
-                <ValueFlash value={model.metrics.exposure.rawValue ?? 0}><ExposureValue value={model.metrics.exposure.rawValue ?? 0} /></ValueFlash>
-              </p>
-            </article>
+              <article className="dashboard-metric-card dashboard-metric-card--supporting">
+                <p className="dashboard-metric-label">{model.metrics.exposure.label}</p>
+                <p className="dashboard-metric-value">
+                  <ValueFlash value={model.metrics.exposure.rawValue ?? 0}><ExposureValue value={model.metrics.exposure.rawValue ?? 0} /></ValueFlash>
+                </p>
+              </article>
+            </section>
+
+            <section className="dashboard-status-rail" aria-label="Session and system status">
+              <div className="dashboard-status-item">
+                <p className="dashboard-status-label">Connection</p>
+                <StatusBadge variant={model.status.connectionTone}>{model.status.connection}</StatusBadge>
+              </div>
+              <div className="dashboard-status-item">
+                <p className="dashboard-status-label">API</p>
+                <StatusBadge variant={model.status.apiHealthTone}>{model.status.apiHealth}</StatusBadge>
+              </div>
+              <div className="dashboard-status-item">
+                <p className="dashboard-status-label">Freshness</p>
+                <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>
+              </div>
+              <p className="dashboard-status-hint muted">Updated {model.status.updatedHint}</p>
+            </section>
           </section>
-        </section>
-
-        <section className="dashboard-status-rail" aria-label="Session and system status">
-          <div className="dashboard-status-item">
-            <p className="dashboard-status-label">Connection</p>
-            <StatusBadge variant={model.status.connectionTone}>{model.status.connection}</StatusBadge>
-          </div>
-          <div className="dashboard-status-item">
-            <p className="dashboard-status-label">API</p>
-            <StatusBadge variant={model.status.apiHealthTone}>{model.status.apiHealth}</StatusBadge>
-          </div>
-          <div className="dashboard-status-item">
-            <p className="dashboard-status-label">Freshness</p>
-            <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>
-          </div>
-          <p className="dashboard-status-hint muted">Updated {model.status.updatedHint}</p>
         </section>
 
         <section className="dashboard-core-grid">
