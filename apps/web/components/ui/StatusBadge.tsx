@@ -31,12 +31,18 @@ const STATUS_PRIORITY: Record<StatusVariant, number> = {
   "sim-rejected": 85,
 }
 
+const CRITICAL_STATUS_VARIANTS: StatusVariant[] = ["rejected", "sim-rejected", "degraded", "negative", "warning", "pending"]
+
 type StatusBadgeProps = HTMLAttributes<HTMLSpanElement> & {
   variant?: StatusVariant
 }
 
 export function getStatusVariantPriority(variant: StatusVariant): number {
   return STATUS_PRIORITY[variant]
+}
+
+export function isCriticalStatusVariant(variant: StatusVariant): boolean {
+  return CRITICAL_STATUS_VARIANTS.includes(variant)
 }
 
 /**
