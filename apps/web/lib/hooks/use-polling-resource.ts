@@ -49,8 +49,7 @@ export function usePollingResource<T>({
   const [lastSuccessAt, setLastSuccessAt] = useState<number | null>(null)
   const [lastAttemptAt, setLastAttemptAt] = useState<number | null>(null)
   const mountedRef = useRef(true)
-  const flushTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-  const lastPresentationRef = useRef(0)
+  const lastPresentationRef = useRef<number | null>(null)
   const pendingDataRef = useRef<T | null>(null)
   const hasSnapshotRef = useRef(false)
 
@@ -68,30 +67,6 @@ export function usePollingResource<T>({
     lastPresentationRef.current = Date.now()
   }, [])
 
-  const scheduleDataCommit = useCallback(() => {
-    const now = Date.now()
-    const elapsed = now - lastPresentationRef.current
-    const waitMs = Math.max(presentationCadenceMs - elapsed, 0)
-
-    if (waitMs === 0) {
-      if (flushTimerRef.current) {
-        clearTimeout(flushTimerRef.current)
-        flushTimerRef.current = null
-      }
-      flushData()
-      return
-    }
-
-    if (flushTimerRef.current) {
-      return
-    }
-
-    flushTimerRef.current = setTimeout(() => {
-      flushTimerRef.current = null
-      flushData()
-    }, waitMs)
-  }, [flushData, presentationCadenceMs])
-
   const refresh = useCallback(async () => {
     setLastAttemptAt(Date.now())
     setIsRefreshing(true)
@@ -101,7 +76,9 @@ export function usePollingResource<T>({
         return
       }
       pendingDataRef.current = nextData
-      scheduleDataCommit()
+      if (lastPresentationRef.current === null) {
+        flushData()
+      }
       setError(null)
       setIsStale(false)
       setLastSuccessAt(Date.now())
@@ -121,7 +98,7 @@ export function usePollingResource<T>({
         setIsLoading(false)
       }
     }
-  }, [fetcher, onTransientError, scheduleDataCommit])
+  }, [fetcher, flushData, onTransientError])
 
   useEffect(() => {
     mountedRef.current = true
@@ -131,15 +108,16 @@ export function usePollingResource<T>({
       void refresh()
     }, pollMs)
 
+    const presentationInterval = setInterval(() => {
+      flushData()
+    }, presentationCadenceMs)
+
     return () => {
       mountedRef.current = false
       clearInterval(interval)
-      if (flushTimerRef.current) {
-        clearTimeout(flushTimerRef.current)
-        flushTimerRef.current = null
-      }
+      clearInterval(presentationInterval)
     }
-  }, [pollMs, refresh])
+  }, [flushData, pollMs, presentationCadenceMs, refresh])
 
   return {
     data,

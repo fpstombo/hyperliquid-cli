@@ -40,6 +40,8 @@ export function Table<T>({
   const resolvedItemCount = itemCount ?? rows.length
   const resolvedRowHeight = itemSize ?? (density === "compact" ? 40 : 48)
 
+  const isNumericColumn = (className?: string) => className?.split(" ").includes("table-col--numeric") ?? false
+
   return (
     <div className="table-wrap">
       <table className={`table table--${density} ${stickyHeader ? "table--sticky-header" : ""}`}>
@@ -77,8 +79,14 @@ export function Table<T>({
               return (
                 <tr key={rowKey ? rowKey(row, index) : index} style={{ height: `${resolvedRowHeight}px` }}>
                   {columns.map((column) => (
-                    <td key={String(column.key)} className={column.className} style={{ textAlign: column.align ?? "left" }}>
-                      {column.render ? column.render(row, index) : String((row as Record<string, unknown>)[column.key as string] ?? "")}
+                    <td
+                      key={String(column.key)}
+                      className={column.className}
+                      style={{ textAlign: column.align ?? "left", width: column.width, minWidth: column.minWidth }}
+                    >
+                      <span className={isNumericColumn(column.className) ? "table-numeric-text" : undefined}>
+                        {column.render ? column.render(row, index) : String((row as Record<string, unknown>)[column.key as string] ?? "")}
+                      </span>
                     </td>
                   ))}
                 </tr>
