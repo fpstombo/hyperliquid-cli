@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
-import { shortenAddress } from "../lib/auth"
+import { shortenAddress } from "../lib/hooks/use-auth-session"
 import { useAuth } from "./providers"
 import { StatusBadge } from "./ui"
 

@@ -1,7 +1,7 @@
-import type { BalancesResponse, OrdersResponse, PositionsResponse } from "../../lib/api-types"
-import { formatCurrencyUsd, formatSignedValue, formatTimestampHint, getSignedValueState, parseNumber } from "../../lib/formatters"
-import type { SessionState } from "../../lib/auth"
-import { formatSimStatusLabel, getSimStatusTone, type SimStatusTone } from "../../lib/sim-state"
+import type { BalancesResponse, OrdersResponse, PositionsResponse } from "../api-types"
+import type { SessionState } from "../auth"
+import { formatCurrencyUsd, formatSignedValue, formatTimestampHint, getSignedValueState, parseNumber } from "../formatters"
+import { formatSimStatusLabel, getSimStatusTone, type SimStatusTone } from "../sim-state"
 
 export type DashboardStatusVm = {
   session: string

@@ -45,4 +45,5 @@
 - [ ] `pnpm --filter web test` — Artifact link:
 - [ ] `pnpm --filter web exec eslint apps/web/app/api --max-warnings=0` — Artifact link:
 - [ ] `pnpm --filter web exec tsc --noEmit` — Artifact link:
+- [ ] `pnpm --filter web exec eslint apps/web/components --max-warnings=0` — Artifact link:
 - [ ] `pnpm --filter web test src/web/agent-onboarding-routes.test.ts src/web/api-routes-auth.test.ts` — Artifact link:

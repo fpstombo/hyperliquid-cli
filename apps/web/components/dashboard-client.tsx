@@ -5,7 +5,7 @@ import { Toast } from "./Toast"
 import { useBalances, useOrders, usePositions } from "../lib/hooks/use-dashboard-data"
 import { useAuth } from "./providers"
 import { DashboardView } from "./dashboard/dashboard-view"
-import { buildDashboardViewModel } from "./dashboard/dashboard-view-model"
+import { buildDashboardViewModel } from "../lib/hooks/dashboard-view-model"
 
 const DASHBOARD_POLL_MS = 5000
 

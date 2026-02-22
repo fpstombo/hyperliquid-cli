@@ -15,6 +15,23 @@ export default [
       },
     },
   },
+
+  {
+    files: ["components/**/*.ts", "components/**/*.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["**/lib/api*", "**/lib/auth", "**/lib/sim-state", "**/lib/server*", "**/lib/agent-state-server", "**/lib/trading"],
+              message: "Render components must remain presentation-only. Move API/domain/server wiring into lib/hooks or route containers.",
+            },
+          ],
+        },
+      ],
+    },
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
 ]
