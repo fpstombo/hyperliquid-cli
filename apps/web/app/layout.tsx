@@ -9,8 +9,6 @@ import "./globals.css"
 const navItems = [
   { href: "/dashboard", label: "Dashboard" },
   { href: "/trade/BTC", label: "Trade" },
-  { href: "/onboarding", label: "Onboarding" },
-  { href: "/agent-status", label: "Agent Status" },
 ]
 
 const markets = ["BTC", "ETH", "SOL", "ARB", "HYPE"]

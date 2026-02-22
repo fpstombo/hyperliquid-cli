@@ -6,6 +6,9 @@ import { usePathname, useRouter } from "next/navigation"
 const routeShortcuts: Record<string, string> = {
   "1": "/dashboard",
   "2": "/trade/BTC",
+}
+
+const nonV1RouteShortcuts: Record<string, string> = {
   "3": "/onboarding",
   "4": "/agent-status",
 }
@@ -22,6 +25,14 @@ function isTypingTarget(target: EventTarget | null) {
 export function AppKeyboardShortcuts() {
   const router = useRouter()
   const pathname = usePathname()
+  const nonV1RoutesEnabled = process.env.NEXT_PUBLIC_ENABLE_NON_V1_ROUTES === "true"
+
+  const activeRouteShortcuts = nonV1RoutesEnabled
+    ? {
+        ...routeShortcuts,
+        ...nonV1RouteShortcuts,
+      }
+    : routeShortcuts
 
   useEffect(() => {
     function onKeydown(event: KeyboardEvent) {
@@ -30,7 +41,7 @@ export function AppKeyboardShortcuts() {
       }
 
       if (event.altKey && !event.shiftKey && !event.metaKey && !event.ctrlKey) {
-        const route = routeShortcuts[event.key]
+        const route = activeRouteShortcuts[event.key]
         if (route && pathname !== route) {
           event.preventDefault()
           router.push(route)
@@ -53,7 +64,7 @@ export function AppKeyboardShortcuts() {
 
     window.addEventListener("keydown", onKeydown)
     return () => window.removeEventListener("keydown", onKeydown)
-  }, [pathname, router])
+  }, [activeRouteShortcuts, pathname, router])
 
   return null
 }

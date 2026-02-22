@@ -20,6 +20,25 @@ These guardrails are hard caps for v1 delivery and apply to all planning and imp
 
 v1 stays within **dashboard + trade** user journeys and **SIM/testnet validation paths**.
 
+## Route inventory and scope classification
+
+Current page routes under `apps/web/app/**/page.tsx`:
+
+| Route file | Path behavior | v1 scope |
+| --- | --- | --- |
+| `apps/web/app/page.tsx` | Redirects root (`/`) to `/dashboard` | **v1 in-scope** (entry redirect only) |
+| `apps/web/app/auth/page.tsx` | Authentication entry page (`/auth`) | **v1 in-scope** |
+| `apps/web/app/dashboard/page.tsx` | Dashboard (`/dashboard`) | **v1 in-scope** |
+| `apps/web/app/trade/[symbol]/page.tsx` | Trade workspace (`/trade/[symbol]`) | **v1 in-scope** |
+| `apps/web/app/onboarding/page.tsx` | Agent onboarding wizard (`/onboarding`) | **out-of-scope for v1 primary nav** |
+| `apps/web/app/agent-status/page.tsx` | Agent status/remediation (`/agent-status`) | **out-of-scope for v1 primary nav** |
+
+Navigation behavior for v1:
+
+- Primary nav surfaces only v1 pages (`/dashboard`, `/trade/[symbol]`).
+- Non-v1 pages are not in primary nav.
+- Non-v1 pages remain reachable only via explicit paths (e.g. `/onboarding`, `/agent-status`) and optional non-v1 route shortcuts when `NEXT_PUBLIC_ENABLE_NON_V1_ROUTES=true`.
+
 ## Locked non-goals (must not ship in v1)
 
 - No live trading paths on mainnet.
@@ -39,6 +58,7 @@ Every web UI PR must include a checklist section that explicitly confirms guardr
 
 - [ ] Changes remain inside dashboard/trade + SIM scope.
 - [ ] No net-new top-level page beyond cap.
+- [ ] Route-cap compliance confirmed against `apps/web/app/**/page.tsx` inventory (all non-v1 pages remain hidden from primary nav).
 - [ ] No net-new above-the-fold primary block beyond cap.
 - [ ] No net-new primary composite component beyond cap.
 - [ ] Any new panel includes explicit displacement or demotion.
