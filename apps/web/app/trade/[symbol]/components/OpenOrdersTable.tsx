@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { PanelShell, StatusBadge, Table, type TableColumn } from "../../../../components/ui"
+import { Button, PanelShell, StatusBadge, Table, type TableColumn } from "../../../../components/ui"
 import { useAuth } from "../../../../components/providers"
 import { formatTimestamp, formatTimestampHint } from "../../../../lib/formatters"
 
@@ -120,9 +120,9 @@ export function OpenOrdersTable({ refreshKey }: Props) {
         minWidth: 90,
         width: 90,
         render: (order) => (
-          <button onClick={() => void cancelOrder(order)} disabled={hasEnvironmentMismatch}>
+          <Button size="sm" variant="ghost" onClick={() => void cancelOrder(order)} disabled={hasEnvironmentMismatch}>
             Cancel
-          </button>
+          </Button>
         ),
       },
     ],

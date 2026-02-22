@@ -1,8 +1,9 @@
 "use client"
 
-import { useMemo, useState } from "react"
-import { PanelShell, PnlValue, StatusBadge } from "../../../../components/ui"
+import { useCallback, useMemo, useState } from "react"
+import { PanelShell, PnlValue, SkeletonBlock, StatusBadge, Toast } from "../../../../components/ui"
 import { formatMagnitude } from "../../../../lib/formatters"
+import { useSymbolPrice } from "../../../../lib/hooks/use-trade-data"
 import { OpenOrdersTable } from "./OpenOrdersTable"
 import { OrderTicket } from "./OrderTicket"
 
@@ -29,6 +30,12 @@ const mockPosition = {
 
 export function TradeWorkspace({ symbol }: { symbol: string }) {
   const [refreshKey, setRefreshKey] = useState(0)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const onTransientError = useCallback((message: string) => {
+    setToastMessage(`Transient API issue: ${message}`)
+  }, [])
+  const priceState = useSymbolPrice(symbol, onTransientError)
+
   const spread = useMemo(() => {
     const bestBid = Number(mockBook.bids[0][0].replaceAll(",", ""))
     const bestAsk = Number(mockBook.asks[0][0].replaceAll(",", ""))
@@ -36,7 +43,8 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
   }, [])
 
   return (
-    <main className="trade-workspace-grid">
+    <>
+      <main className="trade-workspace-grid">
       <PanelShell
         className="trade-panel trade-panel--ticket"
         title="Ticket"
@@ -50,8 +58,21 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
         className="trade-panel trade-panel--market trade-depth-card"
         title="Market & Depth"
         contextTag={<span className="muted">Spread {formatMagnitude(spread)}</span>}
-        actions={<StatusBadge variant="confirmed">Order Book</StatusBadge>}
+        actions={
+          <div className="dashboard-status-row">
+            <StatusBadge variant={priceState.isStale ? "stale" : "confirmed"}>{priceState.isStale ? "Stale" : "Live"}</StatusBadge>
+            <StatusBadge variant={priceState.error ? "degraded" : "confirmed"}>{priceState.error ? "Degraded" : "Connected"}</StatusBadge>
+          </div>
+        }
       >
+        {priceState.error ? <p className="status-error">Failed to load price: {priceState.error}</p> : null}
+        {priceState.isLoading ? (
+          <SkeletonBlock width="14rem" height="2rem" className="trade-price-block" aria-label="Loading latest price" />
+        ) : priceState.data?.price ? (
+          <p className="trade-price">{priceState.data.price}</p>
+        ) : (
+          <p className="muted">No price found for this symbol.</p>
+        )}
         <div className="trade-meta-bar">
           <span>Best Bid {mockBook.bids[0][0]}</span>
           <span>Best Ask {mockBook.asks[0][0]}</span>
@@ -100,6 +121,8 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
 
         <OpenOrdersTable refreshKey={refreshKey} />
       </PanelShell>
-    </main>
+      </main>
+      {toastMessage ? <Toast tone="warning" title="Market data" message={toastMessage} /> : null}
+    </>
   )
 }
