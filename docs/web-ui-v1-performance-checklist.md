@@ -1,8 +1,8 @@
 # Web UI v1 Performance Checklist
 
-## Hard performance limits (release blocking)
+## Hard performance limits (release blocking, including visual enhancements)
 
-These limits apply to every PR touching `apps/web/app/dashboard/**`, `apps/web/app/trade/**`, or shared UI/data hooks that impact those routes.
+These limits apply to every PR touching `apps/web/app/dashboard/**`, `apps/web/app/trade/**`, or shared UI/data hooks that impact those routes, including visual-only enhancements (motion, styling, layout polish, chart skinning, typography, and animation tweaks).
 
 | Metric | `/dashboard` hard limit | `/trade/[symbol]` hard limit | Notes |
 | --- | ---: | ---: | --- |
@@ -28,6 +28,7 @@ Additional chunk limits:
 - [ ] Spinners/"Loading..." placeholders are not used on primary above-the-fold panels.
 - [ ] Expensive row/cell render paths are memoized.
 - [ ] Callback and derived-model props are stabilized (e.g., `useCallback`/`useMemo`) to prevent prop churn.
+- [ ] Visual changes explicitly verify no FPS-floor or update-latency regressions versus the previous baseline row.
 
 ## Measurement method (must be recorded in PR)
 
@@ -61,7 +62,14 @@ Additional chunk limits:
    - Frame chart sustains >= 55 FPS most of the run.
    - No repeated long tasks causing visible stutter.
 
-### 4) Update-latency sampling
+### 4) Comparative visual-upgrade metrics (required for visual PRs)
+1. For any visual/UI enhancement, capture **before** (base branch) and **after** (PR branch) runs for both `/dashboard` and `/trade/[symbol]`.
+2. Record route-level FPS floor and p95 update latency for both routes in this file's trend table row, including artifact links (trace, Lighthouse report, screen capture notes).
+3. Pass criteria:
+   - No regression beyond hard limits.
+   - Any measurable regression must include explicit approval from product + engineering owners before merge.
+
+### 5) Update-latency sampling
 1. In DevTools, mark network response completion for prices/orders/positions.
 2. Correlate with first paint of updated value in the panel.
 3. Pass criteria:
@@ -72,7 +80,9 @@ Additional chunk limits:
 ## Regression and merge gate
 
 - Any hard-limit miss is a **merge blocker**.
+- Any visual change that breaches route FPS/update-latency thresholds is **stop-ship** until remediated or explicitly approved.
 - Any measurable regression vs the latest row in the trend table requires explicit approval (link to issue/comment/decision record) before merge.
+- Required approvers for justified regressions: engineering owner + product/design owner (both must be named in the linked approval artifact).
 - "No approval link" + "regression present" is a CI failure condition.
 - CI also fails UI PRs that do not append a new trend-table row in this file and link that row in the PR template.
 
@@ -80,7 +90,7 @@ Additional chunk limits:
 
 Use this table to catch cumulative bloat and regressions across slices. Every UI PR must append a new row (do not overwrite history).
 
-| PR | Slice | `/dashboard` JS (KB) | `/trade/[symbol]` JS (KB) | Dashboard hydration (s) | Trade hydration (s) | Dashboard TTI (s) | Trade TTI (s) | Update latency p95 (ms) | FPS floor | Regression vs previous? | Approval link (if regressed) | Measurement method + artifacts |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |
-| _TBD (next PR)_ | _TBD_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _yes/no_ | _required if yes_ | _build log + perf trace/lighthouse links_ |
-| _current branch_ | Server-shell refactor (`/dashboard`, `/trade/[symbol]`) | _pending_ | _pending_ | **2.1 target** | **2.4 target** | **3.0 target** | **3.3 target** | _pending_ | _pending_ | no | n/a | targets re-baselined with this refactor |
+| PR | Slice | `/dashboard` JS (KB) | `/trade/[symbol]` JS (KB) | Dashboard hydration (s) | Trade hydration (s) | Dashboard TTI (s) | Trade TTI (s) | Dashboard update latency p95 (ms) | Trade update latency p95 (ms) | Dashboard FPS floor | Trade FPS floor | Regression vs previous? | Approval link (if regressed) | Measurement method + artifacts |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |
+| _TBD (next PR)_ | _TBD_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _before/after fill_ | _before/after fill_ | _before/after fill_ | _before/after fill_ | _yes/no_ | _required if yes_ | _build log + perf trace/lighthouse links for both routes_ |
+| _current branch_ | Server-shell refactor (`/dashboard`, `/trade/[symbol]`) | _pending_ | _pending_ | **2.1 target** | **2.4 target** | **3.0 target** | **3.3 target** | _pending_ | _pending_ | _pending_ | _pending_ | no | n/a | targets re-baselined with this refactor |

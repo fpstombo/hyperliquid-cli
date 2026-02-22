@@ -22,6 +22,8 @@ This release gate combines the mandatory completion checks for visual quality, p
 - `/dashboard` and `/trade/[symbol]` satisfy all hard limits.
 - No route/chunk size cap misses.
 - Hydration, TTI, update latency, and FPS checks pass.
+- Visual enhancements must not regress route FPS/update-latency budgets versus prior baseline without explicit approval.
+- Comparative before/after metrics are recorded for `/dashboard` and `/trade/[symbol]` in the performance trend table.
 - Trend table row is appended for the release PR.
 
 ### 3) Streaming gate
@@ -50,7 +52,7 @@ This release gate combines the mandatory completion checks for visual quality, p
 | Gate domain | Pass requirement | Blocker trigger |
 | --- | --- | --- |
 | Visual | 100% checks pass | Any rubric fail or missing screenshots |
-| Performance | 100% hard limits pass | Any limit miss or missing perf evidence |
+| Performance | 100% hard limits pass + visual-regression evidence/approval present | Any limit miss, missing comparative metrics, or unapproved visual regression |
 | Streaming | >=99% required checks pass | Data freshness/recovery regression |
 | SIM | 100% checks pass | Any viewport visibility or semantic mismatch |
 | Boundary | 100% checks pass | Guardrail cap breach or non-goal violation |
@@ -61,3 +63,13 @@ This release gate combines the mandatory completion checks for visual quality, p
 **Web UI v1 cannot be declared complete unless every release gate above passes and the computed confidence score is >=99.**
 
 If any gate fails, v1 status remains **incomplete** until remediation evidence is merged and re-validated.
+
+## Stop-ship override rule
+
+Any visual change that breaches `/dashboard` or `/trade/[symbol]` FPS/update-latency thresholds is **stop-ship** by default.
+
+The only allowed exception is a documented justified regression with explicit sign-off from both:
+- Engineering owner (performance accountability)
+- Product/design owner (experience tradeoff accountability)
+
+Approval evidence must be linked in both the performance trend-table row and release PR before release can proceed.
