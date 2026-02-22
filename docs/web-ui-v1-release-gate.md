@@ -14,8 +14,9 @@ This release gate combines the mandatory completion checks for visual quality, p
 
 ### 1) Visual gate
 - All applicable visual rubric checks pass.
+- Dashboard Visual Excellence rubric pass is mandatory for `/dashboard` (first-glance impact, brand recognizability, hierarchy clarity, elegance at density).
 - No visual auto-fail conditions.
-- Screenshot evidence is attached for changed surfaces.
+- Screenshot evidence is attached for changed surfaces, including required before/after `/dashboard` captures at 1280x720, 1366x768, 1440x900, and 1920x1080 across key states.
 
 ### 2) Performance gate
 - `/dashboard` and `/trade/[symbol]` satisfy all hard limits.
