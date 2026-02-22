@@ -124,44 +124,45 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
   return (
     <>
       <section className="dashboard-first-viewport">
-        <section className="dashboard-hero-grid">
+        <section className="dashboard-hero-composition">
           <article className="dashboard-metric-card dashboard-metric-card--hero">
-            <p className="dashboard-metric-label">{model.metrics.equity.label}</p>
-            <p className="dashboard-metric-value dashboard-metric-value--hero">
-              <ValueFlash value={model.metrics.equity.value}>{model.metrics.equity.value}</ValueFlash>
-            </p>
-            <p className="dashboard-metric-tertiary">Session {model.status.session}</p>
-          </article>
-
-          <article className="dashboard-metric-card dashboard-metric-card--supporting">
-            <p className="dashboard-metric-label">{model.metrics.unrealizedPnl.label}</p>
-            <p className="dashboard-metric-value">
-              <ValueFlash value={model.metrics.unrealizedPnl.rawValue ?? 0}><PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} /></ValueFlash>
-            </p>
-          </article>
-
-          <article className="dashboard-metric-card dashboard-metric-card--supporting">
-            <p className="dashboard-metric-label">{model.metrics.exposure.label}</p>
-            <p className="dashboard-metric-value">
-              <ValueFlash value={model.metrics.exposure.rawValue ?? 0}><ExposureValue value={model.metrics.exposure.rawValue ?? 0} /></ValueFlash>
-            </p>
-          </article>
-        </section>
-
-        <section className="dashboard-status-rail" aria-label="Session and system status">
-          <div className="dashboard-status-primary">
-            <p className="dashboard-status-label">Mode</p>
-            <div className="dashboard-status-primary-content">
+            <div className="dashboard-metric-heading">
+              <p className="dashboard-metric-label">{model.metrics.equity.label}</p>
               <StatusBadge variant={isSim ? "sim" : "confirmed"} role="status" aria-label={`Mode ${model.status.mode}`}>
                 {model.status.mode}
               </StatusBadge>
+            </div>
+            <p className="dashboard-metric-value dashboard-metric-value--hero">
+              <ValueFlash value={model.metrics.equity.value}>{model.metrics.equity.value}</ValueFlash>
+            </p>
+            <p className="dashboard-metric-tertiary">
+              Session {model.status.session}
               {isSim ? (
                 <span className={`dashboard-status-simstate dashboard-status-simstate--${model.status.simStateTone}`} role="status" aria-label={model.status.simStateLabel}>
                   {model.status.simStateLabel}
                 </span>
               ) : null}
-            </div>
-          </div>
+            </p>
+          </article>
+
+          <section className="dashboard-secondary-metrics" aria-label="Secondary metrics">
+            <article className="dashboard-metric-card dashboard-metric-card--supporting">
+              <p className="dashboard-metric-label">{model.metrics.unrealizedPnl.label}</p>
+              <p className="dashboard-metric-value">
+                <ValueFlash value={model.metrics.unrealizedPnl.rawValue ?? 0}><PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} /></ValueFlash>
+              </p>
+            </article>
+
+            <article className="dashboard-metric-card dashboard-metric-card--supporting">
+              <p className="dashboard-metric-label">{model.metrics.exposure.label}</p>
+              <p className="dashboard-metric-value">
+                <ValueFlash value={model.metrics.exposure.rawValue ?? 0}><ExposureValue value={model.metrics.exposure.rawValue ?? 0} /></ValueFlash>
+              </p>
+            </article>
+          </section>
+        </section>
+
+        <section className="dashboard-status-rail" aria-label="Session and system status">
           <div className="dashboard-status-item">
             <p className="dashboard-status-label">Connection</p>
             <StatusBadge variant={model.status.connectionTone}>{model.status.connection}</StatusBadge>
@@ -174,6 +175,12 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
             <p className="dashboard-status-label">Freshness</p>
             <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>
           </div>
+          {isSim ? (
+            <div className="dashboard-status-item dashboard-status-item--sim">
+              <p className="dashboard-status-label">SIM</p>
+              <span className={`dashboard-status-simstate dashboard-status-simstate--${model.status.simStateTone}`}>{model.status.simStateLabel}</span>
+            </div>
+          ) : null}
           <p className="dashboard-status-hint muted">Updated {model.status.updatedHint}</p>
         </section>
 

@@ -1226,26 +1226,35 @@ button {
   gap: var(--space-2);
 }
 
-.dashboard-hero-grid {
+.dashboard-hero-composition {
   display: grid;
   gap: var(--space-2);
-  grid-template-columns: minmax(320px, 1.8fr) repeat(2, minmax(220px, 1fr));
+  grid-template-columns: minmax(420px, 2fr) minmax(360px, 1fr);
+  align-items: stretch;
+}
+
+.dashboard-secondary-metrics {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
 }
 
 .dashboard-status-hint {
   font-size: var(--text-xs);
-  align-self: center;
+  justify-self: end;
+  align-self: end;
+  margin: 0;
 }
 
 .dashboard-status-rail {
-  display: grid;
-  grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(120px, 1fr)) auto;
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: var(--space-2) var(--space-3);
+  gap: 0.35rem var(--space-3);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   background: color-mix(in srgb, var(--surface-base) 95%, black);
-  padding: 0.48rem var(--space-3);
+  padding: 0.42rem var(--space-3);
 }
 
 .dashboard-status-label {
@@ -1256,24 +1265,25 @@ button {
   color: var(--fg-muted);
 }
 
-.dashboard-status-primary {
-  display: grid;
-}
-
-.dashboard-status-primary-content {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-2);
-  flex-wrap: wrap;
-}
-
 .dashboard-status-item {
   display: grid;
+  gap: 2px;
+}
+
+.dashboard-status-item--sim {
+  min-width: 122px;
 }
 
 .dashboard-status-simstate {
   font-size: var(--text-xs);
   font-weight: 600;
+}
+
+.dashboard-metric-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
 }
 
 .dashboard-status-simstate--confirmed,
@@ -1318,11 +1328,11 @@ button {
 }
 
 .dashboard-metric-card--hero {
-  min-height: 112px;
+  min-height: 168px;
 }
 
 .dashboard-metric-card--supporting {
-  min-height: 84px;
+  min-height: 80px;
 }
 
 .dashboard-metric-label {
@@ -1349,6 +1359,10 @@ button {
   margin: var(--space-1) 0 0;
   color: var(--fg-muted);
   font-size: var(--text-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
 }
 
 .dashboard-core-grid,
@@ -1456,12 +1470,18 @@ button {
 }
 
 @media (max-width: 900px) {
-  .dashboard-hero-grid,
+  .dashboard-hero-composition,
+  .dashboard-secondary-metrics,
   .dashboard-status-rail,
   .dashboard-metrics-grid,
   .dashboard-core-grid,
   .dashboard-secondary-grid {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-status-hint {
+    justify-self: start;
+    width: 100%;
   }
 
   .dashboard-panel-primary,
