@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Button, PanelShell, StatusBadge, Table, ValueFlash, type TableColumn } from "../../../../components/ui"
+import { Button, PanelShell, Table, ValueFlash, type TableColumn } from "../../../../components/ui"
 import { useAuth } from "../../../../components/providers"
 import { formatTimestamp, formatTimestampHint } from "../../../../lib/formatters"
 
@@ -138,14 +138,9 @@ export function OpenOrdersTable({ refreshKey }: Props) {
   return (
     <PanelShell
       title="Open Orders"
-      contextTag={<StatusBadge variant={lastLoadedAt ? "confirmed" : "stale"}>{lastLoadedAt ? "Fresh" : "Stale"}</StatusBadge>}
-      actions={<StatusBadge variant={error ? "degraded" : "confirmed"}>{error ? "Degraded" : "Connected"}</StatusBadge>}
+      contextTag={<span className="muted">Updated {formatTimestampHint(lastLoadedAt ?? undefined)}</span>}
+      actions={null}
     >
-      <div className="dashboard-status-row" style={{ marginBottom: "0.5rem" }}>
-        <StatusBadge variant={error ? "degraded" : "confirmed"}>{error ? "Degraded" : "Connected"}</StatusBadge>
-        <StatusBadge variant={lastLoadedAt ? "confirmed" : "stale"}>{lastLoadedAt ? "Fresh" : "Stale"}</StatusBadge>
-        <span className="muted">Updated {formatTimestampHint(lastLoadedAt ?? undefined)}</span>
-      </div>
       {context ? (
         <p className="muted">
           API context: {context.environment.toUpperCase()} · {context.user} · {context.accountAlias ?? context.accountSource}

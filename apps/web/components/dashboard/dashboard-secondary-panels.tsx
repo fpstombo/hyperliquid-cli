@@ -11,26 +11,26 @@ const TOP_HIGHLIGHT_LIMIT = 2
 
 function getOpportunityContext(rank: number) {
   if (rank === 1) {
-    return { confidence: "High", rationale: "Signal lead", timeContext: "Updated now" }
+    return { confidence: "High", timeContext: "Updated now" }
   }
 
   if (rank === 2) {
-    return { confidence: "Medium", rationale: "Watchlist", timeContext: "Updated <1m" }
+    return { confidence: "Medium", timeContext: "Updated <1m" }
   }
 
-  return { confidence: "Low", rationale: "Background", timeContext: "Rolling" }
+  return { confidence: "Low", timeContext: "Rolling" }
 }
 
 function getIntentContext(rank: number) {
   if (rank === 1) {
-    return { confidence: "Confirmed", rationale: "Execution ready", timeContext: "Latest event" }
+    return { confidence: "Confirmed", timeContext: "Latest event" }
   }
 
   if (rank === 2) {
-    return { confidence: "Monitor", rationale: "Needs review", timeContext: "Recent" }
+    return { confidence: "Monitor", timeContext: "Recent" }
   }
 
-  return { confidence: "Trace", rationale: "Metadata", timeContext: "Snapshot" }
+  return { confidence: "Trace", timeContext: "Snapshot" }
 }
 
 function SecondaryRow({
@@ -43,7 +43,7 @@ function SecondaryRow({
   label: string
   value: string
   rank: number
-  context: { confidence: string; rationale: string; timeContext: string }
+  context: { confidence: string; timeContext: string }
   emphasize: boolean
 }) {
   return (
@@ -55,7 +55,6 @@ function SecondaryRow({
       <span className="dashboard-list-value">{value}</span>
       <div className="dashboard-list-context">
         <span className={`dashboard-row-tag ${emphasize ? "dashboard-row-tag--top" : ""}`}>{context.confidence}</span>
-        <span className="dashboard-row-tag dashboard-row-tag--muted">{context.rationale}</span>
         <span className="dashboard-list-time">{context.timeContext}</span>
       </div>
     </div>

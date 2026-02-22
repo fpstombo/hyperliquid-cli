@@ -3,7 +3,6 @@
 import { FormEvent, useMemo, useState } from "react"
 import { useAuth } from "../../../../components/providers"
 import { Button, Input, PanelShell, StatusBadge } from "../../../../components/ui"
-import { formatSimStatusLabel, getSimStatusTone } from "../../../../lib/sim-state"
 
 type OrderType = "market" | "limit"
 type Side = "buy" | "sell"
@@ -29,13 +28,6 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
   const endpoint = useMemo(() => `/api/orders/${orderType}`, [orderType])
   const expectedChainId = session.environment === "mainnet" ? 42161 : 421614
   const hasChainMismatch = session.chainId !== expectedChainId
-  const simStatusTone = getSimStatusTone({
-    isSim: session.environment === "testnet",
-    apiHealthy: !hasChainMismatch,
-    isSubmitting: pending || confirming,
-    hasChainMismatch,
-  })
-  const simStatusLabel = formatSimStatusLabel(simStatusTone)
 
   async function submitOrder() {
     setPending(true)
@@ -143,7 +135,6 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
 
         <div className="ticket-primary-actions">
           <Button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</Button>
-          {session.environment === "testnet" ? <StatusBadge variant={simStatusTone}>{simStatusLabel}</StatusBadge> : null}
           <StatusBadge variant={hasChainMismatch ? "degraded" : "confirmed"}>Kill switch {hasChainMismatch ? "engaged" : "ready"}</StatusBadge>
         </div>
       </form>

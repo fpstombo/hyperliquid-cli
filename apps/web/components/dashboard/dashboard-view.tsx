@@ -136,7 +136,7 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
               <ValueFlash value={model.metrics.equity.value}>{model.metrics.equity.value}</ValueFlash>
             </p>
             <p className="dashboard-metric-tertiary">
-              Session {model.status.session}
+              {model.status.session}
               {isSim ? (
                 <span className={`dashboard-status-simstate dashboard-status-simstate--${model.status.simStateTone}`} role="status" aria-label={model.status.simStateLabel}>
                   {model.status.simStateLabel}
@@ -175,12 +175,6 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
             <p className="dashboard-status-label">Freshness</p>
             <StatusBadge variant={model.status.freshnessTone}>{model.status.freshness}</StatusBadge>
           </div>
-          {isSim ? (
-            <div className="dashboard-status-item dashboard-status-item--sim">
-              <p className="dashboard-status-label">SIM</p>
-              <span className={`dashboard-status-simstate dashboard-status-simstate--${model.status.simStateTone}`}>{model.status.simStateLabel}</span>
-            </div>
-          ) : null}
           <p className="dashboard-status-hint muted">Updated {model.status.updatedHint}</p>
         </section>
 
