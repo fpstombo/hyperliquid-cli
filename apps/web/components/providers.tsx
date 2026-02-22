@@ -11,6 +11,7 @@ import React, {
 } from "react"
 import { PrivyProvider, usePrivy } from "@privy-io/react-auth"
 import { DEFAULT_SESSION, type AppEnvironment, type SessionState } from "../lib/hooks/use-auth-session"
+import { UI_COLOR_TOKENS } from "../lib/ui-tokens"
 
 type AuthContextValue = {
   ready: boolean
@@ -156,7 +157,7 @@ export function AppPrivyProvider({ children }: { children: ReactNode }) {
         loginMethods: ["wallet", "email"],
         appearance: {
           theme: "dark",
-          accentColor: "#4c6fff",
+          accentColor: UI_COLOR_TOKENS.privyAccent,
         },
       }}
     >

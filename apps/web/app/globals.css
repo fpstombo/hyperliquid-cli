@@ -558,6 +558,22 @@ a {
   padding: var(--space-2) var(--space-3);
   border-bottom: 1px solid var(--border);
   white-space: nowrap;
+  width: var(--table-column-width, auto);
+  min-width: var(--table-column-min-width, auto);
+}
+
+.table th[data-align='left'],
+.table td[data-align='left'] {
+  text-align: left;
+}
+
+.table th[data-align='right'],
+.table td[data-align='right'] {
+  text-align: right;
+}
+
+.table tbody tr {
+  height: var(--table-row-height, auto);
 }
 
 .table th {
@@ -789,7 +805,7 @@ button {
 }
 
 .status-error {
-  color: #ff8b93;
+  color: var(--semantic-error);
 }
 
 .status-success {
@@ -1024,6 +1040,8 @@ button {
 }
 
 .ui-skeleton-block {
+  width: var(--skeleton-width, 100%);
+  height: var(--skeleton-height, 1rem);
   border-radius: var(--radius-sm);
   background: linear-gradient(
     90deg,
@@ -1270,4 +1288,69 @@ button {
 .value-flash--active {
   color: color-mix(in srgb, var(--fg-primary) 72%, #9ad8ff);
   text-shadow: 0 0 10px rgb(82 192 255 / 32%);
+}
+
+
+.layout-row-between {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.layout-row-wrap {
+  display: flex;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.layout-inline-center-gap-sm {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.layout-gap-2 {
+  gap: var(--space-2);
+}
+
+.layout-mb-2 {
+  margin-bottom: var(--space-2);
+}
+
+.layout-m-0 {
+  margin: 0;
+}
+
+.trade-price,
+.trade-price-block {
+  margin: var(--space-2) 0 var(--space-4);
+}
+
+.trade-price {
+  font-size: var(--space-6);
+}
+
+.trade-search-input {
+  max-width: 220px;
+}
+
+.ui-toast-floating {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  background: var(--surface-elevated);
+  border: 1px solid var(--border-strong);
+  color: var(--text-primary);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  z-index: 50;
+}
+
+.ui-toast-floating-dismiss {
+  background: transparent;
+  color: var(--text-secondary);
+  border: 0;
 }

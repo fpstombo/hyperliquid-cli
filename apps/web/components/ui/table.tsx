@@ -51,7 +51,11 @@ export function Table<T>({
               <th
                 key={String(column.key)}
                 className={column.className}
-                style={{ textAlign: column.align ?? "left", width: column.width, minWidth: column.minWidth }}
+                data-align={column.align ?? "left"}
+                style={{
+                  "--table-column-width": column.width,
+                  "--table-column-min-width": column.minWidth,
+                } as CSSProperties}
               >
                 {column.header}
               </th>
@@ -77,12 +81,21 @@ export function Table<T>({
               }
 
               return (
-                <tr key={rowKey ? rowKey(row, index) : index} style={{ height: `${resolvedRowHeight}px` }}>
+                <tr
+                  key={rowKey ? rowKey(row, index) : index}
+                  style={{
+                    "--table-row-height": `${resolvedRowHeight}px`,
+                  } as CSSProperties}
+                >
                   {columns.map((column) => (
                     <td
                       key={String(column.key)}
                       className={column.className}
-                      style={{ textAlign: column.align ?? "left", width: column.width, minWidth: column.minWidth }}
+                      data-align={column.align ?? "left"}
+                      style={{
+                        "--table-column-width": column.width,
+                        "--table-column-min-width": column.minWidth,
+                      } as CSSProperties}
                     >
                       <span className={isNumericColumn(column.className) ? "table-numeric-text" : undefined}>
                         {column.render ? column.render(row, index) : String((row as Record<string, unknown>)[column.key as string] ?? "")}

@@ -240,7 +240,7 @@ export default function OnboardingPage() {
             const isActive = step.key === currentStep
             const isComplete = steps.findIndex((s) => s.key === step.key) < steps.findIndex((s) => s.key === currentStep)
             return (
-              <div key={step.key} className="card" style={{ borderColor: isActive ? "#4f78ff" : undefined }}>
+              <div key={step.key} className="card" style={{ borderColor: isActive ? "var(--accent-strong)" : undefined }}>
                 <p style={{ margin: 0 }}>{step.label}</p>
                 <p className="muted" style={{ marginBottom: 0 }}>
                   {isActive ? "In progress" : isComplete ? "Complete" : "Pending"}

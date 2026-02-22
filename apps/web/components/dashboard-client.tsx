@@ -53,7 +53,7 @@ export function DashboardLiveData() {
 
       {error ? (
         <section className="card">
-          <p style={{ marginTop: 0, color: "#ff9ba3" }}>Failed to load data: {error}</p>
+          <p className="status-error">Failed to load data: {error}</p>
           <button onClick={() => void Promise.all([balances.retry(), positions.retry(), orders.retry()])}>Retry</button>
         </section>
       ) : null}
