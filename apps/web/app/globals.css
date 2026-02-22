@@ -884,10 +884,10 @@ button {
 }
 
 .ui-status-badge--sim {
-  border-color: var(--sim-badge-border);
-  background: color-mix(in srgb, var(--sim-badge-bg) 82%, var(--surface-base));
-  color: color-mix(in srgb, var(--sim-badge-fg) 85%, white);
-  box-shadow: inset 0 0 0 1px rgb(154 216 255 / 14%);
+  border-color: color-mix(in srgb, var(--sim-badge-border) 88%, #c8ecff);
+  background: color-mix(in srgb, var(--sim-badge-bg) 68%, #071225);
+  color: #e7f6ff;
+  box-shadow: inset 0 0 0 1px rgb(205 238 255 / 24%);
 }
 
 .ui-value-text {
@@ -1003,7 +1003,7 @@ button {
   align-content: start;
 }
 
-.trade-panel > .card,
+.trade-panel > .ui-panel-shell,
 .trade-panel .order-ticket {
   min-height: 280px;
 }
@@ -1067,7 +1067,7 @@ button {
   gap: 0.5rem;
 }
 
-.ticket-primary-actions .sim-pill {
+.ticket-primary-actions .ui-status-badge--sim {
   font-weight: 600;
   letter-spacing: 0.03em;
 }
@@ -1082,7 +1082,7 @@ button {
   }
 
   .trade-depth-card,
-  .trade-panel > .card,
+  .trade-panel > .ui-panel-shell,
   .trade-panel .order-ticket {
     min-height: 0;
   }

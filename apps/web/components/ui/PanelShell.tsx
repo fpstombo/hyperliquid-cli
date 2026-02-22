@@ -10,7 +10,7 @@ type PanelShellProps = HTMLAttributes<HTMLElement> & {
 /**
  * Usage example:
  * <PanelShell title="Portfolio" subtitle="Unified account" actions={<StatusBadge variant="sim">SIM</StatusBadge>}>
- *   <InlineStat label="Equity" value={<ValueText value={15234.12} signDisplay="always" />} />
+ *   <InlineStat label="Equity" value={<ValueText value="+15234.12" />} />
  * </PanelShell>
  */
 export function PanelShell({ title, subtitle, actions, footer, className = "", children, ...props }: PanelShellProps) {

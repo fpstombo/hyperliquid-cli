@@ -1,6 +1,6 @@
 import type { HTMLAttributes } from "react"
 
-type StatusVariant = "neutral" | "positive" | "negative" | "warning" | "sim"
+export type StatusVariant = "neutral" | "positive" | "negative" | "warning" | "sim"
 
 type StatusBadgeProps = HTMLAttributes<HTMLSpanElement> & {
   variant?: StatusVariant
@@ -13,7 +13,7 @@ type StatusBadgeProps = HTMLAttributes<HTMLSpanElement> & {
  */
 export function StatusBadge({ variant = "neutral", className = "", children, ...props }: StatusBadgeProps) {
   return (
-    <span className={`ui-status-badge ui-status-badge--${variant} ${className}`.trim()} {...props}>
+    <span className={`ui-status-badge ui-status-badge--${variant} ${className}`.trim()} data-variant={variant} {...props}>
       {children}
     </span>
   )

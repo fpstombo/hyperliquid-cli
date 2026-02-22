@@ -4,6 +4,7 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { Toast } from "./Toast"
 import { useSymbolPrice, useTradeOrders } from "../lib/hooks/use-trade-data"
 import { useDebouncedValue } from "../lib/hooks/use-debounced-value"
+import { PanelShell } from "./ui/PanelShell"
 import { StatusBadge } from "./ui/StatusBadge"
 import { ValueFlash } from "./ui/ValueFlash"
 import { SkeletonBlock } from "./ui/SkeletonBlock"
@@ -82,8 +83,7 @@ export function TradeClient({ symbol }: TradeClientProps) {
 
   return (
     <main className="grid trade-layout">
-      <section className="card">
-        <h1 style={{ marginTop: 0 }}>{symbol} Market Snapshot</h1>
+      <PanelShell title={`${symbol} Market Snapshot`}>
         <div className="dashboard-status-row" style={{ marginBottom: "0.5rem" }}>
           <StatusBadge variant={isStale ? "warning" : "positive"}>{isStale ? "Stale" : "Live"}</StatusBadge>
           <StatusBadge variant={priceState.error || ordersState.error ? "warning" : "positive"}>
@@ -144,12 +144,11 @@ export function TradeClient({ symbol }: TradeClientProps) {
         ) : (
           <p className="muted">No open orders for {symbol}.</p>
         )}
-      </section>
+      </PanelShell>
 
-      <aside className="card">
-        <h2 style={{ marginTop: 0 }}>Order Ticket</h2>
+      <PanelShell title="Order Ticket">
         <p className="muted">Execution UI lands in Epic D. Live data updates every 2-5 seconds.</p>
-      </aside>
+      </PanelShell>
 
       {toastMessage ? <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} /> : null}
     </main>

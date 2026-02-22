@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { StatusBadge, Table, type TableColumn } from "../../../../components/ui"
+import { PanelShell, StatusBadge, Table, type TableColumn } from "../../../../components/ui"
 import { useAuth } from "../../../../components/providers"
 import { formatTimestamp, formatTimestampHint } from "../../../../lib/formatters"
 
@@ -130,8 +130,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
   )
 
   return (
-    <section className="card">
-      <h2 style={{ marginTop: 0 }}>Open Orders</h2>
+    <PanelShell title="Open Orders">
       <div className="dashboard-status-row" style={{ marginBottom: "0.5rem" }}>
         <StatusBadge variant={error ? "warning" : "positive"}>{error ? "Degraded" : "Connected"}</StatusBadge>
         <StatusBadge variant={lastLoadedAt ? "positive" : "warning"}>{lastLoadedAt ? "Fresh" : "Stale"}</StatusBadge>
@@ -156,6 +155,6 @@ export function OpenOrdersTable({ refreshKey }: Props) {
         itemCount={orders.length}
         itemSize={40}
       />
-    </section>
+    </PanelShell>
   )
 }
