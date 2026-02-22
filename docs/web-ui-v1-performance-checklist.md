@@ -4,17 +4,18 @@
 
 These limits apply to every PR touching `apps/web/app/dashboard/**`, `apps/web/app/trade/**`, or shared UI/data hooks that impact those routes, including visual-only enhancements (motion, styling, layout polish, chart skinning, typography, and animation tweaks).
 
-| Metric | `/dashboard` hard limit | `/trade/[symbol]` hard limit | Notes |
-| --- | ---: | ---: | --- |
-| Initial route JS (gzip) | **<= 220 KB** | **<= 240 KB** | From Next.js production build output; includes only initial route payload. |
-| Hydration complete (cold load, Fast 3G + 4x CPU) | **<= 2.1 s** | **<= 2.4 s** | Re-baselined after server-shell route split; measured as hydration end marker from route start. |
-| TTI (cold load, Fast 3G + 4x CPU) | **<= 3.0 s** | **<= 3.3 s** | Re-baselined after server-shell route split; Lighthouse/DevTools timing. |
-| Update latency: price tick response->paint | **<= 350 ms** | **<= 350 ms** | Server response complete to visible UI paint. |
-| Update latency: orders/positions refresh response->paint | **<= 500 ms** | **<= 500 ms** | For active polling or manual refresh paths. |
-| Update latency: toast/error response->paint | **<= 250 ms** | **<= 250 ms** | Includes validation + API error surfaces. |
-| FPS floor during 30s active updates + scroll | **>= 55 FPS** | **>= 55 FPS** | No repeated long-jank streaks (>200 ms). |
+| Metric                                                   | `/dashboard` hard limit | `/trade/[symbol]` hard limit | Notes                                                                                           |
+| -------------------------------------------------------- | ----------------------: | ---------------------------: | ----------------------------------------------------------------------------------------------- |
+| Initial route JS (gzip)                                  |           **<= 220 KB** |                **<= 240 KB** | From Next.js production build output; includes only initial route payload.                      |
+| Hydration complete (cold load, Fast 3G + 4x CPU)         |            **<= 2.1 s** |                 **<= 2.4 s** | Re-baselined after server-shell route split; measured as hydration end marker from route start. |
+| TTI (cold load, Fast 3G + 4x CPU)                        |            **<= 3.0 s** |                 **<= 3.3 s** | Re-baselined after server-shell route split; Lighthouse/DevTools timing.                        |
+| Update latency: price tick response->paint               |           **<= 350 ms** |                **<= 350 ms** | Server response complete to visible UI paint.                                                   |
+| Update latency: orders/positions refresh response->paint |           **<= 500 ms** |                **<= 500 ms** | For active polling or manual refresh paths.                                                     |
+| Update latency: toast/error response->paint              |           **<= 250 ms** |                **<= 250 ms** | Includes validation + API error surfaces.                                                       |
+| FPS floor during 30s active updates + scroll             |           **>= 55 FPS** |                **>= 55 FPS** | No repeated long-jank streaks (>200 ms).                                                        |
 
 Additional chunk limits:
+
 - Secondary dashboard panels chunk (lazy loaded): **<= 45 KB (gzip)**.
 - Any newly introduced route chunk: **<= 60 KB (gzip)** unless explicitly exempted with approval.
 
@@ -33,6 +34,7 @@ Additional chunk limits:
 ## Measurement method (must be recorded in PR)
 
 ### 1) Build analysis + route/chunk size checks
+
 1. Install and build:
    ```bash
    pnpm --filter @hyperliquid/web build
@@ -43,6 +45,7 @@ Additional chunk limits:
    - Deferred secondary chunk exists and is not part of initial route payload.
 
 ### 2) Hydration + TTI audit
+
 1. Run production server:
    ```bash
    pnpm --filter @hyperliquid/web start
@@ -56,6 +59,7 @@ Additional chunk limits:
    - Hydration and TTI at or under route hard limits.
 
 ### 3) FPS + jank checks in DevTools Performance
+
 1. Open route, start recording in **Performance** panel.
 2. Let polling updates run for at least 30 seconds and scroll orders/positions.
 3. Pass criteria:
@@ -63,6 +67,7 @@ Additional chunk limits:
    - No repeated long tasks causing visible stutter.
 
 ### 4) Comparative visual-upgrade metrics (required for visual PRs)
+
 1. For any visual/UI enhancement, capture **before** (base branch) and **after** (PR branch) runs for both `/dashboard` and `/trade/[symbol]`.
 2. Record route-level FPS floor and p95 update latency for both routes in this file's trend table row, including artifact links (trace, Lighthouse report, screen capture notes).
 3. Pass criteria:
@@ -70,6 +75,7 @@ Additional chunk limits:
    - Any measurable regression must include explicit approval from product + engineering owners before merge.
 
 ### 5) Update-latency sampling
+
 1. In DevTools, mark network response completion for prices/orders/positions.
 2. Correlate with first paint of updated value in the panel.
 3. Pass criteria:
@@ -86,11 +92,20 @@ Additional chunk limits:
 - "No approval link" + "regression present" is a CI failure condition.
 - CI also fails UI PRs that do not append a new trend-table row in this file and link that row in the PR template.
 
+## Visual PR enforcement (apps/web)
+
+For **every visual PR** that touches `apps/web/**` (including style-only, animation, spacing, typography, chart skinning, and panel chrome updates), the following are mandatory:
+
+1. Run route-level checks for **both** `/dashboard` and `/trade/[symbol]` using the hard thresholds in this checklist.
+2. Verify update smoothness under the active polling cadence (prices + orders/positions) and confirm no visible jitter in primary panels.
+3. If a visual choice regresses responsiveness or introduces jitter, simplify or remove that visual treatment in the **same PR** (no deferrals).
+4. Append the measured outcome to the running trend table below before merge and link that row in the PR description.
+
 ## Running trend table (append one row per PR slice)
 
 Use this table to catch cumulative bloat and regressions across slices. Every UI PR must append a new row (do not overwrite history).
 
-| PR | Slice | `/dashboard` JS (KB) | `/trade/[symbol]` JS (KB) | Dashboard hydration (s) | Trade hydration (s) | Dashboard TTI (s) | Trade TTI (s) | Dashboard update latency p95 (ms) | Trade update latency p95 (ms) | Dashboard FPS floor | Trade FPS floor | Regression vs previous? | Approval link (if regressed) | Measurement method + artifacts |
-| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |
-| _TBD (next PR)_ | _TBD_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _before/after fill_ | _before/after fill_ | _before/after fill_ | _before/after fill_ | _yes/no_ | _required if yes_ | _build log + perf trace/lighthouse links for both routes_ |
-| _current branch_ | Server-shell refactor (`/dashboard`, `/trade/[symbol]`) | _pending_ | _pending_ | **2.1 target** | **2.4 target** | **3.0 target** | **3.3 target** | _pending_ | _pending_ | _pending_ | _pending_ | no | n/a | targets re-baselined with this refactor |
+| PR               | Slice                                                   | `/dashboard` JS (KB) | `/trade/[symbol]` JS (KB) | Dashboard hydration (s) | Trade hydration (s) | Dashboard TTI (s) |  Trade TTI (s) | Dashboard update latency p95 (ms) | Trade update latency p95 (ms) | Dashboard FPS floor |     Trade FPS floor | Regression vs previous? | Approval link (if regressed) | Measurement method + artifacts                            |
+| ---------------- | ------------------------------------------------------- | -------------------: | ------------------------: | ----------------------: | ------------------: | ----------------: | -------------: | --------------------------------: | ----------------------------: | ------------------: | ------------------: | ----------------------- | ---------------------------- | --------------------------------------------------------- |
+| _TBD (next PR)_  | _TBD_                                                   |               _fill_ |                    _fill_ |                  _fill_ |              _fill_ |            _fill_ |         _fill_ |               _before/after fill_ |           _before/after fill_ | _before/after fill_ | _before/after fill_ | _yes/no_                | _required if yes_            | _build log + perf trace/lighthouse links for both routes_ |
+| _current branch_ | Server-shell refactor (`/dashboard`, `/trade/[symbol]`) |            _pending_ |                 _pending_ |          **2.1 target** |      **2.4 target** |    **3.0 target** | **3.3 target** |                         _pending_ |                     _pending_ |           _pending_ |           _pending_ | no                      | n/a                          | targets re-baselined with this refactor                   |
