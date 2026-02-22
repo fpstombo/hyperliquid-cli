@@ -17,11 +17,13 @@
 > Record measured values and exact measurement method from `docs/web-ui-v1-performance-checklist.md`.
 
 ### Measured values
+> CI enforces non-empty values for Hydration/TTI/update-latency/FPS for both routes.
+
 | Metric | `/dashboard` | `/trade/[symbol]` | Hard limit |
 | --- | --- | --- | --- |
 | Initial route JS (gzip, KB) | | | 220 / 240 |
-| Hydration complete (s) | | | 2.6 / 3.0 |
-| TTI (s) | | | 3.5 / 4.0 |
+| Hydration complete (s) | | | 2.1 / 2.4 |
+| TTI (s) | | | 3.0 / 3.3 |
 | Price update latency response->paint (ms) | | | 350 |
 | Orders/positions update latency response->paint (ms) | | | 500 |
 | Toast/error response->paint (ms) | | | 250 |
@@ -34,10 +36,10 @@
 
 ### Regression declaration (merge gate)
 - [ ] No performance regression versus the latest trend-table row.
-- [ ] Regression present and explicitly approved (approval link required):
+- [ ] Regression present and explicitly approved (approval link required): https://
 
 ### Trend table update
-- Link to the new row appended in `docs/web-ui-v1-performance-checklist.md`:
+- Link to the new row appended in `docs/web-ui-v1-performance-checklist.md` (required): https://
 
 ## Quality-gate commands (paste result links)
 - [ ] I confirmed UI component/page changes use token-backed colors (no raw hex/rgb/hsl literals outside token definition files).
