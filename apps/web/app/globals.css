@@ -33,6 +33,19 @@
   --accent: var(--semantic-info);
   --accent-strong: #2b8ee5;
 
+  /* Signature accent behavior */
+  --signature-accent-core: #56c8ff;
+  --signature-accent-glow-soft: rgb(86 200 255 / 18%);
+  --signature-accent-glow-strong: rgb(86 200 255 / 34%);
+  --signature-edge-highlight: rgb(134 214 255 / 30%);
+  --signature-gradient-start: rgb(24 48 86 / 38%);
+  --signature-gradient-end: rgb(7 15 30 / 94%);
+
+  /* Premium shell surface layering */
+  --surface-premium-base: #111a2d;
+  --surface-premium-elevated: #16233c;
+  --surface-premium-overlay: rgb(10 20 40 / 66%);
+
   /* Border levels */
   --border-subtle: #1f2a46;
   --border-default: #273455;
@@ -192,6 +205,17 @@ a {
   z-index: 60;
   background: rgb(6 10 19 / 94%);
   backdrop-filter: blur(10px);
+}
+
+.signature-top-bar {
+  border-bottom-color: color-mix(in srgb, var(--border-subtle) 62%, var(--signature-edge-highlight));
+  background:
+    linear-gradient(120deg, var(--signature-gradient-start) 0%, var(--signature-gradient-end) 72%),
+    rgb(6 10 19 / 94%);
+  box-shadow:
+    0 10px 26px rgb(2 7 18 / 40%),
+    inset 0 1px 0 rgb(198 233 255 / 12%),
+    inset 0 -1px 0 var(--signature-edge-highlight);
 }
 
 .top-nav-inner {
@@ -384,6 +408,24 @@ a {
   background: color-mix(in srgb, var(--surface-base) 92%, black);
   box-shadow: 0 8px 26px rgb(2 7 18 / 24%);
   padding: clamp(var(--space-4), 2vw, var(--space-5));
+}
+
+.signature-shell {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--surface-premium-elevated) 48%, transparent) 0%, transparent 55%),
+    color-mix(in srgb, var(--surface-premium-base) 95%, black);
+}
+
+.signature-hero-strip {
+  border: 1px solid color-mix(in srgb, var(--border-subtle) 70%, var(--signature-edge-highlight));
+  border-radius: var(--radius-md);
+  background:
+    linear-gradient(130deg, color-mix(in srgb, var(--signature-gradient-start) 78%, transparent) 0%, var(--surface-premium-overlay) 66%),
+    color-mix(in srgb, var(--surface-premium-base) 95%, black);
+  box-shadow:
+    inset 0 1px 0 rgb(203 236 255 / 14%),
+    0 0 0 1px rgb(86 200 255 / 8%),
+    0 12px 30px rgb(2 7 18 / 34%);
 }
 
 .grid {
@@ -580,6 +622,8 @@ a {
 
 .table tbody tr {
   height: var(--table-row-height, auto);
+  box-shadow: none;
+  filter: none;
 }
 
 .table th {
@@ -876,6 +920,16 @@ button {
   grid-template-columns: minmax(0, 1fr) auto auto;
   align-items: center;
   gap: var(--space-3);
+}
+
+:is(.dashboard-shell, .trade-shell) .ui-panel-shell-header {
+  border-bottom: 1px solid color-mix(in srgb, var(--border-subtle) 72%, var(--signature-edge-highlight));
+  padding-bottom: var(--space-2);
+  box-shadow: inset 0 -1px 0 rgb(86 200 255 / 9%);
+}
+
+:is(.dashboard-shell, .trade-shell) .ui-panel-shell-title {
+  text-shadow: 0 0 10px var(--signature-accent-glow-soft);
 }
 
 .ui-panel-shell-title {
