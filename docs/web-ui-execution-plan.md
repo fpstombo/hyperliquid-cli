@@ -96,6 +96,21 @@ Each PR in this sequence must include all of the following before merge:
 ### Visual QA rubric (required)
 Treat this rubric as a release gate for UI slices. A PR touching web UI is incomplete unless all applicable checks pass.
 
+### Dashboard Visual Excellence rubric (required)
+The `/dashboard` surface must pass a dedicated visual-excellence review aimed at first-impression quality in addition to functional correctness.
+
+**Scoring dimensions (all required to pass)**
+- **First-glance impact:** Above-the-fold composition must communicate polish and purpose within 3 seconds (clear focal panel, coherent depth, no "template" feel).
+- **Brand recognizability:** Hyperliquid signature motifs (liquid accents, glow budget, edge highlights, gradient behavior) are present and consistent without overwhelming data readability.
+- **Hierarchy clarity:** Users can immediately distinguish primary KPIs, secondary context, and dense data regions through spacing, type scale, and panel emphasis.
+- **Elegance at density:** High-information regions (positions/orders/activity) remain calm and readable, with restrained chrome and no visual noise under frequent updates.
+
+**Evidence requirements (mandatory for `/dashboard`)**
+- Attach before/after screenshots for `/dashboard` for every PR that changes dashboard visuals.
+- Include required desktop breakpoints: `1280x720`, `1366x768`, `1440x900`, and `1920x1080`.
+- Include key states at each required breakpoint: default/loaded, loading (or skeleton), and error/empty where applicable.
+- Captures must be above-the-fold and include active theme(s) impacted by the change.
+
 ### Signature Brand Layer (required)
 The Hyperliquid web UI must preserve a consistent signature visual layer that is recognizable without overwhelming trading readability.
 
@@ -122,6 +137,10 @@ The Hyperliquid web UI must preserve a consistent signature visual layer that is
 - **Semantic color discipline:** status, risk, and action colors must come from semantic tokens and remain consistent across badges, alerts, and interactive states.
 
 **Explicit fail conditions (auto-fail rubric)**
+- Flat hierarchy in dashboard composition (no clear focal priority between summary, context, and dense data regions).
+- Generic look-and-feel that could be mistaken for a default template or non-Hyperliquid product.
+- Badge clutter (excessive badge count, inconsistent badge sizing, or badge density that impairs scanability).
+- Weak brand signature (missing or inconsistent use of required signature brand motifs on key anchors).
 - Hardcoded colors in component/page styles where semantic tokens should be used.
 - Non-tabular numeric displays for tabular trading/account data (e.g., non-monospaced/non-tabular figures causing numeric jitter).
 - Inconsistent badge semantics (same badge style mapping to different meanings, or same meaning rendered with conflicting badge styles).
