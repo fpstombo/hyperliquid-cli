@@ -6,11 +6,11 @@ import type { AgentApprovalSnapshot, ApprovalState } from "../../lib/agent-state
 import { clearOnboardingContext, loadOnboardingContext, saveOnboardingContext } from "../../lib/agent-state"
 
 const statusMeta: Record<ApprovalState, { label: string; color: string }> = {
-  missing: { label: "Missing", color: "#8f9ac0" },
-  pending: { label: "Pending", color: "#ffca72" },
-  active: { label: "Active", color: "#7bff8a" },
-  expired: { label: "Expired", color: "#ff8b8b" },
-  revoked: { label: "Revoked", color: "#ff5f5f" },
+  missing: { label: "Missing", color: "var(--text-muted)" },
+  pending: { label: "Pending", color: "var(--semantic-warning)" },
+  active: { label: "Active", color: "var(--semantic-success)" },
+  expired: { label: "Expired", color: "var(--semantic-error)" },
+  revoked: { label: "Revoked", color: "var(--semantic-error)" },
 }
 
 export default function AgentStatusPage() {

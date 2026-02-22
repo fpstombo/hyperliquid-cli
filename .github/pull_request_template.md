@@ -40,6 +40,7 @@
 - Link to the new row appended in `docs/web-ui-v1-performance-checklist.md`:
 
 ## Quality-gate commands (paste result links)
+- [ ] I confirmed UI component/page changes use token-backed colors (no raw hex/rgb/hsl literals outside token definition files).
 - [ ] `pnpm --filter web lint` — Artifact link:
 - [ ] `pnpm --filter web typecheck` — Artifact link:
 - [ ] `pnpm --filter web test` — Artifact link:

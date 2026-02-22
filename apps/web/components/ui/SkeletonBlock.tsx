@@ -11,5 +11,16 @@ type SkeletonBlockProps = HTMLAttributes<HTMLDivElement> & {
  * <SkeletonBlock width="100%" height="2.5rem" aria-label="Loading order row" />
  */
 export function SkeletonBlock({ width = "100%", height = "1rem", style, className = "", ...props }: SkeletonBlockProps) {
-  return <div className={`ui-skeleton-block ${className}`.trim()} style={{ width, height, ...style }} aria-busy="true" {...props} />
+  return (
+    <div
+      className={`ui-skeleton-block ${className}`.trim()}
+      style={{
+        "--skeleton-width": width,
+        "--skeleton-height": height,
+        ...style,
+      } as CSSProperties}
+      aria-busy="true"
+      {...props}
+    />
+  )
 }

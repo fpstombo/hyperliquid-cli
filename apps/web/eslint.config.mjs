@@ -32,6 +32,19 @@ export default [
       ],
     },
   },
+
+  {
+    files: ["components/**/*.ts", "components/**/*.tsx", "app/**/*.ts", "app/**/*.tsx"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: "Literal[value=/^(#(?:[0-9a-fA-F]{3,8})|(?:rgb|hsl)a?\\()/]",
+          message: "Use token-backed CSS variables/classes from app/globals.css instead of raw color literals.",
+        },
+      ],
+    },
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
 ]

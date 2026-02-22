@@ -18,7 +18,7 @@ type TradeOrder = NonNullable<ReturnType<typeof useTradeOrders>["data"]>["orders
 
 const TradeOrderRow = memo(function TradeOrderRow({ order }: { order: TradeOrder }) {
   return (
-    <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <div className="layout-row-between">
       <span>
         #{order.oid} · {order.side} · {order.sz}
       </span>
@@ -97,7 +97,7 @@ export function TradeLiveWidgets({ symbol }: TradeClientProps) {
 
   return (
     <>
-      <div className="dashboard-status-row" style={{ marginBottom: "0.5rem" }}>
+      <div className="dashboard-status-row layout-mb-2">
         <StatusBadge variant={isStale ? "warning" : "positive"}>{isStale ? "Stale" : "Live"}</StatusBadge>
         <StatusBadge variant={priceState.error || ordersState.error ? "warning" : "positive"}>
           {priceState.error || ordersState.error ? "Degraded" : "Connected"}
@@ -106,15 +106,15 @@ export function TradeLiveWidgets({ symbol }: TradeClientProps) {
 
       {priceState.error ? (
         <div>
-          <p style={{ color: "#ff9ba3" }}>Failed to load price: {priceState.error}</p>
+          <p className="status-error">Failed to load price: {priceState.error}</p>
           <button onClick={() => void priceState.retry()}>Retry</button>
         </div>
       ) : null}
 
       {priceState.isLoading ? (
-        <SkeletonBlock width="14rem" height="2rem" style={{ margin: "0.4rem 0 1rem" }} aria-label="Loading latest price" />
+        <SkeletonBlock width="14rem" height="2rem" className="trade-price-block" aria-label="Loading latest price" />
       ) : priceState.data?.price ? (
-        <p style={{ fontSize: "2rem", margin: "0.4rem 0 1rem" }}>
+        <p className="trade-price">
           <ValueFlash value={priceState.data.price}>{priceState.data.price}</ValueFlash>
         </p>
       ) : (
@@ -122,30 +122,29 @@ export function TradeLiveWidgets({ symbol }: TradeClientProps) {
       )}
 
       <h3>Open Orders ({symbol})</h3>
-      <div style={{ display: "flex", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+      <div className="layout-row-wrap layout-mb-2">
         <input
-          className="input"
-          style={{ maxWidth: "220px" }}
+          className="input trade-search-input"
           placeholder="Search order id / side"
           data-global-search
           aria-label="Search open orders"
           value={search}
           onChange={(event) => setSearch(event.target.value)}
         />
-        <label className="muted" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
+        <label className="muted layout-inline-center-gap-sm">
           <input type="checkbox" checked={liveSort} onChange={(event) => setLiveSort(event.target.checked)} />
           Live sorting
         </label>
       </div>
       {ordersState.error ? (
         <div>
-          <p style={{ color: "#ff9ba3" }}>Failed to load orders: {ordersState.error}</p>
+          <p className="status-error">Failed to load orders: {ordersState.error}</p>
           <button onClick={() => void ordersState.retry()}>Retry</button>
         </div>
       ) : null}
 
       {ordersState.isLoading && displayedOrders.length === 0 ? (
-        <div className="grid" style={{ gap: "0.5rem" }} aria-label="Loading orders">
+        <div className="grid layout-gap-2" aria-label="Loading orders">
           <SkeletonBlock height="1rem" />
           <SkeletonBlock height="1rem" width="80%" />
           <SkeletonBlock height="1rem" width="90%" />

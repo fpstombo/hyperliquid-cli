@@ -40,7 +40,7 @@ const DashboardSecondaryPanels = dynamic(
 
 function tableLoadingSkeleton(rows = 4) {
   return (
-    <div className="grid" style={{ gap: "0.5rem" }} aria-label="Loading table data">
+    <div className="grid layout-gap-2" aria-label="Loading table data">
       {Array.from({ length: rows }).map((_, idx) => (
         <SkeletonBlock key={idx} height="1rem" width={idx % 2 ? "88%" : "100%"} />
       ))}
@@ -90,7 +90,7 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
 ]
 
 function renderEmpty(label: string) {
-  return <p className="muted" style={{ margin: 0 }}>{label}</p>
+  return <p className="muted layout-m-0">{label}</p>
 }
 
 export function DashboardView({ model, isInitialLoading = false }: DashboardViewProps) {
