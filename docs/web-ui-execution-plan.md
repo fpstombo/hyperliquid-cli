@@ -83,7 +83,26 @@ Each PR in this sequence must include all of the following before merge:
 - Lint status report for web (`pnpm --filter web lint`).
 - Typecheck status report for web (`pnpm --filter web typecheck`).
 - Test status report for web (`pnpm --filter web test`).
-- Visual QA checklist completion for the changed surfaces (responsive breakpoints, dark mode, interaction states, and regressions).
+- Visual QA rubric completion for the changed surfaces (responsive breakpoints, dark mode, interaction states, regressions, and semantic consistency).
+- PR screenshots showing above-the-fold captures for `/dashboard` and `/trade/[symbol]` in the active theme(s) impacted by the change.
+
+### Visual QA rubric (required)
+Treat this rubric as a release gate for UI slices. A PR touching web UI is incomplete unless all applicable checks pass.
+
+**Required visual checks**
+- **Spacing rhythm:** consistent spacing scale usage and predictable vertical rhythm between panels, headers, tables, and form controls.
+- **Typography hierarchy:** clear heading/body/metadata hierarchy with consistent size, weight, and line-height semantics per component role.
+- **Panel border/elevation consistency:** panel chrome (border radius, stroke opacity, shadows/elevation) must be consistent across dashboard and trade workspaces.
+- **Semantic color discipline:** status, risk, and action colors must come from semantic tokens and remain consistent across badges, alerts, and interactive states.
+
+**Explicit fail conditions (auto-fail rubric)**
+- Hardcoded colors in component/page styles where semantic tokens should be used.
+- Non-tabular numeric displays for tabular trading/account data (e.g., non-monospaced/non-tabular figures causing numeric jitter).
+- Inconsistent badge semantics (same badge style mapping to different meanings, or same meaning rendered with conflicting badge styles).
+- Panel header drift (mismatched header spacing, typography, or action alignment across equivalent panels).
+
+**Completion rule**
+- Slice completion cannot be marked done until the visual QA rubric passes and evidence is attached in the PR (checklist + screenshots).
 
 ### v1 scope guardrails
 Follow the hard caps and out-of-scope rules in [Web UI v1 Scope Guardrails](./web-ui-v1-scope-guardrails.md) for all planning and implementation PRs.
