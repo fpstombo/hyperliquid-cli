@@ -11,26 +11,26 @@ const TOP_HIGHLIGHT_LIMIT = 2
 
 function getOpportunityContext(rank: number) {
   if (rank === 1) {
-    return { confidence: "High", timeContext: "Updated now" }
+    return { confidence: "High", rationale: "Flow lead", timeContext: "Now" }
   }
 
   if (rank === 2) {
-    return { confidence: "Medium", timeContext: "Updated <1m" }
+    return { confidence: "Med", rationale: "Spread edge", timeContext: "<1m" }
   }
 
-  return { confidence: "Low", timeContext: "Rolling" }
+  return { confidence: "Low", rationale: "Watchlist", timeContext: "Rolling" }
 }
 
 function getIntentContext(rank: number) {
   if (rank === 1) {
-    return { confidence: "Confirmed", timeContext: "Latest event" }
+    return { confidence: "Confirmed", rationale: "Trigger met", timeContext: "Now" }
   }
 
   if (rank === 2) {
-    return { confidence: "Monitor", timeContext: "Recent" }
+    return { confidence: "Monitor", rationale: "Building", timeContext: "Recent" }
   }
 
-  return { confidence: "Trace", timeContext: "Snapshot" }
+  return { confidence: "Trace", rationale: "Passive", timeContext: "Snapshot" }
 }
 
 function SecondaryRow({
@@ -43,11 +43,15 @@ function SecondaryRow({
   label: string
   value: string
   rank: number
-  context: { confidence: string; timeContext: string }
+  context: { confidence: string; rationale: string; timeContext: string }
   emphasize: boolean
 }) {
   return (
-    <div key={label} className={`dashboard-list-row ${emphasize ? "dashboard-list-row--top" : ""}`} aria-label={`${label}: ${value}`}>
+    <div
+      key={label}
+      className={`dashboard-list-row ${emphasize ? "dashboard-list-row--top" : "dashboard-list-row--muted"}`}
+      aria-label={`${label}: ${value}`}
+    >
       <div className="dashboard-list-row-main">
         <span className="dashboard-list-rank">#{rank}</span>
         <span className="dashboard-list-label">{label}</span>
@@ -55,6 +59,7 @@ function SecondaryRow({
       <span className="dashboard-list-value">{value}</span>
       <div className="dashboard-list-context">
         <span className={`dashboard-row-tag ${emphasize ? "dashboard-row-tag--top" : ""}`}>{context.confidence}</span>
+        <span className="dashboard-row-tag">{context.rationale}</span>
         <span className="dashboard-list-time">{context.timeContext}</span>
       </div>
     </div>
