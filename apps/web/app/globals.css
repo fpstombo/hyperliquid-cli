@@ -1278,14 +1278,20 @@ button {
 
 .dashboard-first-viewport {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-4);
 }
 
 .dashboard-hero-composition {
   display: grid;
-  gap: var(--space-2);
-  grid-template-columns: minmax(420px, 2fr) minmax(360px, 1fr);
+  gap: var(--space-3);
+  grid-template-columns: minmax(560px, 1.8fr) minmax(320px, 1fr);
   align-items: stretch;
+}
+
+.dashboard-hero-side {
+  display: grid;
+  gap: var(--space-2);
+  align-content: stretch;
 }
 
 .dashboard-secondary-metrics {
@@ -1296,20 +1302,20 @@ button {
 
 .dashboard-status-hint {
   font-size: var(--text-xs);
-  justify-self: end;
-  align-self: end;
   margin: 0;
+  justify-self: end;
+  opacity: 0.75;
 }
 
 .dashboard-status-rail {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem var(--space-4);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, auto)) minmax(0, 1fr);
+  align-items: end;
+  gap: var(--space-2) var(--space-3);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--surface-base) 95%, black);
-  padding: var(--space-2) var(--space-3);
+  background: color-mix(in srgb, var(--surface-base) 93%, black);
+  padding: var(--space-2);
 }
 
 .dashboard-status-label {
@@ -1323,6 +1329,7 @@ button {
 .dashboard-status-item {
   display: grid;
   gap: 2px;
+  min-width: 0;
 }
 
 .dashboard-status-simstate {
@@ -1363,9 +1370,9 @@ button {
 .dashboard-metric-card {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--surface-base) 95%, black);
+  background: color-mix(in srgb, var(--surface-base) 94%, black);
   padding: var(--space-4);
-  min-height: 108px;
+  min-height: 92px;
   transition:
     border-color var(--motion-panel-duration) var(--motion-ease-standard),
     background-color var(--motion-panel-duration) var(--motion-ease-standard),
@@ -1379,11 +1386,15 @@ button {
 }
 
 .dashboard-metric-card--hero {
-  min-height: 168px;
+  min-height: 228px;
+  padding: var(--space-5);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 20%, var(--surface-base)) 0%, color-mix(in srgb, var(--surface-base) 96%, black) 65%);
+  border-color: color-mix(in srgb, var(--border-subtle) 58%, var(--accent));
 }
 
 .dashboard-metric-card--supporting {
-  min-height: 80px;
+  min-height: 104px;
+  padding: var(--space-3) var(--space-4);
 }
 
 .dashboard-metric-label {
@@ -1395,8 +1406,8 @@ button {
 }
 
 .dashboard-metric-value {
-  margin: var(--space-3) 0 0;
-  font-size: clamp(1.5rem, 2.8vw, 2rem);
+  margin: var(--space-2) 0 0;
+  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
   font-variant-numeric: var(--numeric-figure);
   font-feature-settings: "tnum" 1;
   font-weight: 700;
@@ -1404,7 +1415,8 @@ button {
 }
 
 .dashboard-metric-value--hero {
-  font-size: clamp(2.1rem, 2.8vw, 2.75rem);
+  margin-top: var(--space-4);
+  font-size: clamp(2.5rem, 3.4vw, 3.5rem);
   line-height: 1.1;
 }
 
@@ -1531,6 +1543,11 @@ button {
   .dashboard-status-hint {
     justify-self: start;
     width: 100%;
+  }
+
+  .dashboard-status-rail {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .dashboard-panel-primary,
