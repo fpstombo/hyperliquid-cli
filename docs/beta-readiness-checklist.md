@@ -25,6 +25,7 @@
 - `pnpm --filter web test`
 - `pnpm --filter web exec eslint apps/web/app/api --max-warnings=0`
 - `pnpm --filter web exec tsc --noEmit`
+- `pnpm --filter web exec eslint apps/web/components --max-warnings=0`
 - `pnpm --filter web test src/web/agent-onboarding-routes.test.ts src/web/api-routes-auth.test.ts`
 
 ### Test Artifacts

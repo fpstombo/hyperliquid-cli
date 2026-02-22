@@ -8,7 +8,6 @@ import { PanelShell } from "./ui/PanelShell"
 import { StatusBadge } from "./ui/StatusBadge"
 import { ValueFlash } from "./ui/ValueFlash"
 import { SkeletonBlock } from "./ui/SkeletonBlock"
-import type { OrderItem } from "../lib/api-types"
 
 type TradeClientProps = {
   symbol: string
@@ -16,7 +15,9 @@ type TradeClientProps = {
 
 const SORT_HOLD_WINDOW_MS = 1200
 
-const TradeOrderRow = memo(function TradeOrderRow({ order }: { order: OrderItem }) {
+type TradeOrder = NonNullable<ReturnType<typeof useTradeOrders>["data"]>["orders"][number]
+
+const TradeOrderRow = memo(function TradeOrderRow({ order }: { order: TradeOrder }) {
   return (
     <div style={{ display: "flex", justifyContent: "space-between" }}>
       <span>

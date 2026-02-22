@@ -7,7 +7,7 @@ import { StatusBadge } from "../ui/StatusBadge"
 import { Table, type TableColumn } from "../ui/table"
 import { ValueFlash } from "../ui/ValueFlash"
 import { formatTimestamp } from "../../lib/formatters"
-import type { DashboardOrderVm, DashboardPositionVm, DashboardViewModel } from "./dashboard-view-model"
+import type { DashboardOrderVm, DashboardPositionVm, DashboardViewModel } from "../../lib/hooks/dashboard-view-model"
 
 type DashboardViewProps = {
   model: DashboardViewModel

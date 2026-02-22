@@ -1,4 +1,4 @@
-import type { DashboardViewModel } from "./dashboard-view-model"
+import type { DashboardViewModel } from "../../lib/hooks/dashboard-view-model"
 import { PanelShell } from "../ui/PanelShell"
 import { SkeletonBlock } from "../ui/SkeletonBlock"
 

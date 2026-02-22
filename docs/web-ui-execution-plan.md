@@ -108,6 +108,11 @@ Treat this rubric as a release gate for UI slices. A PR touching web UI is incom
 ### v1 scope guardrails
 Follow the hard caps and out-of-scope rules in [Web UI v1 Scope Guardrails](./web-ui-v1-scope-guardrails.md) for all planning and implementation PRs.
 
+### UI layering contract (mandatory)
+- `apps/web/components/**` must remain render-only/presentational.
+- Data shaping, API/domain state mapping, and session/server coordination belong in `apps/web/lib/hooks/**` or route-level containers under `apps/web/app/**`.
+- Components must not import API/domain/server modules directly (`lib/api*`, `lib/auth`, `lib/sim-state`, `lib/server*`, `lib/agent-state-server`, `lib/trading`).
+
 ---
 
 ## Slice 1 — Web App Foundation + Design System
@@ -364,7 +369,8 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 3. `pnpm --filter web test`
 4. `pnpm --filter web exec eslint apps/web/app/api --max-warnings=0`
 5. `pnpm --filter web exec tsc --noEmit`
-6. Targeted regression coverage for duplicate-import/syntax failures in route suites (for example `src/web/agent-onboarding-routes.test.ts` and `src/web/api-routes-auth.test.ts`).
+6. `pnpm --filter web exec eslint components --max-warnings=0`
+7. Targeted regression coverage for duplicate-import/syntax failures in route suites (for example `src/web/agent-onboarding-routes.test.ts` and `src/web/api-routes-auth.test.ts`).
 
 ## Progress Log
 

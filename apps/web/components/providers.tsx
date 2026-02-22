@@ -10,7 +10,7 @@ import React, {
   type ReactNode,
 } from "react"
 import { PrivyProvider, usePrivy } from "@privy-io/react-auth"
-import { DEFAULT_SESSION, type AppEnvironment, type SessionState } from "../lib/auth"
+import { DEFAULT_SESSION, type AppEnvironment, type SessionState } from "../lib/hooks/use-auth-session"
 
 type AuthContextValue = {
   ready: boolean

@@ -79,5 +79,8 @@ jobs:
       - name: API route compile check
         run: pnpm --filter web exec tsc --noEmit
 
+      - name: Component boundary lint (no warnings)
+        run: pnpm --filter web exec eslint components --max-warnings=0
+
       - name: API route targeted regression tests
         run: pnpm --filter web test src/web/agent-onboarding-routes.test.ts src/web/api-routes-auth.test.ts
