@@ -1,23 +1,22 @@
 # Web UI v1 Performance Checklist
 
-## Performance budgets and targets
+## Hard performance limits (release blocking)
 
-### Route bundle budgets (gzip)
-- `/dashboard`: **<= 220 KB** initial JS payload.
-- `/trade/[symbol]`: **<= 240 KB** initial JS payload.
-- Secondary dashboard panels chunk (lazy loaded): **<= 45 KB**.
-- Any newly introduced route chunk: **<= 60 KB** unless exempted in release notes.
+These limits apply to every PR touching `apps/web/app/dashboard/**`, `apps/web/app/trade/**`, or shared UI/data hooks that impact those routes.
 
-### User-centric responsiveness targets
-- **TTI (Time to Interactive)** on cold load (Fast 3G, 4x CPU):
-  - `/dashboard`: **<= 3.5 s**
-  - `/trade/[symbol]`: **<= 4.0 s**
-- **INP (Interaction to Next Paint)** p75 on key interactions: **<= 200 ms**.
-- **FPS goal** during list updates/scroll: sustain **>= 55 FPS** with no long jank streaks (> 200 ms).
-- **Data update latency thresholds** (server response to painted UI):
-  - Price card updates: **<= 350 ms**
-  - Orders/positions table refresh paint: **<= 500 ms**
-  - Toast/error-state surface: **<= 250 ms**
+| Metric | `/dashboard` hard limit | `/trade/[symbol]` hard limit | Notes |
+| --- | ---: | ---: | --- |
+| Initial route JS (gzip) | **<= 220 KB** | **<= 240 KB** | From Next.js production build output; includes only initial route payload. |
+| Hydration complete (cold load, Fast 3G + 4x CPU) | **<= 2.6 s** | **<= 3.0 s** | Measured as hydration end marker from route start. |
+| TTI (cold load, Fast 3G + 4x CPU) | **<= 3.5 s** | **<= 4.0 s** | Lighthouse/DevTools timing. |
+| Update latency: price tick response->paint | **<= 350 ms** | **<= 350 ms** | Server response complete to visible UI paint. |
+| Update latency: orders/positions refresh response->paint | **<= 500 ms** | **<= 500 ms** | For active polling or manual refresh paths. |
+| Update latency: toast/error response->paint | **<= 250 ms** | **<= 250 ms** | Includes validation + API error surfaces. |
+| FPS floor during 30s active updates + scroll | **>= 55 FPS** | **>= 55 FPS** | No repeated long-jank streaks (>200 ms). |
+
+Additional chunk limits:
+- Secondary dashboard panels chunk (lazy loaded): **<= 45 KB (gzip)**.
+- Any newly introduced route chunk: **<= 60 KB (gzip)** unless explicitly exempted with approval.
 
 ## Implementation checklist
 
@@ -28,7 +27,7 @@
 - [ ] Expensive row/cell render paths are memoized.
 - [ ] Callback and derived-model props are stabilized (e.g., `useCallback`/`useMemo`) to prevent prop churn.
 
-## Measurement method
+## Measurement method (must be recorded in PR)
 
 ### 1) Build analysis + route/chunk size checks
 1. Install and build:
@@ -37,22 +36,21 @@
    ```
 2. Record generated route sizes from Next.js build output.
 3. Pass criteria:
-   - Initial JS for `/dashboard` and `/trade/[symbol]` stays within budget.
+   - Initial JS for `/dashboard` and `/trade/[symbol]` stays within hard limits.
    - Deferred secondary chunk exists and is not part of initial route payload.
 
-### 2) Lighthouse lab audit (TTI/INP)
+### 2) Hydration + TTI audit
 1. Run production server:
    ```bash
    pnpm --filter @hyperliquid/web start
    ```
-2. Use Chrome DevTools Lighthouse or CLI with mobile throttling:
+2. Measure hydration complete and TTI for each route with Chrome DevTools/Lighthouse under Fast 3G + 4x CPU:
    ```bash
    npx lighthouse http://localhost:3000/dashboard --preset=desktop
    npx lighthouse http://localhost:3000/trade/BTC --preset=desktop
    ```
 3. Pass criteria:
-   - TTI at or under route targets.
-   - INP p75 at or under 200 ms.
+   - Hydration and TTI at or under route hard limits.
 
 ### 3) FPS + jank checks in DevTools Performance
 1. Open route, start recording in **Performance** panel.
@@ -69,5 +67,16 @@
    - Orders/positions paint <= 500 ms.
    - Error/toast paint <= 250 ms.
 
-## Regression gate
-- Treat budget/target misses as release blockers unless documented with mitigation and explicit approval.
+## Regression and merge gate
+
+- Any hard-limit miss is a **merge blocker**.
+- Any measurable regression vs the latest row in the trend table requires explicit approval (link to issue/comment/decision record) before merge.
+- "No approval link" + "regression present" is a CI failure condition.
+
+## Running trend table (append one row per PR slice)
+
+Use this table to catch cumulative bloat and regressions across slices. Every UI PR must append a new row (do not overwrite history).
+
+| PR | Slice | `/dashboard` JS (KB) | `/trade/[symbol]` JS (KB) | Dashboard hydration (s) | Trade hydration (s) | Dashboard TTI (s) | Trade TTI (s) | Update latency p95 (ms) | FPS floor | Regression vs previous? | Approval link (if regressed) | Measurement method + artifacts |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |
+| _TBD (next PR)_ | _TBD_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _yes/no_ | _required if yes_ | _build log + perf trace/lighthouse links_ |

@@ -6,6 +6,44 @@ on:
   pull_request:
 
 jobs:
+  performance-regression-gate:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate performance regression declaration + approval
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          set -euo pipefail
+
+          if [[ -z "${PR_BODY:-}" ]]; then
+            echo "PR body is empty; cannot validate performance regression gate."
+            exit 1
+          fi
+
+          no_regression_checked=$(printf '%s' "$PR_BODY" | rg -F -c -- "- [x] No performance regression versus the latest trend-table row." || true)
+          regression_approved_checked=$(printf '%s' "$PR_BODY" | rg -F -c -- "- [x] Regression present and explicitly approved (approval link required):" || true)
+
+          if [[ "$no_regression_checked" -gt 0 && "$regression_approved_checked" -gt 0 ]]; then
+            echo "Choose exactly one regression declaration checkbox in PR template."
+            exit 1
+          fi
+
+          if [[ "$no_regression_checked" -eq 0 && "$regression_approved_checked" -eq 0 ]]; then
+            echo "A regression declaration checkbox must be selected in PR template."
+            exit 1
+          fi
+
+          if [[ "$regression_approved_checked" -gt 0 ]]; then
+            approval_line=$(printf '%s' "$PR_BODY" | rg -F -- "- [x] Regression present and explicitly approved (approval link required):" || true)
+            if ! printf '%s' "$approval_line" | rg -q "https?://"; then
+              echo "Regression marked as approved, but no approval URL found on the declaration line."
+              exit 1
+            fi
+          fi
+
+          echo "Performance regression declaration gate passed."
+
   quality-gates:
     runs-on: ubuntu-latest
     steps:
