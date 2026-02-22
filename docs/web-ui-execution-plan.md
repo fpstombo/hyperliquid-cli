@@ -372,6 +372,43 @@ This sequence ships value early (beautiful UI + auth + read-only data), then lay
 6. `pnpm --filter web exec eslint components --max-warnings=0`
 7. Targeted regression coverage for duplicate-import/syntax failures in route suites (for example `src/web/agent-onboarding-routes.test.ts` and `src/web/api-routes-auth.test.ts`).
 
+## v1 Final Release Checklist (mandatory before declaring v1 complete)
+
+All items below are release gates. v1 cannot be declared complete until every gate is green and artifacts are linked in this file.
+
+- [ ] **Visual rubric pass** — Visual QA rubric fully passed for `/dashboard` and `/trade/[symbol]`, including semantic consistency checks and screenshot evidence.
+- [ ] **Performance gate pass** — Rendering/perf budget checks passed with no unresolved regressions versus approved baselines.
+- [ ] **Streaming stability pass** — Real-time/polling/SSE flows validated for sustained updates, reconnect behavior, and no critical stalls.
+- [ ] **SIM redundancy pass** — SIM viewport checklist and redundant viewport/theme validation complete with no unresolved above-the-fold failures.
+- [ ] **Boundary and scope pass** — UI layering contract + v1 scope guardrails verified, with no out-of-scope or cross-boundary violations.
+
+### Stop-ship triggers (must all stay green)
+
+Any red item below is an immediate stop-ship for v1:
+
+- **Jitter:** Numeric/table jitter, panel jumpiness, or unstable layout updates in critical dashboard/trade surfaces.
+- **Readability failures:** Typography/contrast/spacing regressions that degrade scanability or violate accessibility/readability requirements.
+- **Semantic inconsistency:** Conflicting badge/status semantics, token misuse, or meaning drift across equivalent UI states.
+- **Budget regressions:** Perf budget regressions beyond approved thresholds (render, interaction, or data-update pathways).
+- **Token drift:** Unauthorized design-token drift (hardcoded style values replacing tokenized semantics without explicit approval).
+
+### Completion artifacts (link all before release signoff)
+
+Before release signoff, add concrete links for every gate item directly in this section (CI runs, test outputs, QA checklists, screenshots, and PR references). Missing links keep the gate red.
+
+- **Visual rubric artifacts:** <!-- add links -->
+- **Performance gate artifacts:** <!-- add links -->
+- **Streaming stability artifacts:** <!-- add links -->
+- **SIM redundancy artifacts:** <!-- add links -->
+- **Boundary + scope artifacts:** <!-- add links -->
+
+### v1 completion declaration rule
+
+Declare v1 complete only when:
+1. Every final release checklist item above is checked `[x]`.
+2. No stop-ship trigger is active.
+3. Completion artifacts are linked in this document for each gate.
+
 ## Progress Log
 
 ### Completed this PR
