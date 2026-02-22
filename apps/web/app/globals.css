@@ -1200,9 +1200,76 @@ button {
   margin-top: var(--space-1);
 }
 
+.dashboard-first-viewport {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.dashboard-hero-grid {
+  display: grid;
+  gap: var(--space-2);
+  grid-template-columns: minmax(320px, 1.8fr) repeat(2, minmax(220px, 1fr));
+}
+
 .dashboard-status-hint {
   font-size: var(--text-xs);
   align-self: center;
+}
+
+.dashboard-status-rail {
+  display: grid;
+  grid-template-columns: minmax(240px, 1.4fr) repeat(3, minmax(120px, 1fr)) auto;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface-base) 95%, black);
+  padding: 0.48rem var(--space-3);
+}
+
+.dashboard-status-label {
+  margin: 0 0 0.15rem;
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.dashboard-status-primary {
+  display: grid;
+}
+
+.dashboard-status-primary-content {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.dashboard-status-item {
+  display: grid;
+}
+
+.dashboard-status-simstate {
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+.dashboard-status-simstate--confirmed,
+.dashboard-status-simstate--positive {
+  color: color-mix(in srgb, var(--semantic-positive) 80%, white);
+}
+
+.dashboard-status-simstate--pending,
+.dashboard-status-simstate--warning {
+  color: color-mix(in srgb, var(--semantic-warning) 78%, white);
+}
+
+.dashboard-status-simstate--rejected,
+.dashboard-status-simstate--negative,
+.dashboard-status-simstate--degraded,
+.dashboard-status-simstate--stale {
+  color: color-mix(in srgb, var(--semantic-negative) 82%, white);
 }
 
 .dashboard-metrics-grid {
@@ -1219,6 +1286,14 @@ button {
   min-height: 108px;
 }
 
+.dashboard-metric-card--hero {
+  min-height: 112px;
+}
+
+.dashboard-metric-card--supporting {
+  min-height: 84px;
+}
+
 .dashboard-metric-label {
   margin: 0;
   font-size: var(--text-sm);
@@ -1232,6 +1307,17 @@ button {
   font-feature-settings: "tnum" 1;
   font-weight: 700;
   color: var(--fg-primary);
+}
+
+.dashboard-metric-value--hero {
+  font-size: clamp(2.1rem, 2.8vw, 2.75rem);
+  line-height: 1.1;
+}
+
+.dashboard-metric-tertiary {
+  margin: var(--space-1) 0 0;
+  color: var(--fg-muted);
+  font-size: var(--text-xs);
 }
 
 .dashboard-core-grid,
@@ -1267,6 +1353,8 @@ button {
 }
 
 @media (max-width: 900px) {
+  .dashboard-hero-grid,
+  .dashboard-status-rail,
   .dashboard-metrics-grid,
   .dashboard-core-grid,
   .dashboard-secondary-grid {
