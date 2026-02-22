@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { shortenAddress } from "../lib/auth"
 import { useAuth } from "./providers"
+import { StatusBadge } from "./ui"
 
 export function NavbarControls() {
   const pathname = usePathname()
@@ -30,20 +31,20 @@ export function NavbarControls() {
     <div className="top-nav-controls">
       <div className="top-nav-slot" aria-label="Symbol context">
         <span className="top-nav-slot-label">Symbol</span>
-        <span className="pill">{symbolContext ?? "Global"}</span>
+        <StatusBadge variant="neutral">{symbolContext ?? "Global"}</StatusBadge>
       </div>
 
       <div className="top-nav-slot" aria-label="Session and health">
         <span className="top-nav-slot-label">Session</span>
-        <span className="pill">{ready ? shortenAddress(session.walletAddress) : "Loading session…"}</span>
-        <span className="pill">{session.chainName}</span>
-        <span className="ok-pill">API healthy</span>
+        <StatusBadge variant="neutral">{ready ? shortenAddress(session.walletAddress) : "Loading session…"}</StatusBadge>
+        <StatusBadge variant="neutral">{session.chainName}</StatusBadge>
+        <StatusBadge variant="positive">API healthy</StatusBadge>
       </div>
 
       <div className="top-nav-slot" aria-label="Environment">
         <span className="top-nav-slot-label">Mode</span>
-        <span className="sim-pill" role="status" aria-label="Simulation mode badge">SIM</span>
-        {isMainnet ? <span className="warning-pill">Mainnet live</span> : <span className="ok-pill">Testnet</span>}
+        <StatusBadge variant="sim" role="status" aria-label="Simulation mode badge">SIM</StatusBadge>
+        {isMainnet ? <StatusBadge variant="warning">Mainnet live</StatusBadge> : <StatusBadge variant="positive">Testnet</StatusBadge>}
       </div>
 
       <div className="top-nav-actions">

@@ -2,6 +2,7 @@
 
 import { FormEvent, useMemo, useState } from "react"
 import { useAuth } from "../../../../components/providers"
+import { PanelShell, StatusBadge } from "../../../../components/ui"
 
 type OrderType = "market" | "limit"
 type Side = "buy" | "sell"
@@ -80,15 +81,14 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
   }
 
   return (
-    <div className="card order-ticket">
-      <h2 style={{ marginTop: 0 }}>Order Ticket</h2>
-      <p
-        className={session.environment === "mainnet" ? "warning-pill" : "ok-pill"}
+    <PanelShell className="order-ticket" title="Order Ticket">
+      <StatusBadge
+        variant={session.environment === "mainnet" ? "warning" : "sim"}
         role="status"
         aria-label={`Active trading environment ${session.environment.toUpperCase()} on ${session.chainName}`}
       >
         Active environment: {session.environment.toUpperCase()} ({session.chainName})
-      </p>
+      </StatusBadge>
       {hasChainMismatch ? (
         <p className="status-error" role="status" aria-live="polite">
           Wallet chain and selected environment do not match. Order submission is blocked.
@@ -146,14 +146,14 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
 
         <div className="ticket-primary-actions">
           <button type="submit" disabled={pending || hasChainMismatch}>{pending ? "Submitting..." : "Review order"}</button>
-          {session.environment === "testnet" ? <span className="sim-pill" role="status" aria-label="Simulation mode enabled">SIM MODE</span> : null}
-          <span
-            className={hasChainMismatch ? "warning-pill" : "ok-pill"}
+          {session.environment === "testnet" ? <StatusBadge variant="sim" role="status" aria-label="Simulation mode enabled">SIM MODE</StatusBadge> : null}
+          <StatusBadge
+            variant={hasChainMismatch ? "warning" : "positive"}
             role="status"
             aria-label={`Kill switch ${hasChainMismatch ? "engaged" : "ready"}`}
           >
             Kill switch {hasChainMismatch ? "engaged" : "ready"}
-          </span>
+          </StatusBadge>
         </div>
       </form>
 
@@ -174,6 +174,6 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
           {status.text}
         </p>
       ) : null}
-    </div>
+    </PanelShell>
   )
 }

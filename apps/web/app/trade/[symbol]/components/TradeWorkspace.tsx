@@ -1,7 +1,7 @@
 "use client"
 
 import { useMemo, useState } from "react"
-import { PnlValue } from "../../../../components/ui"
+import { PanelShell, PnlValue } from "../../../../components/ui"
 import { formatMagnitude } from "../../../../lib/formatters"
 import { OpenOrdersTable } from "./OpenOrdersTable"
 import { OrderTicket } from "./OrderTicket"
@@ -58,8 +58,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           </div>
         </header>
 
-        <div className="card trade-depth-card">
-          <h3 style={{ marginTop: 0 }}>Order Book</h3>
+        <PanelShell className="trade-depth-card" title="Order Book">
           <div className="trade-depth-grid">
             <div>
               <h4>Bids</h4>
@@ -80,7 +79,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
               ))}
             </div>
           </div>
-        </div>
+        </PanelShell>
       </section>
 
       <section className="trade-panel trade-panel--orders">
@@ -95,15 +94,14 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           </div>
         </header>
 
-        <div className="card trade-position-card">
-          <h3 style={{ marginTop: 0 }}>Position Summary</h3>
+        <PanelShell className="trade-position-card" title="Position Summary">
           <div className="trade-position-grid">
             <span className="muted">Entry</span>
             <strong>{mockPosition.entry}</strong>
             <span className="muted">Liq.</span>
             <strong>{mockPosition.liq}</strong>
           </div>
-        </div>
+        </PanelShell>
 
         <OpenOrdersTable refreshKey={refreshKey} />
       </section>
