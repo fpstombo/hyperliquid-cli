@@ -19,14 +19,14 @@ const DashboardSecondaryPanels = dynamic(
   {
     loading: () => (
       <section className="dashboard-secondary-grid" aria-label="Loading secondary panels">
-        <PanelShell title="Opportunities" contextTag="Secondary context" className="dashboard-panel-secondary">
+        <PanelShell title="Opportunities" contextTag="Secondary context" tier="secondary" className="dashboard-secondary-panel">
           <div className="dashboard-secondary-list">
             <SkeletonBlock height="1rem" />
             <SkeletonBlock height="1rem" width="80%" />
             <SkeletonBlock height="1rem" width="65%" />
           </div>
         </PanelShell>
-        <PanelShell title="Intent" contextTag="Execution metadata" className="dashboard-panel-secondary">
+        <PanelShell title="Intent" contextTag="Execution metadata" tier="secondary" className="dashboard-secondary-panel">
           <div className="dashboard-secondary-list">
             <SkeletonBlock height="1rem" />
             <SkeletonBlock height="1rem" width="76%" />
@@ -186,7 +186,7 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
         </section>
 
         <section className="dashboard-core-grid">
-          <PanelShell title="Open Positions" className="dashboard-panel-primary">
+          <PanelShell title="Open Positions" tier="primary" className="dashboard-grid-span-6">
             {isInitialLoading && model.positions.length === 0 ? (
               tableLoadingSkeleton()
             ) : model.positions.length ? (
@@ -202,7 +202,7 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
             )}
           </PanelShell>
 
-          <PanelShell title="Open Orders" className="dashboard-panel-primary">
+          <PanelShell title="Open Orders" tier="primary" className="dashboard-grid-span-6">
             {isInitialLoading && model.orders.length === 0 ? (
               tableLoadingSkeleton()
             ) : model.orders.length ? (

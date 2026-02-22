@@ -65,14 +65,14 @@ export function DashboardSecondaryPanels({ model, isLoading = false }: Dashboard
   if (isLoading) {
     return (
       <section className="dashboard-secondary-grid" aria-label="Loading secondary panels">
-        <PanelShell title="Opportunities" contextTag="Secondary context" className="dashboard-panel-secondary">
+        <PanelShell title="Opportunities" contextTag="Secondary context" tier="secondary" className="dashboard-secondary-panel">
           <div className="dashboard-secondary-list">
             <SkeletonBlock height="1rem" />
             <SkeletonBlock height="1rem" width="85%" />
             <SkeletonBlock height="1rem" width="70%" />
           </div>
         </PanelShell>
-        <PanelShell title="Intent" contextTag="Execution metadata" className="dashboard-panel-secondary">
+        <PanelShell title="Intent" contextTag="Execution metadata" tier="secondary" className="dashboard-secondary-panel">
           <div className="dashboard-secondary-list">
             <SkeletonBlock height="1rem" />
             <SkeletonBlock height="1rem" width="75%" />
@@ -85,7 +85,7 @@ export function DashboardSecondaryPanels({ model, isLoading = false }: Dashboard
 
   return (
     <section className="dashboard-secondary-grid">
-      <PanelShell title="Opportunities" contextTag="Secondary context" className="dashboard-panel-secondary">
+      <PanelShell title="Opportunities" contextTag="Secondary context" tier="secondary" className="dashboard-secondary-panel">
         <div className="dashboard-secondary-list">
           {model.opportunities.map((item, index) => {
             const rank = index + 1
@@ -104,7 +104,7 @@ export function DashboardSecondaryPanels({ model, isLoading = false }: Dashboard
         </div>
       </PanelShell>
 
-      <PanelShell title="Intent" contextTag="Execution metadata" className="dashboard-panel-secondary">
+      <PanelShell title="Intent" contextTag="Execution metadata" tier="secondary" className="dashboard-secondary-panel">
         <div className="dashboard-secondary-list" role="status" aria-label="Intent state indicators">
           {model.intents.map((item, index) => {
             const rank = index + 1
