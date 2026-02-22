@@ -93,6 +93,11 @@ Each PR in this sequence must include all of the following before merge:
 - PR screenshots showing above-the-fold captures for `/dashboard` and `/trade/[symbol]` in the active theme(s) impacted by the change.
 - Reviewer sign-off that Signature Brand Layer rules were validated and pass for changed surfaces before merge.
 
+### Design Thesis Impact (required)
+For PRs touching `apps/web/components/dashboard/**`, `apps/web/components/trade*`, or `apps/web/app/globals.css`, add a 2–4 line `Design Thesis Impact` section in the PR description.
+It must include exactly one sentence naming the visual/product leap delivered and exactly one sentence naming what was intentionally removed or simplified.
+PRs that only add controls/checklists without a clear visual or product improvement must be rejected.
+
 ### Visual QA rubric (required)
 Treat this rubric as a release gate for UI slices. A PR touching web UI is incomplete unless all applicable checks pass.
 
