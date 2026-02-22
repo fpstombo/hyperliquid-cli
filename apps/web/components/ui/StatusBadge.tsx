@@ -11,6 +11,9 @@ export type StatusVariant =
   | "pending"
   | "confirmed"
   | "rejected"
+  | "sim-pending"
+  | "sim-confirmed"
+  | "sim-rejected"
 
 const STATUS_PRIORITY: Record<StatusVariant, number> = {
   sim: 10,
@@ -23,6 +26,9 @@ const STATUS_PRIORITY: Record<StatusVariant, number> = {
   degraded: 70,
   negative: 80,
   rejected: 90,
+  "sim-pending": 45,
+  "sim-confirmed": 36,
+  "sim-rejected": 85,
 }
 
 type StatusBadgeProps = HTMLAttributes<HTMLSpanElement> & {
