@@ -7,8 +7,8 @@ These limits apply to every PR touching `apps/web/app/dashboard/**`, `apps/web/a
 | Metric | `/dashboard` hard limit | `/trade/[symbol]` hard limit | Notes |
 | --- | ---: | ---: | --- |
 | Initial route JS (gzip) | **<= 220 KB** | **<= 240 KB** | From Next.js production build output; includes only initial route payload. |
-| Hydration complete (cold load, Fast 3G + 4x CPU) | **<= 2.6 s** | **<= 3.0 s** | Measured as hydration end marker from route start. |
-| TTI (cold load, Fast 3G + 4x CPU) | **<= 3.5 s** | **<= 4.0 s** | Lighthouse/DevTools timing. |
+| Hydration complete (cold load, Fast 3G + 4x CPU) | **<= 2.1 s** | **<= 2.4 s** | Re-baselined after server-shell route split; measured as hydration end marker from route start. |
+| TTI (cold load, Fast 3G + 4x CPU) | **<= 3.0 s** | **<= 3.3 s** | Re-baselined after server-shell route split; Lighthouse/DevTools timing. |
 | Update latency: price tick response->paint | **<= 350 ms** | **<= 350 ms** | Server response complete to visible UI paint. |
 | Update latency: orders/positions refresh response->paint | **<= 500 ms** | **<= 500 ms** | For active polling or manual refresh paths. |
 | Update latency: toast/error response->paint | **<= 250 ms** | **<= 250 ms** | Includes validation + API error surfaces. |
@@ -23,6 +23,8 @@ Additional chunk limits:
 - [ ] Route-level lazy loading is enabled for non-critical/secondary surfaces.
 - [ ] Secondary dashboard context panels are split into a deferred chunk.
 - [ ] Primary dashboard and trade surfaces are skeleton-first during initial load.
+- [ ] Route shells (headers, panel chrome, static scaffolding) render on the server.
+- [ ] Only high-frequency interactive widgets hydrate on the client.
 - [ ] Spinners/"Loading..." placeholders are not used on primary above-the-fold panels.
 - [ ] Expensive row/cell render paths are memoized.
 - [ ] Callback and derived-model props are stabilized (e.g., `useCallback`/`useMemo`) to prevent prop churn.
@@ -80,3 +82,4 @@ Use this table to catch cumulative bloat and regressions across slices. Every UI
 | PR | Slice | `/dashboard` JS (KB) | `/trade/[symbol]` JS (KB) | Dashboard hydration (s) | Trade hydration (s) | Dashboard TTI (s) | Trade TTI (s) | Update latency p95 (ms) | FPS floor | Regression vs previous? | Approval link (if regressed) | Measurement method + artifacts |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | --- | --- | --- |
 | _TBD (next PR)_ | _TBD_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _fill_ | _yes/no_ | _required if yes_ | _build log + perf trace/lighthouse links_ |
+| _current branch_ | Server-shell refactor (`/dashboard`, `/trade/[symbol]`) | _pending_ | _pending_ | **2.1 target** | **2.4 target** | **3.0 target** | **3.3 target** | _pending_ | _pending_ | no | n/a | targets re-baselined with this refactor |

@@ -4,7 +4,6 @@ import { memo, useCallback, useEffect, useMemo, useState } from "react"
 import { Toast } from "./Toast"
 import { useSymbolPrice, useTradeOrders } from "../lib/hooks/use-trade-data"
 import { useDebouncedValue } from "../lib/hooks/use-debounced-value"
-import { PanelShell } from "./ui/PanelShell"
 import { StatusBadge } from "./ui/StatusBadge"
 import { ValueFlash } from "./ui/ValueFlash"
 import { SkeletonBlock } from "./ui/SkeletonBlock"
@@ -28,7 +27,7 @@ const TradeOrderRow = memo(function TradeOrderRow({ order }: { order: TradeOrder
   )
 })
 
-export function TradeClient({ symbol }: TradeClientProps) {
+export function TradeLiveWidgets({ symbol }: TradeClientProps) {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [liveSort, setLiveSort] = useState(false)
@@ -97,75 +96,69 @@ export function TradeClient({ symbol }: TradeClientProps) {
   const isStale = priceState.isStale || ordersState.isStale
 
   return (
-    <main className="grid trade-layout">
-      <PanelShell title={`${symbol} Market Snapshot`}>
-        <div className="dashboard-status-row" style={{ marginBottom: "0.5rem" }}>
-          <StatusBadge variant={isStale ? "warning" : "positive"}>{isStale ? "Stale" : "Live"}</StatusBadge>
-          <StatusBadge variant={priceState.error || ordersState.error ? "warning" : "positive"}>
-            {priceState.error || ordersState.error ? "Degraded" : "Connected"}
-          </StatusBadge>
+    <>
+      <div className="dashboard-status-row" style={{ marginBottom: "0.5rem" }}>
+        <StatusBadge variant={isStale ? "warning" : "positive"}>{isStale ? "Stale" : "Live"}</StatusBadge>
+        <StatusBadge variant={priceState.error || ordersState.error ? "warning" : "positive"}>
+          {priceState.error || ordersState.error ? "Degraded" : "Connected"}
+        </StatusBadge>
+      </div>
+
+      {priceState.error ? (
+        <div>
+          <p style={{ color: "#ff9ba3" }}>Failed to load price: {priceState.error}</p>
+          <button onClick={() => void priceState.retry()}>Retry</button>
         </div>
+      ) : null}
 
-        {priceState.error ? (
-          <div>
-            <p style={{ color: "#ff9ba3" }}>Failed to load price: {priceState.error}</p>
-            <button onClick={() => void priceState.retry()}>Retry</button>
-          </div>
-        ) : null}
+      {priceState.isLoading ? (
+        <SkeletonBlock width="14rem" height="2rem" style={{ margin: "0.4rem 0 1rem" }} aria-label="Loading latest price" />
+      ) : priceState.data?.price ? (
+        <p style={{ fontSize: "2rem", margin: "0.4rem 0 1rem" }}>
+          <ValueFlash value={priceState.data.price}>{priceState.data.price}</ValueFlash>
+        </p>
+      ) : (
+        <p className="muted">No price found for this symbol.</p>
+      )}
 
-        {priceState.isLoading ? (
-          <SkeletonBlock width="14rem" height="2rem" style={{ margin: "0.4rem 0 1rem" }} aria-label="Loading latest price" />
-        ) : priceState.data?.price ? (
-          <p style={{ fontSize: "2rem", margin: "0.4rem 0 1rem" }}>
-            <ValueFlash value={priceState.data.price}>{priceState.data.price}</ValueFlash>
-          </p>
-        ) : (
-          <p className="muted">No price found for this symbol.</p>
-        )}
-
-        <h3>Open Orders ({symbol})</h3>
-        <div style={{ display: "flex", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
-          <input
-            className="input"
-            style={{ maxWidth: "220px" }}
-            placeholder="Search order id / side"
-            data-global-search
-            aria-label="Search open orders"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-          />
-          <label className="muted" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
-            <input type="checkbox" checked={liveSort} onChange={(event) => setLiveSort(event.target.checked)} />
-            Live sorting
-          </label>
+      <h3>Open Orders ({symbol})</h3>
+      <div style={{ display: "flex", gap: "0.75rem", marginBottom: "0.5rem", flexWrap: "wrap" }}>
+        <input
+          className="input"
+          style={{ maxWidth: "220px" }}
+          placeholder="Search order id / side"
+          data-global-search
+          aria-label="Search open orders"
+          value={search}
+          onChange={(event) => setSearch(event.target.value)}
+        />
+        <label className="muted" style={{ display: "inline-flex", alignItems: "center", gap: "0.4rem" }}>
+          <input type="checkbox" checked={liveSort} onChange={(event) => setLiveSort(event.target.checked)} />
+          Live sorting
+        </label>
+      </div>
+      {ordersState.error ? (
+        <div>
+          <p style={{ color: "#ff9ba3" }}>Failed to load orders: {ordersState.error}</p>
+          <button onClick={() => void ordersState.retry()}>Retry</button>
         </div>
-        {ordersState.error ? (
-          <div>
-            <p style={{ color: "#ff9ba3" }}>Failed to load orders: {ordersState.error}</p>
-            <button onClick={() => void ordersState.retry()}>Retry</button>
-          </div>
-        ) : null}
+      ) : null}
 
-        {ordersState.isLoading && displayedOrders.length === 0 ? (
-          <div className="grid" style={{ gap: "0.5rem" }} aria-label="Loading orders">
-            <SkeletonBlock height="1rem" />
-            <SkeletonBlock height="1rem" width="80%" />
-            <SkeletonBlock height="1rem" width="90%" />
-          </div>
-        ) : displayedOrders.length ? (
-          <div className="grid">
-            {displayedOrders.map((order) => <TradeOrderRow key={order.oid} order={order} />)}
-          </div>
-        ) : (
-          <p className="muted">No open orders for {symbol}.</p>
-        )}
-      </PanelShell>
-
-      <PanelShell title="Order Ticket">
-        <p className="muted">Execution UI lands in Epic D. Live data updates every 2-5 seconds.</p>
-      </PanelShell>
+      {ordersState.isLoading && displayedOrders.length === 0 ? (
+        <div className="grid" style={{ gap: "0.5rem" }} aria-label="Loading orders">
+          <SkeletonBlock height="1rem" />
+          <SkeletonBlock height="1rem" width="80%" />
+          <SkeletonBlock height="1rem" width="90%" />
+        </div>
+      ) : displayedOrders.length ? (
+        <div className="grid">
+          {displayedOrders.map((order) => <TradeOrderRow key={order.oid} order={order} />)}
+        </div>
+      ) : (
+        <p className="muted">No open orders for {symbol}.</p>
+      )}
 
       {toastMessage ? <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} /> : null}
-    </main>
+    </>
   )
 }

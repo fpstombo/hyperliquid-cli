@@ -1,8 +1,5 @@
-import dynamic from "next/dynamic"
-
-const TradeClient = dynamic(() => import("../../../components/trade-client").then((module) => module.TradeClient), {
-  ssr: false,
-})
+import { TradeLiveWidgets } from "../../../components/trade-client"
+import { PanelShell } from "../../../components/ui/PanelShell"
 
 type TradePageProps = {
   params: {
@@ -12,5 +9,16 @@ type TradePageProps = {
 
 export default function TradePage({ params }: TradePageProps) {
   const symbol = params.symbol.toUpperCase()
-  return <TradeClient symbol={symbol} />
+
+  return (
+    <main className="grid trade-layout">
+      <PanelShell title={`${symbol} Market Snapshot`}>
+        <TradeLiveWidgets symbol={symbol} />
+      </PanelShell>
+
+      <PanelShell title="Order Ticket">
+        <p className="muted">Execution UI lands in Epic D. Live data updates every 2-5 seconds.</p>
+      </PanelShell>
+    </main>
+  )
 }
