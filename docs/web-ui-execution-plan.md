@@ -108,6 +108,15 @@ Treat this rubric as a release gate for UI slices. A PR touching web UI is incom
 ### v1 scope guardrails
 Follow the hard caps and out-of-scope rules in [Web UI v1 Scope Guardrails](./web-ui-v1-scope-guardrails.md) for all planning and implementation PRs.
 
+### Mandatory v1 completion gates
+
+Before Web UI v1 can be declared complete, release validation must pass both of the following gate documents:
+
+- [Web UI v1 Confidence Score Gate](./web-ui-v1-confidence-score.md)
+- [Web UI v1 Release Gate](./web-ui-v1-release-gate.md)
+
+**Hard rule:** v1 cannot be declared complete unless all mandatory gates pass and the computed confidence score is **>= 99**.
+
 ### UI layering contract (mandatory)
 - `apps/web/components/**` must remain render-only/presentational.
 - Data shaping, API/domain state mapping, and session/server coordination belong in `apps/web/lib/hooks/**` or route-level containers under `apps/web/app/**`.
@@ -408,6 +417,8 @@ Declare v1 complete only when:
 1. Every final release checklist item above is checked `[x]`.
 2. No stop-ship trigger is active.
 3. Completion artifacts are linked in this document for each gate.
+4. [Web UI v1 Release Gate](./web-ui-v1-release-gate.md) is fully passed.
+5. [Web UI v1 Confidence Score Gate](./web-ui-v1-confidence-score.md) computes a confidence score of **>= 99**.
 
 ## Progress Log
 
