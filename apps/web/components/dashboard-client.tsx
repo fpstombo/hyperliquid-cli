@@ -17,7 +17,7 @@ export function DashboardLiveData() {
   const { session } = useAuth()
 
   const onTransientError = useCallback((message: string) => {
-    setToastMessage(`Live sync hiccup: ${message}`)
+    setToastMessage(`Update failed: ${message}`)
   }, [])
 
   const balances = useBalances(onTransientError)
@@ -28,7 +28,7 @@ export function DashboardLiveData() {
     setIsRetrying(true)
     try {
       await Promise.all([balances.retry(), positions.retry(), orders.retry()])
-      setToastMessage("Dashboard refreshed.")
+      setToastMessage("Dashboard confirmed.")
     } finally {
       setIsRetrying(false)
     }
@@ -85,11 +85,11 @@ export function DashboardLiveData() {
           state="error"
           size="compact"
           icon="📊"
-          title="Dashboard summary unavailable"
-          message={`We could not refresh balances right now: ${summaryError}`}
+          title="Dashboard update failed"
+          message={`Balances update failed: ${summaryError}`}
           action={
             <button className="button secondary" type="button" onClick={() => void retryAll()} disabled={isRetrying}>
-              {isRetrying ? "Retrying…" : "Retry dashboard"}
+              {isRetrying ? "Retrying…" : "Retry"}
             </button>
           }
         />

@@ -80,7 +80,7 @@ export function OrderTicket({ symbol, referencePrice, onOrderPlaced }: Props) {
       : executionState === "confirmed"
         ? "Confirmed"
         : executionState === "submitted"
-          ? "Submitted"
+          ? "Pending"
           : pending
             ? "Pending"
             : "Ready"
@@ -146,19 +146,19 @@ export function OrderTicket({ symbol, referencePrice, onOrderPlaced }: Props) {
 
       if (!response.ok) {
         setExecutionStep("failed")
-        setStatus({ type: "error", text: json.error || "Order rejected. Update fields and retry." })
+        setStatus({ type: "error", text: json.error || "Order failed. Review details and retry." })
       } else {
         setExecutionStep("submitted")
-        setStatus({ type: "success", text: "Order submitted. Waiting for confirmation..." })
+        setStatus({ type: "success", text: "Order sent. Pending confirmation." })
         window.setTimeout(() => {
           setExecutionStep("confirmed")
-          setStatus({ type: "success", text: "Order confirmed and queued in open orders." })
+          setStatus({ type: "success", text: "Order confirmed. View it in Open Orders." })
         }, 700)
         onOrderPlaced()
       }
     } catch {
       setExecutionStep("failed")
-      setStatus({ type: "error", text: "Unable to reach order API. Check connection and retry submit." })
+      setStatus({ type: "error", text: "Order failed. Check your connection and retry." })
     } finally {
       setPending(false)
       setConfirming(false)
@@ -171,14 +171,14 @@ export function OrderTicket({ symbol, referencePrice, onOrderPlaced }: Props) {
     const nextErrors = validateFields()
     setFieldErrors(nextErrors)
     if (Object.keys(nextErrors).length > 0) {
-      setStatus({ type: "error", text: "Fix the inline issues before reviewing your order." })
+      setStatus({ type: "error", text: "Fix highlighted fields, then review your order." })
       return
     }
 
     if (hasChainMismatch) {
       setStatus({
         type: "error",
-        text: `Environment mismatch: ${session.environment} expects chain ${expectedChainId}, connected wallet is ${session.chainId}. Switch chain in wallet settings, then retry.`,
+        text: `Switch wallet network to chain ${expectedChainId} to match ${session.environment}, then retry.`,
       })
       return
     }
@@ -236,7 +236,7 @@ export function OrderTicket({ symbol, referencePrice, onOrderPlaced }: Props) {
     >
       {hasChainMismatch ? (
         <p className="status-error trade-inline-error" role="status" aria-live="polite">
-          Wallet chain and selected environment do not match. Open wallet settings, switch to chain {expectedChainId}, then retry order review.
+          Wallet network does not match this environment. Switch to chain {expectedChainId}, then retry.
         </p>
       ) : null}
 
@@ -366,7 +366,7 @@ export function OrderTicket({ symbol, referencePrice, onOrderPlaced }: Props) {
               <span>{executionTimes.pending || "--"}</span>
             </div>
             <div className="execution-feedback-row">
-              <span>Submitted</span>
+              <span>Pending</span>
               <span>{executionTimes.submitted || "--"}</span>
             </div>
             <div className="execution-feedback-row">
@@ -385,9 +385,9 @@ export function OrderTicket({ symbol, referencePrice, onOrderPlaced }: Props) {
               {status.type === "error" ? (
                 <>
                   {" "}
-                  <Button type="button" variant="ghost" size="sm" onClick={() => void submitOrder()} disabled={pending || hasChainMismatch}>
-                    Retry submit
-                  </Button>
+                <Button type="button" variant="ghost" size="sm" onClick={() => void submitOrder()} disabled={pending || hasChainMismatch}>
+                    Retry
+                </Button>
                 </>
               ) : null}
             </p>
