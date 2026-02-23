@@ -1,8 +1,9 @@
 import type { Metadata } from "next"
-import Link from "next/link"
+import { SidebarNav, TopNavPrimary } from "../components/app-shell-nav"
 import { AppKeyboardShortcuts } from "../components/app-keyboard-shortcuts"
 import { NavbarControls } from "../components/navbar-controls"
 import { AppPrivyProvider } from "../components/providers"
+import { RouteTransitionContainer } from "../components/route-transition-container"
 import { SymbolQuickSwitcher } from "../components/symbol-quick-switcher"
 import "./globals.css"
 
@@ -30,45 +31,18 @@ export default function RootLayout({ children }: { children: import("react").Rea
                 <div className="brand-wrap">
                   <div className="brand">Hyperliquid Web</div>
                 </div>
-                <nav className="top-nav-links" aria-label="Primary">
-                  {navItems.map((item) => (
-                    <Link key={item.href} href={item.href} className="top-nav-link">
-                      {item.label}
-                    </Link>
-                  ))}
-                </nav>
+                <TopNavPrimary navItems={navItems} />
                 <NavbarControls />
               </div>
             </header>
 
             <div className="shell-grid-wrap">
               <div className="shell-grid">
-                <aside className="sidebar shell-surface" aria-label="Markets and shortcuts">
-                  <section className="sidebar-section">
-                    <p className="sidebar-label">Favorites</p>
-                    <div className="sidebar-list">
-                      {markets.map((market) => (
-                        <Link key={market} className="sidebar-link" href={`/trade/${market}`}>
-                          {market}
-                        </Link>
-                      ))}
-                    </div>
-                  </section>
-                  <section className="sidebar-section">
-                    <p className="sidebar-label">Workspace</p>
-                    <div className="sidebar-list">
-                      <Link className="sidebar-link" href="/dashboard">
-                        Portfolio
-                      </Link>
-                      <button className="sidebar-link sidebar-link-button" type="button">
-                        Alerts (mock)
-                      </button>
-                    </div>
-                  </section>
-                  <SymbolQuickSwitcher />
-                </aside>
+                <SidebarNav markets={markets} sidebarExtra={<SymbolQuickSwitcher />} />
 
-                <main className="content-panel">{children}</main>
+                <main className="content-panel">
+                  <RouteTransitionContainer>{children}</RouteTransitionContainer>
+                </main>
               </div>
             </div>
           </div>
