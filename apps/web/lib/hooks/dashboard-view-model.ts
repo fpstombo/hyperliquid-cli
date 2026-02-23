@@ -13,7 +13,7 @@ export type DashboardStatusVm = {
   freshness: "Fresh" | "Stale"
   freshnessTone: "confirmed" | "stale"
   updatedHint: string
-  simStateLabel: "SIM Pending" | "SIM Confirmed" | "SIM Rejected"
+  simStateLabel: "SIM Pending" | "SIM Confirmed" | "SIM Failed"
   simStateTone: SimStatusTone
 }
 

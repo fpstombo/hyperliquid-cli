@@ -22,9 +22,9 @@ type DashboardViewProps = {
 }
 
 const STATUS_HELP_TEXT: Record<string, string> = {
-  Connection: "Connectivity between this client and market data services.",
-  API: "Server-side API responsiveness and request health.",
-  Freshness: "How recently account/market snapshots were refreshed.",
+  Connection: "Shows whether live account updates are flowing.",
+  API: "Shows whether requests are succeeding.",
+  Freshness: "Shows how recent your dashboard data is.",
 }
 
 const DashboardSecondaryPanels = dynamic(
@@ -249,11 +249,11 @@ export function DashboardView({
                 <p className="dashboard-status-hint muted value-hierarchy-meta">
                   Updated {model.status.updatedHint}
                   {staleCountdown ? ` · ${staleCountdown}` : ""}
-                  {isRefreshing ? " · Syncing now" : ""}
+                  {isRefreshing ? " · Pending" : ""}
                 </p>
                 {showRetryAction && onRetry ? (
                   <button className="dashboard-status-retry" onClick={onRetry} type="button" aria-label="Retry dashboard data now" disabled={isRetrying}>
-                    {isRetrying ? "↻ Retrying…" : "↻ Retry now"}
+                    {isRetrying ? "↻ Retrying…" : "↻ Retry"}
                   </button>
                 ) : null}
               </div>
@@ -266,7 +266,7 @@ export function DashboardView({
             {isInitialLoading && model.positions.length === 0 ? (
               tableLoadingSkeleton()
             ) : model.positionsError ? (
-              renderError("Could not load positions. Keep this panel open and data will retry automatically.")
+              renderError("Positions update failed. Data will retry automatically.")
             ) : model.positions.length ? (
               <Table
                 columns={positionColumns}
@@ -285,7 +285,7 @@ export function DashboardView({
             {isInitialLoading && model.orders.length === 0 ? (
               tableLoadingSkeleton()
             ) : model.ordersError ? (
-              renderError("Could not load open orders. Keep this panel open and data will retry automatically.")
+              renderError("Open orders update failed. Data will retry automatically.")
             ) : model.orders.length ? (
               <Table
                 columns={orderColumns}

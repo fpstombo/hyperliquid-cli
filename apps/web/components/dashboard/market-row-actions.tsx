@@ -30,14 +30,14 @@ export function MarketRowActions({ symbol }: MarketRowActionsProps) {
         type="button"
         className="table-row-action"
         onClick={handleCopy}
-        aria-label={`Copy ${symbol} symbol`}
+        aria-label={`Copy ${symbol}`}
         aria-live="polite"
         disabled={copyPending}
       >
-        <span>{copied ? "Copied" : copyPending ? "Copying…" : "Copy"}</span>
+        <span>{copied ? "Confirmed" : copyPending ? "Pending" : "Copy"}</span>
       </button>
-      <Link href={`/trade/${encodeURIComponent(symbol)}`} className="table-row-action" aria-label={`Open ${symbol} trade view`}>
-        <span>Trade</span>
+      <Link href={`/trade/${encodeURIComponent(symbol)}`} className="table-row-action" aria-label={`Open ${symbol} in Trade`}>
+        <span>Open Trade</span>
       </Link>
     </div>
   )

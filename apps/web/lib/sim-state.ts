@@ -2,8 +2,8 @@ import type { StatusVariant } from "../components/ui/StatusBadge"
 
 export type SimStatusTone = "sim-pending" | "sim-confirmed" | "sim-rejected"
 
-export function formatSimStatusLabel(tone: SimStatusTone): "SIM Pending" | "SIM Confirmed" | "SIM Rejected" {
-  if (tone === "sim-rejected") return "SIM Rejected"
+export function formatSimStatusLabel(tone: SimStatusTone): "SIM Pending" | "SIM Confirmed" | "SIM Failed" {
+  if (tone === "sim-rejected") return "SIM Failed"
   if (tone === "sim-pending") return "SIM Pending"
   return "SIM Confirmed"
 }
