@@ -1509,6 +1509,38 @@ button {
   grid-auto-rows: 52px;
 }
 
+
+.panel-async-state {
+  display: grid;
+  gap: var(--space-2);
+  align-content: center;
+  min-height: 164px;
+  padding: var(--space-3);
+  border: 1px dashed color-mix(in srgb, var(--border-subtle) 70%, transparent);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--surface-base) 96%, black);
+}
+
+.panel-async-state__title {
+  margin: 0;
+  color: var(--fg-primary);
+  font-weight: 600;
+}
+
+.panel-async-state__message {
+  margin: 0;
+  color: var(--fg-muted);
+}
+
+.panel-async-state--error {
+  border-color: color-mix(in srgb, var(--semantic-negative) 45%, var(--border-subtle));
+  background: color-mix(in srgb, var(--semantic-negative) 10%, var(--surface-base));
+}
+
+.panel-async-state__action {
+  display: inline-flex;
+}
+
 .dashboard-list-row {
   display: grid;
   grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.7fr) minmax(0, 1fr);

@@ -23,6 +23,7 @@ export function DashboardLiveData() {
 
   const loading = balances.isLoading || positions.isLoading || orders.isLoading
   const error = balances.error ?? positions.error ?? orders.error
+  const summaryError = balances.error
   const stale = balances.isStale || positions.isStale || orders.isStale
   const lastSuccessAt = [balances.lastSuccessAt, positions.lastSuccessAt, orders.lastSuccessAt].reduce<number | null>(
     (latest, timestamp) => {
@@ -43,6 +44,8 @@ export function DashboardLiveData() {
         stale,
         lastSuccessAt,
         pollMs: DASHBOARD_POLL_MS,
+        positionsError: positions.error,
+        ordersError: orders.error,
       }),
     [balances.data, error, lastSuccessAt, orders.data, positions.data, session, stale],
   )
@@ -51,9 +54,9 @@ export function DashboardLiveData() {
     <>
       <DashboardView model={model} isInitialLoading={loading} />
 
-      {error ? (
+      {summaryError ? (
         <section className="card">
-          <p className="status-error">Failed to load data: {error}</p>
+          <p className="status-error">Failed to load summary data: {summaryError}</p>
           <button onClick={() => void Promise.all([balances.retry(), positions.retry(), orders.retry()])}>Retry</button>
         </section>
       ) : null}

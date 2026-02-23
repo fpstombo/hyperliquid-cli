@@ -54,6 +54,8 @@ export type DashboardViewModel = {
   }
   positions: DashboardPositionVm[]
   orders: DashboardOrderVm[]
+  positionsError: string | null
+  ordersError: string | null
   opportunities: DashboardSecondaryItemVm[]
   intents: DashboardSecondaryItemVm[]
 }
@@ -101,8 +103,10 @@ export function buildDashboardViewModel(params: {
   stale: boolean
   lastSuccessAt: number | null
   pollMs: number
+  positionsError?: string | null
+  ordersError?: string | null
 }): DashboardViewModel {
-  const { balances, positions, orders, session, apiHealthy, stale, lastSuccessAt, pollMs } = params
+  const { balances, positions, orders, session, apiHealthy, stale, lastSuccessAt, pollMs, positionsError = null, ordersError = null } = params
 
   const totalUnrealized = (positions?.positions ?? []).reduce((sum, position) => sum + parseNumber(position.unrealizedPnl), 0)
   const totalExposure = (positions?.positions ?? []).reduce(
@@ -154,6 +158,8 @@ export function buildDashboardViewModel(params: {
       size: position.size,
       unrealizedPnl: parseNumber(position.unrealizedPnl),
     })),
+    positionsError,
+    ordersError,
     orders: (orders?.orders ?? []).slice(0, 5).map((order) => ({
       id: order.oid,
       market: order.coin,
