@@ -17,27 +17,17 @@ export type StepDefinition = {
 export function StepProgress({ steps, activeIndex, completeIndex }: { steps: StepDefinition[]; activeIndex: number; completeIndex: number }) {
   const pct = Math.round(((completeIndex + 1) / steps.length) * 100)
   return (
-    <section className="card grid" style={{ gap: "0.75rem" }}>
+    <section className="card grid onboarding-progress-shell">
       <div>
-        <h1 style={{ margin: 0 }}>Agent onboarding wizard</h1>
-        <p className="muted" style={{ margin: "0.35rem 0 0" }}>
-          Guided setup optimized for first success in under 60 seconds.
-        </p>
+        <h1 className="onboarding-progress-title">Agent onboarding wizard</h1>
+        <p className="muted onboarding-progress-subtitle">Guided setup optimized for first success in under 60 seconds.</p>
       </div>
-      <div aria-label="Onboarding progress" style={{ display: "grid", gap: "0.45rem" }}>
-        <p style={{ margin: 0, fontSize: "0.9rem" }}>
+      <div aria-label="Onboarding progress" className="onboarding-progress-meter">
+        <p className="onboarding-progress-copy">
           Step {Math.min(activeIndex + 1, steps.length)} of {steps.length} · {pct}% complete
         </p>
-        <div style={{ width: "100%", height: 8, borderRadius: 999, background: "color-mix(in srgb, var(--surface-base) 82%, var(--border-subtle))" }}>
-          <div
-            style={{
-              width: `${pct}%`,
-              height: "100%",
-              borderRadius: 999,
-              background: "linear-gradient(90deg, var(--accent), var(--accent-strong))",
-              transition: "width 220ms ease",
-            }}
-          />
+        <div className="onboarding-progress-track">
+          <div className="onboarding-progress-fill" style={{ width: `${pct}%` }} />
         </div>
       </div>
       <div className="onboarding-step-grid">
@@ -45,11 +35,9 @@ export function StepProgress({ steps, activeIndex, completeIndex }: { steps: Ste
           const isActive = index === activeIndex
           const isComplete = index <= completeIndex
           return (
-            <div key={step.key} className="card" style={{ borderColor: isActive ? "var(--accent-strong)" : undefined }}>
-              <p style={{ margin: 0, fontWeight: 600 }}>{step.shortLabel}</p>
-              <p className="muted" style={{ margin: "0.2rem 0 0" }}>
-                {isActive ? "In progress" : isComplete ? "Complete" : "Pending"}
-              </p>
+            <div key={step.key} className={`card onboarding-step-chip${isActive ? " onboarding-step-chip--active" : ""}`}>
+              <p className="onboarding-step-chip-title">{step.shortLabel}</p>
+              <p className="muted onboarding-step-chip-state">{isActive ? "In progress" : isComplete ? "Complete" : "Pending"}</p>
             </div>
           )
         })}
@@ -60,12 +48,10 @@ export function StepProgress({ steps, activeIndex, completeIndex }: { steps: Ste
 
 export function ContextPreview({ title, description }: { title: string; description: string }) {
   return (
-    <aside className="card" style={{ borderStyle: "dashed" }}>
-      <p className="muted" style={{ marginTop: 0 }}>
-        What unlocks next
-      </p>
-      <p style={{ margin: "0 0 0.35rem", fontWeight: 700 }}>{title}</p>
-      <p className="muted" style={{ margin: 0 }}>{description}</p>
+    <aside className="card onboarding-context-preview">
+      <p className="muted onboarding-context-preview-label">What unlocks next</p>
+      <p className="onboarding-context-preview-title">{title}</p>
+      <p className="muted onboarding-context-preview-copy">{description}</p>
     </aside>
   )
 }
@@ -80,7 +66,7 @@ export function InlineError({ children, onRecover, recoverLabel }: { children: R
       message={typeof children === "string" ? children : "We could not verify your session yet."}
       action={
         onRecover ? (
-          <button className="button secondary" style={{ minHeight: 44 }} type="button" onClick={onRecover}>
+          <button className="button secondary onboarding-inline-error-action" type="button" onClick={onRecover}>
             {recoverLabel ?? "Retry"}
           </button>
         ) : undefined
@@ -91,13 +77,11 @@ export function InlineError({ children, onRecover, recoverLabel }: { children: R
 
 export function CompletionCelebration({ onNext }: { onNext: () => void }) {
   return (
-    <section className="card celebration-shell" style={{ textAlign: "center" }}>
+    <section className="card celebration-shell onboarding-complete-shell">
       <div className="celebration-dot" aria-hidden="true" />
-      <h2 style={{ margin: "0.5rem 0" }}>🎉 Agent approved and ready</h2>
-      <p className="muted" style={{ marginTop: 0 }}>
-        You unlocked live trade controls and real-time dashboard telemetry.
-      </p>
-      <button className="button" style={{ width: "100%", minHeight: 46 }} onClick={onNext}>
+      <h2 className="onboarding-complete-title">🎉 Agent approved and ready</h2>
+      <p className="muted onboarding-complete-copy">You unlocked live trade controls and real-time dashboard telemetry.</p>
+      <button className="button onboarding-complete-cta" onClick={onNext}>
         Open BTC trade desk
       </button>
     </section>
