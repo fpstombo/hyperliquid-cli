@@ -1,16 +1,68 @@
 "use client"
 
 import Link from "next/link"
-import { useEffect, useMemo, useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import type { AgentApprovalSnapshot, ApprovalState } from "../../lib/agent-state"
 import { loadOnboardingContext, saveOnboardingContext } from "../../lib/agent-state"
-
-type WizardStep = "connect" | "prerequisites" | "approve" | "ready"
+import { CompletionCelebration, ContextPreview, InlineError, StepProgress, type OnboardingStepKey, type StepDefinition } from "./components"
 
 function formatTime(ts?: number) {
   if (!ts) return "—"
   return new Date(ts).toLocaleTimeString()
 }
+
+function normalizeError(error: unknown) {
+  if (error instanceof Error) return error.message
+  return "Something went wrong. Retry in a moment."
+}
+
+function trackOnboardingEvent(event: string, payload: Record<string, string | number | boolean | null>) {
+  if (typeof window === "undefined") return
+  window.dispatchEvent(
+    new CustomEvent("hyperliquid:analytics", {
+      detail: {
+        event,
+        ts: Date.now(),
+        payload,
+      },
+    }),
+  )
+}
+
+const STEPS: StepDefinition[] = [
+  {
+    key: "connect",
+    title: "Connect wallet",
+    shortLabel: "1. Connect",
+    hint: "Use the same wallet tied to your Hyperliquid account.",
+    previewTitle: "Dashboard unlock preview",
+    previewDescription: "Once connected, the dashboard can personalize balances, mode (SIM/LIVE), and safety reminders.",
+  },
+  {
+    key: "prerequisites",
+    title: "Safety prerequisites",
+    shortLabel: "2. Safety",
+    hint: "Confirm key-handling and approval intent.",
+    previewTitle: "Trade guardrails preview",
+    previewDescription: "Completing this step unlocks guarded order controls with clearer recovery guidance.",
+  },
+  {
+    key: "approve",
+    title: "Approve agent",
+    shortLabel: "3. Approve",
+    hint: "Validate the API key and approve it on Hyperliquid.",
+    previewTitle: "Live trade preview",
+    previewDescription: "After approval, the BTC trade desk unlocks with order entry and lifecycle monitoring.",
+  },
+  {
+    key: "ready",
+    title: "Ready to trade",
+    shortLabel: "4. Launch",
+    hint: "Confirm activation and move straight into your first order flow.",
+    previewTitle: "Success state",
+    previewDescription: "You are one tap away from the trade desk and agent-status monitoring.",
+  },
+]
 
 export default function OnboardingPage() {
   const [walletAddress, setWalletAddress] = useState("")
@@ -23,11 +75,15 @@ export default function OnboardingPage() {
   const [backupConfirmed, setBackupConfirmed] = useState(false)
   const [isChecking, setIsChecking] = useState(false)
   const [statusMessage, setStatusMessage] = useState<string | null>(null)
+  const [sessionError, setSessionError] = useState<string | null>(null)
+  const [fieldError, setFieldError] = useState<string | null>(null)
+
+  const mountedAt = useRef<number>(Date.now())
 
   const ensureSessionContext = async () => {
     const response = await fetch("/api/auth/session", { method: "GET", cache: "no-store" })
     if (!response.ok) {
-      throw new Error("Your session has expired. Re-authenticate before retrying recovery steps.")
+      throw new Error("Session expired. Reconnect wallet and retry this step.")
     }
 
     const payload = (await response.json()) as { walletAddress?: string | null; environment?: "mainnet" | "testnet" }
@@ -37,6 +93,8 @@ export default function OnboardingPage() {
     if (payload.environment) {
       setIsTestnet(payload.environment === "testnet")
     }
+
+    setSessionError(null)
   }
 
   useEffect(() => {
@@ -56,7 +114,7 @@ export default function OnboardingPage() {
           setIsTestnet(payload.environment === "testnet")
         }
       } catch {
-        // Ignore session hydration failures and continue with manual entry.
+        setSessionError("Could not preload your session. You can continue with manual entry.")
       }
     }
 
@@ -80,12 +138,22 @@ export default function OnboardingPage() {
     }
   }, [])
 
-  const currentStep: WizardStep = useMemo(() => {
+  const currentStep: OnboardingStepKey = useMemo(() => {
     if (!walletAddress) return "connect"
     if (!termsAccepted || !backupConfirmed) return "prerequisites"
     if (!record || record.state === "pending" || record.state === "missing") return "approve"
     return "ready"
   }, [backupConfirmed, record, termsAccepted, walletAddress])
+
+  const activeIndex = Math.max(
+    STEPS.findIndex((step) => step.key === currentStep),
+    0,
+  )
+
+  const completeIndex = useMemo(() => {
+    if (currentStep === "ready") return record?.state === "active" ? STEPS.length - 1 : STEPS.length - 2
+    return Math.max(activeIndex - 1, 0)
+  }, [activeIndex, currentStep, record?.state])
 
   async function pollAgentState(userAddress: string, apiWalletAddress: string, testnet: boolean, lastKnownState?: ApprovalState) {
     await ensureSessionContext()
@@ -117,6 +185,11 @@ export default function OnboardingPage() {
     setRecord(nextRecord)
     setStatusMessage(nextRecord.reason ?? null)
 
+    trackOnboardingEvent("onboarding_status_polled", {
+      state: nextRecord.state,
+      isTestnet: testnet,
+    })
+
     saveOnboardingContext({
       walletAddress: userAddress,
       agentAddress: apiWalletAddress,
@@ -131,17 +204,44 @@ export default function OnboardingPage() {
     if (!walletAddress || !agentAddress) return
 
     const interval = window.setInterval(() => {
-      void pollAgentState(walletAddress, agentAddress, isTestnet, record?.state)
+      void pollAgentState(walletAddress, agentAddress, isTestnet, record?.state).catch((error: unknown) => {
+        setStatusMessage(normalizeError(error))
+      })
     }, 3000)
 
     return () => window.clearInterval(interval)
   }, [walletAddress, agentAddress, isTestnet, record?.state])
 
+  useEffect(() => {
+    trackOnboardingEvent("onboarding_step_viewed", {
+      step: currentStep,
+      elapsedMs: Date.now() - mountedAt.current,
+    })
+  }, [currentStep])
+
+  useEffect(() => {
+    return () => {
+      if (record?.state === "active") return
+      trackOnboardingEvent("onboarding_abandoned", {
+        lastStep: currentStep,
+        elapsedMs: Date.now() - mountedAt.current,
+      })
+    }
+  }, [currentStep, record?.state])
+
   const startApproval = async () => {
     const normalizedWallet = walletAddress.trim()
     const normalizedPrivateKey = agentPrivateKey.trim()
-    if (!normalizedWallet || !normalizedPrivateKey) return
+    if (!normalizedWallet) {
+      setFieldError("Enter your wallet address before continuing.")
+      return
+    }
+    if (!normalizedPrivateKey) {
+      setFieldError("Paste the API wallet private key to validate approval.")
+      return
+    }
 
+    setFieldError(null)
     setIsChecking(true)
     setStatusMessage(null)
 
@@ -176,6 +276,11 @@ export default function OnboardingPage() {
       setRecord(nextRecord)
       setStatusMessage(nextRecord.reason ?? null)
 
+      trackOnboardingEvent("onboarding_validation_submitted", {
+        state: nextRecord.state,
+        isTestnet,
+      })
+
       saveOnboardingContext({
         walletAddress: normalizedWallet,
         agentAddress: payload.apiWalletAddress ?? "",
@@ -189,19 +294,16 @@ export default function OnboardingPage() {
         await pollAgentState(normalizedWallet, payload.apiWalletAddress, isTestnet, "pending")
       }
     } catch (error) {
-      setStatusMessage(error instanceof Error ? error.message : "Failed to start approval")
+      const message = normalizeError(error)
+      setStatusMessage(message)
+      if (message.toLowerCase().includes("session")) {
+        setSessionError(message)
+      }
     } finally {
       setIsChecking(false)
       setAgentPrivateKey("")
     }
   }
-
-  const steps: { key: WizardStep; label: string }[] = [
-    { key: "connect", label: "1. Connect wallet" },
-    { key: "prerequisites", label: "2. Validate prerequisites" },
-    { key: "approve", label: "3. Approve agent" },
-    { key: "ready", label: "4. Ready to trade" },
-  ]
 
   const remediationByState: Record<ApprovalState, { title: string; action: string }> = {
     missing: {
@@ -225,155 +327,207 @@ export default function OnboardingPage() {
       action: "Treat this as a security event: rotate API credentials, re-validate a new key, and complete approval again.",
     },
   }
+
   const remediation = remediationByState[record?.state ?? "missing"]
 
   return (
-    <main className="grid">
-      <section className="card">
-        <h1 style={{ marginTop: 0 }}>Agent onboarding wizard</h1>
-        <p className="muted" style={{ marginTop: 0 }}>
-          Complete wallet connection, prerequisite checks, and API approval before enabling live trading.
-        </p>
+    <main className="grid onboarding-flow" style={{ gap: "0.9rem" }}>
+      <StepProgress steps={STEPS} activeIndex={activeIndex} completeIndex={completeIndex} />
+      <ContextPreview title={STEPS[activeIndex].previewTitle} description={STEPS[activeIndex].previewDescription} />
 
-        <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
-          {steps.map((step) => {
-            const isActive = step.key === currentStep
-            const isComplete = steps.findIndex((s) => s.key === step.key) < steps.findIndex((s) => s.key === currentStep)
-            return (
-              <div key={step.key} className="card" style={{ borderColor: isActive ? "var(--accent-strong)" : undefined }}>
-                <p style={{ margin: 0 }}>{step.label}</p>
-                <p className="muted" style={{ marginBottom: 0 }}>
-                  {isActive ? "In progress" : isComplete ? "Complete" : "Pending"}
-                </p>
-              </div>
-            )
-          })}
-        </div>
-      </section>
+      {sessionError ? (
+        <InlineError
+          onRecover={() => {
+            void ensureSessionContext().catch((error: unknown) => setSessionError(normalizeError(error)))
+          }}
+          recoverLabel="Retry session check"
+        >
+          {sessionError}
+        </InlineError>
+      ) : null}
 
-      <section className="card grid">
-        <h2 style={{ margin: 0 }}>Connect wallet</h2>
-        <label className="grid">
-          <span className="muted">Master wallet address</span>
-          <input
-            value={walletAddress}
-            onChange={(event) => setWalletAddress(event.target.value)}
-            placeholder="0x..."
-            className="input"
-          />
-        </label>
-        <label style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
-          <input type="checkbox" checked={isTestnet} onChange={(event) => setIsTestnet(event.target.checked)} />
-          Use Hyperliquid testnet endpoints
-        </label>
-      </section>
-
-      <section className="card grid">
-        <h2 style={{ margin: 0 }}>Prerequisite and safety checks</h2>
-        <label style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
-          <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} />
-          I understand this app only trades once agent approval is active.
-        </label>
-        <label style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
-          <input type="checkbox" checked={backupConfirmed} onChange={(event) => setBackupConfirmed(event.target.checked)} />
-          I safely backed up my key material and will never share private keys in chat/screenshots.
-        </label>
+      <section className="card grid" style={{ gap: "0.65rem" }}>
+        <h2 style={{ margin: 0 }}>{STEPS[activeIndex].title}</h2>
         <p className="muted" style={{ margin: 0 }}>
-          Key-safety guidance: your API private key is used only for server-side validation and is never persisted in browser storage.
-          Store secrets in a password manager or hardware wallet workflow, rotate compromised keys immediately, and revoke unknown
-          agent authorizations from the Hyperliquid API page.
-        </p>
-      </section>
-
-      <section className="card grid">
-        <h2 style={{ margin: 0 }}>Approve agent</h2>
-        <p className="muted" style={{ margin: 0 }}>
-          Status is polled every 3 seconds from API routes backed by Hyperliquid. Open approvals and confirm the API wallet.
+          {STEPS[activeIndex].hint}
         </p>
 
-        <label className="grid">
-          <span className="muted">API wallet private key (used for validation only)</span>
-          <input
-            value={agentPrivateKey}
-            onChange={(event) => setAgentPrivateKey(event.target.value)}
-            placeholder="0x..."
-            className="input"
-            type="password"
-            autoComplete="off"
-          />
-        </label>
-
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-          <button
-            className="button"
-            disabled={!walletAddress || !termsAccepted || !backupConfirmed || !agentPrivateKey || isChecking}
-            onClick={startApproval}
-          >
-            {isChecking ? "Checking..." : "Validate and check approval"}
-          </button>
-          <a className="button secondary" href={approvalUrl} target="_blank" rel="noreferrer">
-            Open Hyperliquid API approvals
-          </a>
-          <button
-            className="button secondary"
-            disabled={!walletAddress || !agentAddress}
-            onClick={() => {
-              void pollAgentState(walletAddress, agentAddress, isTestnet, record?.state).catch((error: unknown) => {
-                setStatusMessage(error instanceof Error ? error.message : "Unable to load recovery status")
-              })
-            }}
-          >
-            Retry status check
-          </button>
-        </div>
-
-        {statusMessage ? (
-          <p className="muted" style={{ margin: 0 }}>
-            {statusMessage}
-          </p>
+        {currentStep === "connect" ? (
+          <>
+            <label className="grid">
+              <span className="muted">Master wallet address</span>
+              <input
+                value={walletAddress}
+                onChange={(event) => setWalletAddress(event.target.value)}
+                placeholder="0x..."
+                className="input"
+              />
+            </label>
+            <label style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+              <input type="checkbox" checked={isTestnet} onChange={(event) => setIsTestnet(event.target.checked)} />
+              Use Hyperliquid testnet endpoints
+            </label>
+          </>
         ) : null}
 
-        <div className="grid" style={{ gridTemplateColumns: "1fr 1fr" }}>
-          <p style={{ margin: 0 }}>
-            <strong>Agent wallet:</strong> {agentAddress || "Not validated"}
-          </p>
-          <p style={{ margin: 0 }}>
-            <strong>Status:</strong> {record?.state ?? "missing"}
-          </p>
-          <p style={{ margin: 0 }}>
-            <strong>Updated:</strong> {formatTime(record?.updatedAt)}
-          </p>
-          <p style={{ margin: 0 }}>
-            <strong>Valid until:</strong> {record?.validUntil ? new Date(record.validUntil).toLocaleString() : "—"}
-          </p>
-        </div>
+        {currentStep === "prerequisites" ? (
+          <>
+            <label style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+              <input type="checkbox" checked={termsAccepted} onChange={(event) => setTermsAccepted(event.target.checked)} />
+              I understand this app only trades once agent approval is active.
+            </label>
+            <label style={{ display: "flex", gap: "0.6rem", alignItems: "center" }}>
+              <input type="checkbox" checked={backupConfirmed} onChange={(event) => setBackupConfirmed(event.target.checked)} />
+              I safely backed up my key material and will never share private keys in chat/screenshots.
+            </label>
+          </>
+        ) : null}
 
-        <div className="card" style={{ marginTop: "0.5rem" }}>
-          <p className="muted" style={{ marginTop: 0 }}>
-            Recovery guidance
-          </p>
-          <p style={{ marginBottom: "0.35rem" }}>
-            <strong>{remediation.title}</strong>
-          </p>
-          <p className="muted" style={{ marginBottom: 0 }}>
-            {remediation.action}
-          </p>
-        </div>
+        {(currentStep === "approve" || currentStep === "ready") ? (
+          <>
+            <label className="grid">
+              <span className="muted">API wallet private key (used for validation only)</span>
+              <input
+                value={agentPrivateKey}
+                onChange={(event) => setAgentPrivateKey(event.target.value)}
+                placeholder="0x..."
+                className="input"
+                type="password"
+                autoComplete="off"
+              />
+            </label>
+
+            {fieldError ? <p style={{ margin: 0, color: "var(--semantic-warning)" }}>{fieldError}</p> : null}
+
+            <div className="onboarding-touch-buttons">
+              <button
+                className="button"
+                style={{ minHeight: 44 }}
+                disabled={!walletAddress || !termsAccepted || !backupConfirmed || !agentPrivateKey || isChecking}
+                onClick={startApproval}
+              >
+                {isChecking ? "Checking..." : "Validate and check approval"}
+              </button>
+              <a className="button secondary" style={{ minHeight: 44 }} href={approvalUrl} target="_blank" rel="noreferrer">
+                Open Hyperliquid API approvals
+              </a>
+              <button
+                className="button secondary"
+                style={{ minHeight: 44 }}
+                disabled={!walletAddress || !agentAddress}
+                onClick={() => {
+                  void pollAgentState(walletAddress, agentAddress, isTestnet, record?.state).catch((error: unknown) => {
+                    setStatusMessage(normalizeError(error))
+                  })
+                }}
+              >
+                Retry status check
+              </button>
+            </div>
+
+            {statusMessage ? (
+              <p className="muted" style={{ margin: 0 }}>
+                {statusMessage}
+              </p>
+            ) : null}
+
+            <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
+              <p style={{ margin: 0 }}>
+                <strong>Agent wallet:</strong> {agentAddress || "Not validated"}
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Status:</strong> {record?.state ?? "missing"}
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Updated:</strong> {formatTime(record?.updatedAt)}
+              </p>
+              <p style={{ margin: 0 }}>
+                <strong>Valid until:</strong> {record?.validUntil ? new Date(record.validUntil).toLocaleString() : "—"}
+              </p>
+            </div>
+
+            <div className="card" style={{ marginTop: "0.25rem" }}>
+              <p className="muted" style={{ marginTop: 0 }}>
+                Recovery guidance
+              </p>
+              <p style={{ marginBottom: "0.35rem" }}>
+                <strong>{remediation.title}</strong>
+              </p>
+              <p className="muted" style={{ marginBottom: 0 }}>
+                {remediation.action}
+              </p>
+            </div>
+          </>
+        ) : null}
       </section>
 
-      <section className="card">
-        <h2 style={{ marginTop: 0 }}>Ready state</h2>
-        {record?.state === "active" ? (
-          <p>
-            ✅ Agent is active. Continue to <Link href="/trade/BTC">trade</Link> or monitor lifecycle events on the{" "}
-            <Link href="/agent-status">agent status page</Link>.
+      {record?.state === "active" ? (
+        <CompletionCelebration onNext={() => (window.location.href = "/trade/BTC")} />
+      ) : (
+        <section className="card">
+          <p className="muted" style={{ margin: 0 }}>
+            Finish all steps to unlock trading. You can also review state transitions on <Link href="/agent-status">Agent Status</Link>.
           </p>
-        ) : (
-          <p className="muted" style={{ marginBottom: 0 }}>
-            Finish all steps to unlock trading. Missing, pending, expired, or revoked authorizations will keep trading disabled.
-          </p>
-        )}
-      </section>
+        </section>
+      )}
+
+      <style jsx>{`
+        .onboarding-step-grid {
+          display: grid;
+          gap: 0.65rem;
+          grid-template-columns: 1fr;
+        }
+
+        .onboarding-touch-buttons {
+          display: grid;
+          gap: 0.6rem;
+          grid-template-columns: 1fr;
+        }
+
+        .celebration-shell {
+          animation: rise-in 300ms ease-out;
+        }
+
+        .celebration-dot {
+          margin: 0 auto;
+          width: 12px;
+          height: 12px;
+          border-radius: 50%;
+          background: var(--accent-strong);
+          box-shadow: 0 0 0 rgba(59, 130, 246, 0.8);
+          animation: ping 700ms ease-out 2;
+        }
+
+        @media (min-width: 760px) {
+          .onboarding-step-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+          }
+
+          .onboarding-touch-buttons {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+          }
+        }
+
+        @keyframes ping {
+          from {
+            box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.8);
+          }
+          to {
+            box-shadow: 0 0 0 16px rgba(59, 130, 246, 0);
+          }
+        }
+
+        @keyframes rise-in {
+          from {
+            opacity: 0;
+            transform: translateY(8px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `}</style>
     </main>
   )
 }
