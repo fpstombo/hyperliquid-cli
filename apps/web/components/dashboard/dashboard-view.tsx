@@ -1,5 +1,6 @@
 import dynamic from "next/dynamic"
 import { ExposureValue } from "../ui/ExposureValue"
+import { PanelAsyncState } from "../ui/PanelAsyncState"
 import { PanelShell } from "../ui/PanelShell"
 import { PnlValue } from "../ui/PnlValue"
 import { SkeletonBlock } from "../ui/SkeletonBlock"
@@ -114,8 +115,12 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
   },
 ]
 
-function renderEmpty(label: string) {
-  return <p className="muted layout-m-0">{label}</p>
+function renderEmpty(message: string) {
+  return <PanelAsyncState state="empty" message={message} />
+}
+
+function renderError(message: string) {
+  return <PanelAsyncState state="error" title="Data unavailable" message={message} />
 }
 
 export function DashboardView({ model, isInitialLoading = false }: DashboardViewProps) {
@@ -189,6 +194,8 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
           <PanelShell title="Open Positions" tier="primary" className="dashboard-grid-span-6">
             {isInitialLoading && model.positions.length === 0 ? (
               tableLoadingSkeleton()
+            ) : model.positionsError ? (
+              renderError("Could not load positions. Keep this panel open and data will retry automatically.")
             ) : model.positions.length ? (
               <Table
                 columns={positionColumns}
@@ -205,6 +212,8 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
           <PanelShell title="Open Orders" tier="primary" className="dashboard-grid-span-6">
             {isInitialLoading && model.orders.length === 0 ? (
               tableLoadingSkeleton()
+            ) : model.ordersError ? (
+              renderError("Could not load open orders. Keep this panel open and data will retry automatically.")
             ) : model.orders.length ? (
               <Table
                 columns={orderColumns}
