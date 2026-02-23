@@ -35,6 +35,23 @@ const CRITICAL_STATUS_VARIANTS: StatusVariant[] = ["rejected", "sim-rejected", "
 
 type StatusBadgeProps = HTMLAttributes<HTMLSpanElement> & {
   variant?: StatusVariant
+  showIcon?: boolean
+}
+
+const STATUS_ICON_BY_VARIANT: Record<StatusVariant, string> = {
+  neutral: "•",
+  positive: "✓",
+  negative: "✕",
+  warning: "!",
+  sim: "◈",
+  stale: "⏱",
+  degraded: "⚠",
+  pending: "◔",
+  confirmed: "✓",
+  rejected: "✕",
+  "sim-pending": "◔",
+  "sim-confirmed": "✓",
+  "sim-rejected": "✕",
 }
 
 export function getStatusVariantPriority(variant: StatusVariant): number {
@@ -50,7 +67,7 @@ export function isCriticalStatusVariant(variant: StatusVariant): boolean {
  * <StatusBadge variant="sim">SIM</StatusBadge>
  * <StatusBadge variant="pending">Pending approval</StatusBadge>
  */
-export function StatusBadge({ variant = "neutral", className = "", children, ...props }: StatusBadgeProps) {
+export function StatusBadge({ variant = "neutral", className = "", children, showIcon = false, ...props }: StatusBadgeProps) {
   return (
     <span
       className={`ui-status-badge ui-status-badge--${variant} ${className}`.trim()}
@@ -58,6 +75,11 @@ export function StatusBadge({ variant = "neutral", className = "", children, ...
       data-priority={getStatusVariantPriority(variant)}
       {...props}
     >
+      {showIcon ? (
+        <span className="ui-status-badge__icon" aria-hidden="true">
+          {STATUS_ICON_BY_VARIANT[variant]}
+        </span>
+      ) : null}
       {children}
     </span>
   )

@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Toast } from "./Toast"
 import { useBalances, useOrders, usePositions } from "../lib/hooks/use-dashboard-data"
 import { useAuth } from "./providers"
@@ -11,6 +11,7 @@ const DASHBOARD_POLL_MS = 5000
 
 export function DashboardLiveData() {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [now, setNow] = useState(() => Date.now())
   const { session } = useAuth()
 
   const onTransientError = useCallback((message: string) => {
@@ -33,6 +34,12 @@ export function DashboardLiveData() {
     null,
   )
 
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(Date.now()), 1000)
+    return () => window.clearInterval(timer)
+  }, [])
+
   const model = useMemo(
     () =>
       buildDashboardViewModel({
@@ -52,7 +59,13 @@ export function DashboardLiveData() {
 
   return (
     <>
-      <DashboardView model={model} isInitialLoading={loading} />
+      <DashboardView
+        model={model}
+        isInitialLoading={loading}
+        staleForSeconds={lastSuccessAt ? Math.floor((now - lastSuccessAt) / 1000) : null}
+        showRetryAction={(Boolean(error) || stale) && (!lastSuccessAt || now - lastSuccessAt > DASHBOARD_POLL_MS * 2)}
+        onRetry={() => void Promise.all([balances.retry(), positions.retry(), orders.retry()])}
+      />
 
       {summaryError ? (
         <section className="card">

@@ -14,6 +14,15 @@ import type { DashboardOrderVm, DashboardPositionVm, DashboardViewModel } from "
 type DashboardViewProps = {
   model: DashboardViewModel
   isInitialLoading?: boolean
+  staleForSeconds?: number | null
+  showRetryAction?: boolean
+  onRetry?: () => void
+}
+
+const STATUS_HELP_TEXT: Record<string, string> = {
+  Connection: "Connectivity between this client and market data services.",
+  API: "Server-side API responsiveness and request health.",
+  Freshness: "How recently account/market snapshots were refreshed.",
 }
 
 const DashboardSecondaryPanels = dynamic(
@@ -140,16 +149,18 @@ function renderError(message: string) {
   return <PanelAsyncState state="error" title="Data unavailable" message={message} />
 }
 
-export function DashboardView({ model, isInitialLoading = false }: DashboardViewProps) {
+export function DashboardView({ model, isInitialLoading = false, staleForSeconds = null, showRetryAction = false, onRetry }: DashboardViewProps) {
   const isSim = model.status.mode === "SIM"
   const statusRail: Array<{ label: string; value: string; tone: StatusVariant }> = [
     { label: "Connection", value: model.status.connection, tone: model.status.connectionTone },
     { label: "API", value: model.status.apiHealth, tone: model.status.apiHealthTone },
     { label: "Freshness", value: model.status.freshness, tone: model.status.freshnessTone },
   ]
-  const criticalStatus = [...statusRail]
-    .sort((a, b) => getStatusVariantPriority(b.tone) - getStatusVariantPriority(a.tone))
-    .find((item) => isCriticalStatusVariant(item.tone))
+  const sortedStatusRail = [...statusRail].sort((a, b) => getStatusVariantPriority(b.tone) - getStatusVariantPriority(a.tone))
+  const criticalStatus = sortedStatusRail.find((item) => isCriticalStatusVariant(item.tone))
+  const staleCountdown = model.status.freshnessTone === "stale" && staleForSeconds !== null
+    ? `stale for ${Math.max(staleForSeconds, 0)}s`
+    : null
 
   return (
     <>
@@ -204,15 +215,34 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
 
             <section className="dashboard-status-rail" aria-label="Session and system status">
               {criticalStatus ? (
-                <div className="dashboard-status-item">
+                <div className="dashboard-status-item dashboard-status-item--critical">
                   <p className="dashboard-status-label">Alert</p>
-                  <StatusBadge variant={criticalStatus.tone}>{criticalStatus.label}: {criticalStatus.value}</StatusBadge>
+                  <StatusBadge variant={criticalStatus.tone} showIcon>
+                    {criticalStatus.label}: {criticalStatus.value}
+                  </StatusBadge>
                 </div>
               ) : null}
-              <p className="muted layout-m-0">
-                <strong>System</strong> · {statusRail.map((item) => `${item.label}: ${item.value}`).join(" · ")}
-              </p>
-              <p className="dashboard-status-hint muted">Updated {model.status.updatedHint}</p>
+              <div className="dashboard-status-chip-row" role="list" aria-label="System health chips">
+                {sortedStatusRail.map((item) => (
+                  <div className="dashboard-status-item" key={item.label} role="listitem">
+                    <p className="dashboard-status-label">
+                      {item.label}
+                      <span className="dashboard-status-help" title={STATUS_HELP_TEXT[item.label]} aria-label={`${item.label} help`}>ⓘ</span>
+                    </p>
+                    <StatusBadge variant={item.tone} showIcon>
+                      {item.label}: {item.value}
+                    </StatusBadge>
+                  </div>
+                ))}
+              </div>
+              <div className="dashboard-status-meta">
+                <p className="dashboard-status-hint muted">Updated {model.status.updatedHint}{staleCountdown ? ` · ${staleCountdown}` : ""}</p>
+                {showRetryAction && onRetry ? (
+                  <button className="dashboard-status-retry" onClick={onRetry} type="button" aria-label="Retry dashboard data now">
+                    ↻ Retry now
+                  </button>
+                ) : null}
+              </div>
             </section>
           </section>
         </section>
