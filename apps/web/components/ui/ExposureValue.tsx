@@ -5,6 +5,7 @@ type ExposureTone = "low" | "medium" | "high"
 
 type ExposureValueProps = Omit<HTMLAttributes<HTMLSpanElement>, "children"> & {
   value: number | string
+  hierarchy?: "l1" | "l2" | "l3"
 }
 
 function getExposureTone(value: number): ExposureTone {
@@ -19,12 +20,12 @@ function getExposureGlyph(tone: ExposureTone): string {
   return "◌"
 }
 
-export function ExposureValue({ value, className = "", ...props }: ExposureValueProps) {
+export function ExposureValue({ value, hierarchy = "l2", className = "", ...props }: ExposureValueProps) {
   const amount = Math.abs(parseNumber(value))
   const tone = getExposureTone(amount)
 
   return (
-    <span className={`ui-exposure-value ui-exposure-value--${tone} ${className}`.trim()} {...props}>
+    <span className={`ui-exposure-value ui-exposure-value--${tone} ui-exposure-value--${hierarchy} ${className}`.trim()} {...props}>
       <span aria-hidden="true">{getExposureGlyph(tone)}</span>
       <span>{formatCurrencyUsd(amount)}</span>
       <span className="muted">({formatMagnitude(amount)})</span>

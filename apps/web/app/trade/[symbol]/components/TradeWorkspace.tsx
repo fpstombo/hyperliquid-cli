@@ -56,7 +56,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           tier="primary"
           className="trade-panel trade-panel-ticket panel-header-accent"
           title="Ticket"
-          contextTag={<span className="muted">Execution · Symbol: {symbol}</span>}
+          contextTag={<span className="muted value-hierarchy-meta">Execution · Symbol: {symbol}</span>}
           actions={null}
         >
           <OrderTicket
@@ -70,7 +70,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           tier="primary"
           className="trade-panel trade-depth-card panel-header-accent dense-data-region"
           title="Market & Depth"
-          contextTag={<span className="muted">Market · Spread: {formatMagnitude(spread)} · {marketStatus.label}</span>}
+          contextTag={<span className="muted value-hierarchy-meta">Market · Spread: {formatMagnitude(spread)} · {marketStatus.label}</span>}
           actions={(
             <>
               <span className="signature-live-indicator" data-tone={marketStatus.tone} role="status" aria-label={`Market status ${marketStatus.label}`}>
@@ -89,7 +89,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           {priceState.isLoading ? (
             <SkeletonBlock width="14rem" height="2rem" className="trade-price-block" aria-label="Loading latest price" />
           ) : priceState.data?.price ? (
-            <p className="trade-price financial-value">{priceState.data.price}</p>
+            <p className="trade-price financial-value value-hierarchy-value">{priceState.data.price}</p>
           ) : (
             <PanelAsyncState
               state="empty"
@@ -104,13 +104,13 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
               }
             />
           )}
-          <div className="trade-meta-bar">
+          <div className="trade-meta-bar value-hierarchy value-hierarchy--l2">
             <span>Best Bid <span className="numeric-fixed">{mockBook.bids[0][0]}</span></span>
             <span>Best Ask <span className="numeric-fixed">{mockBook.asks[0][0]}</span></span>
           </div>
-          <div className="trade-depth-grid dense-data-region">
+          <div className="trade-depth-grid dense-data-region value-hierarchy value-hierarchy--l3">
             <div>
-              <h4>Bids</h4>
+              <h4 className="value-hierarchy-label">Bids</h4>
               {mockBook.bids.map(([price, size]) => (
                 <div key={`bid-${price}`} className="trade-depth-row dense-data-row">
                   <span className="numeric-fixed">{price}</span>
@@ -119,7 +119,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
               ))}
             </div>
             <div>
-              <h4>Asks</h4>
+              <h4 className="value-hierarchy-label">Asks</h4>
               {mockBook.asks.map(([price, size]) => (
                 <div key={`ask-${price}`} className="trade-depth-row dense-data-row">
                   <span className="numeric-fixed">{price}</span>
@@ -134,18 +134,18 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           tier="primary"
           className="trade-panel panel-header-accent dense-data-region"
           title="Open Orders & Position"
-          contextTag={<span className="muted">Position {mockPosition.side}</span>}
+          contextTag={<span className="muted value-hierarchy-meta">Position {mockPosition.side}</span>}
           actions={null}
         >
-          <div className="trade-meta-bar">
-            <span>PNL <PnlValue value={mockPosition.pnl} /></span>
-            <span>Size <span className="numeric-fixed">{mockPosition.size}</span></span>
+          <div className="trade-meta-bar value-hierarchy value-hierarchy--l1">
+            <span>PNL <PnlValue value={mockPosition.pnl} hierarchy="l1" /></span>
+            <span>Size <span className="numeric-fixed value-hierarchy-value">{mockPosition.size}</span></span>
           </div>
-          <PanelShell tier="secondary" className="trade-position-card panel-header-accent" title="Position Summary" contextTag="Risk" actions={null}>
+          <PanelShell tier="secondary" className="trade-position-card panel-header-accent value-hierarchy value-hierarchy--l2" title="Position Summary" contextTag={<span className="value-hierarchy-meta">Risk</span>} actions={null}>
             <div className="trade-position-grid">
-              <span className="muted">Entry</span>
+              <span className="muted value-hierarchy-label">Entry</span>
               <strong className="financial-value">{mockPosition.entry}</strong>
-              <span className="muted">Liq.</span>
+              <span className="muted value-hierarchy-label">Liq.</span>
               <strong className="financial-value">{mockPosition.liq}</strong>
             </div>
           </PanelShell>

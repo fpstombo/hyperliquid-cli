@@ -4,6 +4,7 @@ type InlineStatProps = HTMLAttributes<HTMLDivElement> & {
   label: ReactNode
   value: ReactNode
   meta?: ReactNode
+  hierarchy?: "l1" | "l2" | "l3"
 }
 
 /**
@@ -14,11 +15,11 @@ type InlineStatProps = HTMLAttributes<HTMLDivElement> & {
  *   meta="8h"
  * />
  */
-export function InlineStat({ label, value, meta, className = "", ...props }: InlineStatProps) {
+export function InlineStat({ label, value, meta, hierarchy = "l2", className = "", ...props }: InlineStatProps) {
   return (
-    <div className={`ui-inline-stat ${className}`.trim()} {...props}>
+    <div className={`ui-inline-stat ui-inline-stat--${hierarchy} ${className}`.trim()} {...props}>
       <span className="ui-inline-stat-label">{label}</span>
-      <span>{value}</span>
+      <span className="ui-inline-stat-value">{value}</span>
       {meta ? <span className="ui-inline-stat-meta">{meta}</span> : null}
     </div>
   )
