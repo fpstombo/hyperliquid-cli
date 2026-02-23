@@ -1,4 +1,5 @@
 import type { HTMLAttributes } from "react"
+import { SemanticIcon, type SemanticIconName } from "./SemanticIcon"
 
 export type StatusVariant =
   | "neutral"
@@ -38,20 +39,20 @@ type StatusBadgeProps = HTMLAttributes<HTMLSpanElement> & {
   showIcon?: boolean
 }
 
-const STATUS_ICON_BY_VARIANT: Record<StatusVariant, string> = {
-  neutral: "•",
-  positive: "✓",
-  negative: "✕",
-  warning: "!",
-  sim: "◈",
-  stale: "⏱",
-  degraded: "⚠",
-  pending: "◔",
-  confirmed: "✓",
-  rejected: "✕",
-  "sim-pending": "◔",
-  "sim-confirmed": "✓",
-  "sim-rejected": "✕",
+const STATUS_ICON_BY_VARIANT: Record<StatusVariant, SemanticIconName> = {
+  neutral: "neutral",
+  positive: "positive",
+  negative: "negative",
+  warning: "warning",
+  sim: "sim",
+  stale: "stale",
+  degraded: "degraded",
+  pending: "pending",
+  confirmed: "confirmed",
+  rejected: "rejected",
+  "sim-pending": "pending",
+  "sim-confirmed": "confirmed",
+  "sim-rejected": "rejected",
 }
 
 export function getStatusVariantPriority(variant: StatusVariant): number {
@@ -77,7 +78,7 @@ export function StatusBadge({ variant = "neutral", className = "", children, sho
     >
       {showIcon ? (
         <span className="ui-status-badge__icon" aria-hidden="true">
-          {STATUS_ICON_BY_VARIANT[variant]}
+          <SemanticIcon name={STATUS_ICON_BY_VARIANT[variant]} />
         </span>
       ) : null}
       {children}

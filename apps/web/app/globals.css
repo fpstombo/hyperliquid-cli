@@ -1160,6 +1160,36 @@ button {
     border-color var(--motion-panel-duration) var(--motion-ease-standard),
     background-color var(--motion-panel-duration) var(--motion-ease-standard),
     box-shadow var(--motion-panel-duration) var(--motion-ease-emphasized);
+  position: relative;
+  overflow: clip;
+}
+
+.ui-panel-shell::before,
+.ui-panel-shell::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  transition:
+    opacity var(--motion-tier-standard-duration) var(--motion-tier-standard-ease),
+    transform var(--motion-tier-standard-duration) var(--motion-tier-standard-ease);
+}
+
+.ui-panel-shell::before {
+  inset: 0;
+  background:
+    linear-gradient(122deg, transparent 0 28%, color-mix(in srgb, var(--signature-accent-core) 16%, transparent) 46%, transparent 68%),
+    radial-gradient(58% 66% at 100% 0%, rgb(86 200 255 / 9%) 0%, transparent 72%);
+  opacity: 0.62;
+}
+
+.ui-panel-shell::after {
+  top: 0;
+  right: 0;
+  width: 3.8rem;
+  height: 3.2rem;
+  border-top-right-radius: inherit;
+  background: linear-gradient(138deg, rgb(173 229 255 / 28%) 0 2px, transparent 2px 100%);
+  opacity: 0.44;
 }
 
 .ui-panel-shell:hover,
@@ -1169,6 +1199,17 @@ button {
     inset 0 1px 0 rgb(255 255 255 / 4%),
     0 6px 20px rgb(2 7 18 / 30%),
     0 0 0 1px var(--panel-edge-glow);
+}
+
+.ui-panel-shell:hover::before,
+.ui-panel-shell:focus-within::before {
+  opacity: 0.86;
+}
+
+.ui-panel-shell:hover::after,
+.ui-panel-shell:focus-within::after {
+  transform: translate(-1px, 1px);
+  opacity: 0.66;
 }
 
 .ui-panel-shell-header {
@@ -1256,10 +1297,23 @@ button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 0.85rem;
-  font-size: 0.7rem;
-  font-weight: 800;
+  width: 0.9rem;
+  height: 0.9rem;
   line-height: 1;
+}
+
+.ui-semantic-icon {
+  width: 100%;
+  height: 100%;
+  display: block;
+  fill: currentColor;
+  stroke: currentColor;
+}
+
+.ui-status-badge[data-variant="pending"] .ui-semantic-icon,
+.ui-status-badge[data-variant="sim-pending"] .ui-semantic-icon {
+  animation: icon-spin 1000ms linear infinite;
+  transform-origin: center;
 }
 
 .ui-status-badge--neutral {
@@ -1477,6 +1531,26 @@ button {
   }
 }
 
+@keyframes live-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(1.2);
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes icon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -1553,6 +1627,46 @@ button {
   border-radius: 999px;
   background: color-mix(in srgb, var(--surface-base) 92%, black);
   padding: 0.15rem var(--space-2);
+}
+
+.signature-live-indicator {
+  --pulse-color: var(--semantic-info);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid color-mix(in srgb, var(--pulse-color) 40%, var(--border-subtle));
+  border-radius: 999px;
+  padding: 0.18rem 0.52rem;
+  font-size: var(--text-xs);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: color-mix(in srgb, var(--pulse-color) 76%, white);
+  background: color-mix(in srgb, var(--surface-base) 76%, var(--pulse-color));
+  box-shadow: inset 0 0 0 1px rgb(201 233 255 / 18%);
+}
+
+.signature-live-indicator[data-tone="degraded"],
+.signature-live-indicator[data-tone="stale"] {
+  --pulse-color: var(--semantic-warning);
+}
+
+.signature-live-indicator__dot {
+  position: relative;
+  width: 0.42rem;
+  height: 0.42rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.signature-live-indicator__dot::after {
+  content: "";
+  position: absolute;
+  inset: -0.32rem;
+  border-radius: 50%;
+  border: 1px solid currentColor;
+  opacity: 0.24;
+  animation: live-pulse 1800ms ease-out infinite;
 }
 
 .trade-depth-card {
