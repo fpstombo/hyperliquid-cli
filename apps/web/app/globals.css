@@ -86,6 +86,12 @@
   --text-lg: 1.25rem;
   --text-xl: 1.625rem;
 
+  /* Hierarchical type scale */
+  --type-display-metric: clamp(2.25rem, 3.2vw, 3.25rem);
+  --type-panel-title: 1.0625rem;
+  --type-metadata: 0.75rem;
+  --type-numeric: 0.9375rem;
+
   /* Numeric presentation */
   --numeric-figure: tabular-nums lining-nums;
 
@@ -646,11 +652,25 @@ a {
 .table-col--numeric {
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+  font-size: var(--type-numeric);
 }
 
 .table th.table-col--numeric,
 .table td.table-col--numeric {
-  width: max-content;
+  width: var(--table-column-width, 12ch);
+  min-width: var(--table-column-min-width, 10ch);
+}
+
+.financial-value,
+.numeric-fixed {
+  font-variant-numeric: var(--numeric-figure);
+  font-feature-settings: "tnum" 1;
+}
+
+.numeric-fixed {
+  display: inline-block;
+  min-width: 6ch;
+  text-align: right;
 }
 
 .table-numeric-text {
@@ -942,7 +962,7 @@ button {
 
 .ui-panel-shell-title {
   margin: 0;
-  font-size: var(--text-md);
+  font-size: var(--type-panel-title);
   font-weight: 600;
   line-height: 1.2;
   text-shadow: 0 0 10px var(--signature-accent-glow-soft);
@@ -1198,13 +1218,13 @@ button {
 .trade-workspace-grid {
   display: grid;
   grid-template-columns: minmax(300px, 0.95fr) minmax(380px, 1.2fr) minmax(360px, 1.05fr);
-  gap: 1rem;
+  gap: var(--space-4);
   align-items: start;
 }
 
 .trade-panel {
   display: grid;
-  gap: 1rem;
+  gap: var(--space-4);
   min-height: 640px;
   align-content: start;
 }
@@ -1219,7 +1239,7 @@ button {
 
 .trade-section-header {
   display: grid;
-  gap: 0.45rem;
+  gap: var(--space-2);
 }
 
 .trade-section-header h2 {
@@ -1230,8 +1250,8 @@ button {
 .trade-meta-bar {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
-  font-size: var(--text-xs);
+  gap: var(--space-2);
+  font-size: var(--type-metadata);
   color: var(--fg-secondary);
 }
 
@@ -1240,7 +1260,7 @@ button {
   border: 1px solid var(--border);
   border-radius: 999px;
   background: color-mix(in srgb, var(--surface-base) 92%, black);
-  padding: 0.15rem 0.5rem;
+  padding: 0.15rem var(--space-2);
 }
 
 .trade-depth-card {
@@ -1250,14 +1270,14 @@ button {
 .trade-depth-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1rem;
+  gap: var(--space-4);
 }
 
 .trade-depth-row {
   display: flex;
   justify-content: space-between;
-  font-variant-numeric: tabular-nums;
-  padding: 0.2rem 0;
+  font-variant-numeric: var(--numeric-figure);
+  padding: var(--space-1) 0;
 }
 
 .trade-position-card {
@@ -1267,14 +1287,14 @@ button {
 .trade-position-grid {
   display: grid;
   grid-template-columns: auto 1fr;
-  row-gap: 0.35rem;
+  row-gap: var(--space-2);
 }
 
 .ticket-primary-actions,
 .ticket-confirm-actions {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-2);
 }
 
 .ticket-primary-actions .ui-status-badge--sim {
@@ -1348,8 +1368,8 @@ button {
 }
 
 .dashboard-status-label {
-  margin: 0 0 0.15rem;
-  font-size: 0.66rem;
+  margin: 0 0 var(--space-1);
+  font-size: var(--type-metadata);
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--fg-muted);
@@ -1357,7 +1377,7 @@ button {
 
 .dashboard-status-item {
   display: grid;
-  gap: 2px;
+  gap: var(--space-1);
   min-width: 0;
 }
 
@@ -1436,7 +1456,7 @@ button {
 
 .dashboard-metric-value {
   margin: var(--space-2) 0 0;
-  font-size: clamp(1.3rem, 2.4vw, 1.75rem);
+  font-size: clamp(1.4rem, 2.5vw, 1.85rem);
   font-variant-numeric: var(--numeric-figure);
   font-feature-settings: "tnum" 1;
   font-weight: 700;
@@ -1445,7 +1465,7 @@ button {
 
 .dashboard-metric-value--hero {
   margin-top: var(--space-4);
-  font-size: clamp(2.5rem, 3.4vw, 3.5rem);
+  font-size: var(--type-display-metric);
   line-height: 1.1;
 }
 
@@ -1519,7 +1539,7 @@ button {
 .dashboard-list-rank {
   color: var(--fg-muted);
   font-variant-numeric: var(--numeric-figure);
-  font-size: 0.7rem;
+  font-size: var(--type-metadata);
   min-width: 2.1ch;
 }
 
@@ -1561,9 +1581,27 @@ button {
 }
 
 .dashboard-list-time {
-  font-size: 0.68rem;
+  font-size: var(--type-metadata);
   color: var(--fg-muted);
   white-space: nowrap;
+}
+
+.dashboard-shell-header {
+  padding: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.dashboard-page-title {
+  margin: 0;
+}
+
+.dashboard-page-subtitle {
+  margin: 0;
+}
+
+.order-ticket-confirm-copy {
+  margin: 0;
 }
 
 @media (max-width: 900px) {
@@ -1642,13 +1680,25 @@ button {
   margin: 0;
 }
 
+.trade-shell-header {
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  display: grid;
+  gap: var(--space-2);
+}
+
+.trade-page-title,
+.trade-page-subtitle {
+  margin: 0;
+}
+
 .trade-price,
 .trade-price-block {
   margin: var(--space-2) 0 var(--space-4);
 }
 
 .trade-price {
-  font-size: var(--space-6);
+  font-size: var(--type-display-metric);
 }
 
 .trade-search-input {

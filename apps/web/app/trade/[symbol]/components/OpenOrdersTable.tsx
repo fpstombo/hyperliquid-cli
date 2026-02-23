@@ -97,7 +97,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
         minWidth: 110,
         width: 120,
         className: "table-col--numeric",
-        render: (order) => <ValueFlash value={order.sz} className="table-value-update">{order.sz}</ValueFlash>,
+        render: (order) => <ValueFlash value={order.sz} className="table-value-update financial-value">{order.sz}</ValueFlash>,
       },
       {
         key: "limitPx",
@@ -106,7 +106,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
         minWidth: 120,
         width: 140,
         className: "table-col--numeric",
-        render: (order) => <ValueFlash value={order.limitPx} className="table-value-update">{order.limitPx}</ValueFlash>,
+        render: (order) => <ValueFlash value={order.limitPx} className="table-value-update financial-value">{order.limitPx}</ValueFlash>,
       },
       {
         key: "timestamp",
@@ -115,7 +115,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
         width: 190,
         className: "table-col--numeric",
         render: (order) => (
-          <ValueFlash value={order.timestamp ?? ""} className="table-value-update">
+          <ValueFlash value={order.timestamp ?? ""} className="table-value-update financial-value">
             {formatTimestamp(order.timestamp)}
           </ValueFlash>
         ),

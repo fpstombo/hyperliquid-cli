@@ -73,21 +73,21 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           {priceState.isLoading ? (
             <SkeletonBlock width="14rem" height="2rem" className="trade-price-block" aria-label="Loading latest price" />
           ) : priceState.data?.price ? (
-            <p className="trade-price">{priceState.data.price}</p>
+            <p className="trade-price financial-value">{priceState.data.price}</p>
           ) : (
             <p className="muted">No price found for this symbol.</p>
           )}
           <div className="trade-meta-bar">
-            <span>Best Bid {mockBook.bids[0][0]}</span>
-            <span>Best Ask {mockBook.asks[0][0]}</span>
+            <span>Best Bid <span className="numeric-fixed">{mockBook.bids[0][0]}</span></span>
+            <span>Best Ask <span className="numeric-fixed">{mockBook.asks[0][0]}</span></span>
           </div>
           <div className="trade-depth-grid">
             <div>
               <h4>Bids</h4>
               {mockBook.bids.map(([price, size]) => (
                 <div key={`bid-${price}`} className="trade-depth-row">
-                  <span>{price}</span>
-                  <span>{size}</span>
+                  <span className="numeric-fixed">{price}</span>
+                  <span className="numeric-fixed">{size}</span>
                 </div>
               ))}
             </div>
@@ -95,8 +95,8 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
               <h4>Asks</h4>
               {mockBook.asks.map(([price, size]) => (
                 <div key={`ask-${price}`} className="trade-depth-row">
-                  <span>{price}</span>
-                  <span>{size}</span>
+                  <span className="numeric-fixed">{price}</span>
+                  <span className="numeric-fixed">{size}</span>
                 </div>
               ))}
             </div>
@@ -112,14 +112,14 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
         >
           <div className="trade-meta-bar">
             <span>PNL <PnlValue value={mockPosition.pnl} /></span>
-            <span>Size {mockPosition.size}</span>
+            <span>Size <span className="numeric-fixed">{mockPosition.size}</span></span>
           </div>
           <PanelShell tier="secondary" className="trade-position-card" title="Position Summary" contextTag="Risk" actions={null}>
             <div className="trade-position-grid">
               <span className="muted">Entry</span>
-              <strong>{mockPosition.entry}</strong>
+              <strong className="financial-value">{mockPosition.entry}</strong>
               <span className="muted">Liq.</span>
-              <strong>{mockPosition.liq}</strong>
+              <strong className="financial-value">{mockPosition.liq}</strong>
             </div>
           </PanelShell>
 

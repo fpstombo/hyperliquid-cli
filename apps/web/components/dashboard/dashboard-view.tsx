@@ -57,7 +57,7 @@ const positionColumns: TableColumn<DashboardPositionVm>[] = [
     width: 120,
     minWidth: 110,
     className: "table-col--numeric",
-    render: (position) => <ValueFlash value={position.size} className="table-value-update">{position.size}</ValueFlash>,
+    render: (position) => <ValueFlash value={position.size} className="table-value-update financial-value">{position.size}</ValueFlash>,
   },
   {
     key: "unrealizedPnl",
@@ -67,7 +67,7 @@ const positionColumns: TableColumn<DashboardPositionVm>[] = [
     minWidth: 120,
     className: "table-col--numeric",
     render: (position) => (
-      <ValueFlash value={position.unrealizedPnl} className="table-value-update">
+      <ValueFlash value={position.unrealizedPnl} className="table-value-update financial-value">
         <PnlValue value={position.unrealizedPnl} />
       </ValueFlash>
     ),
@@ -89,7 +89,7 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
     width: 110,
     minWidth: 100,
     className: "table-col--numeric",
-    render: (order) => <ValueFlash value={order.size} className="table-value-update">{order.size}</ValueFlash>,
+    render: (order) => <ValueFlash value={order.size} className="table-value-update financial-value">{order.size}</ValueFlash>,
   },
   {
     key: "limitPrice",
@@ -98,7 +98,7 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
     width: 120,
     minWidth: 110,
     className: "table-col--numeric",
-    render: (order) => <ValueFlash value={order.limitPrice} className="table-value-update">{order.limitPrice}</ValueFlash>,
+    render: (order) => <ValueFlash value={order.limitPrice} className="table-value-update financial-value">{order.limitPrice}</ValueFlash>,
   },
   {
     key: "timestamp",
@@ -107,7 +107,7 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
     minWidth: 170,
     className: "table-col--numeric",
     render: (order) => (
-      <ValueFlash value={order.timestamp ?? ""} className="table-value-update">
+      <ValueFlash value={order.timestamp ?? ""} className="table-value-update financial-value">
         {formatTimestamp(order.timestamp)}
       </ValueFlash>
     ),

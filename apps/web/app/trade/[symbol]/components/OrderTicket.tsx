@@ -146,7 +146,7 @@ export function OrderTicket({ symbol, onOrderPlaced }: Props) {
 
       {confirming ? (
         <div className="confirm-box">
-          <p style={{ marginTop: 0 }}>
+          <p className="order-ticket-confirm-copy">
             Confirm {orderType} {side.toUpperCase()} {size} {symbol} on {session.environment.toUpperCase()}?
           </p>
           <div className="ticket-confirm-actions">
