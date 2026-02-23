@@ -6,9 +6,10 @@ type ValueFlashProps = {
   value: string | number
   className?: string
   children?: ReactNode
+  showDirectionCue?: boolean
 }
 
-export function ValueFlash({ value, className = "", children }: ValueFlashProps) {
+export function ValueFlash({ value, className = "", children, showDirectionCue = false }: ValueFlashProps) {
   const [isActive, setIsActive] = useState(false)
   const [direction, setDirection] = useState<"up" | "down" | "neutral">("neutral")
   const previousValueRef = useRef<string | number>(value)
@@ -38,7 +39,7 @@ export function ValueFlash({ value, className = "", children }: ValueFlashProps)
 
   return (
     <span
-      className={`value-flash ${isActive ? "value-flash--active" : ""} ${className}`.trim()}
+      className={`value-flash ${isActive ? "value-flash--active" : ""} ${showDirectionCue ? "value-flash--with-cue" : ""} ${className}`.trim()}
       data-direction={direction}
     >
       {children ?? value}
