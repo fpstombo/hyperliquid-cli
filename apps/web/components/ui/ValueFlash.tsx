@@ -11,8 +11,22 @@ type ValueFlashProps = {
 
 export function ValueFlash({ value, className = "", children, showDirectionCue = false }: ValueFlashProps) {
   const [isActive, setIsActive] = useState(false)
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false)
   const [direction, setDirection] = useState<"up" | "down" | "neutral">("neutral")
   const previousValueRef = useRef<string | number>(value)
+
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") {
+      return
+    }
+
+    const mediaQuery = window.matchMedia("(prefers-reduced-motion: reduce)")
+    const syncMotionPreference = () => setPrefersReducedMotion(mediaQuery.matches)
+    syncMotionPreference()
+    mediaQuery.addEventListener("change", syncMotionPreference)
+
+    return () => mediaQuery.removeEventListener("change", syncMotionPreference)
+  }, [])
 
   useEffect(() => {
     if (previousValueRef.current === value) {
@@ -32,10 +46,20 @@ export function ValueFlash({ value, className = "", children, showDirectionCue =
     }
 
     previousValueRef.current = value
+
+    if (prefersReducedMotion) {
+      setIsActive(false)
+      return
+    }
+
+    const durationToken = getComputedStyle(document.documentElement).getPropertyValue("--motion-value-update-duration").trim()
+    const parsedDuration = Number.parseFloat(durationToken.replace("ms", ""))
+    const flashDurationMs = Number.isFinite(parsedDuration) ? parsedDuration : 160
+
     setIsActive(true)
-    const timer = setTimeout(() => setIsActive(false), 160)
+    const timer = setTimeout(() => setIsActive(false), flashDurationMs)
     return () => clearTimeout(timer)
-  }, [value])
+  }, [prefersReducedMotion, value])
 
   return (
     <span
