@@ -176,11 +176,11 @@ export function DashboardView({
     <>
       <section className="dashboard-first-viewport">
         <section className="dashboard-hero-composition dashboard-region-glow">
-          <article className="dashboard-metric-card dashboard-metric-card--hero">
+          <article className="dashboard-metric-card dashboard-metric-card--hero value-hierarchy value-hierarchy--l1">
             <div className="dashboard-metric-heading">
-              <p className="dashboard-metric-label">{model.metrics.equity.label}</p>
+              <p className="dashboard-metric-label value-hierarchy-label">{model.metrics.equity.label}</p>
             </div>
-            <p className="dashboard-metric-value dashboard-metric-value--hero">
+            <p className="dashboard-metric-value dashboard-metric-value--hero value-hierarchy-value">
               <ValueFlash value={model.metrics.equity.value}>{model.metrics.equity.value}</ValueFlash>
             </p>
             <p className="dashboard-metric-mode" aria-label="Trading mode">
@@ -196,7 +196,7 @@ export function DashboardView({
                 <span className="dashboard-market-pulse__spark dashboard-market-pulse__spark--c" />
               </div>
             </section>
-            <p className="dashboard-metric-tertiary">
+            <p className="dashboard-metric-tertiary value-hierarchy-meta">
               {model.status.session}
               {isSim ? (
                 <span className={`dashboard-status-simstate dashboard-status-simstate--${model.status.simStateTone}`} role="status" aria-label={model.status.simStateLabel}>
@@ -208,25 +208,25 @@ export function DashboardView({
 
           <section className="dashboard-hero-side" aria-label="Risk and status context">
             <section className="dashboard-secondary-metrics" aria-label="Secondary metrics">
-              <article className="dashboard-metric-card dashboard-metric-card--supporting">
-                <p className="dashboard-metric-label">{model.metrics.unrealizedPnl.label}</p>
+              <article className="dashboard-metric-card dashboard-metric-card--supporting value-hierarchy value-hierarchy--l2">
+                <p className="dashboard-metric-label value-hierarchy-label">{model.metrics.unrealizedPnl.label}</p>
                 <p className="dashboard-metric-value">
-                  <ValueFlash value={model.metrics.unrealizedPnl.rawValue ?? 0}><PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} /></ValueFlash>
+                  <ValueFlash value={model.metrics.unrealizedPnl.rawValue ?? 0}><PnlValue value={model.metrics.unrealizedPnl.rawValue ?? 0} hierarchy="l2" /></ValueFlash>
                 </p>
               </article>
 
-              <article className="dashboard-metric-card dashboard-metric-card--supporting">
-                <p className="dashboard-metric-label">{model.metrics.exposure.label}</p>
+              <article className="dashboard-metric-card dashboard-metric-card--supporting value-hierarchy value-hierarchy--l2">
+                <p className="dashboard-metric-label value-hierarchy-label">{model.metrics.exposure.label}</p>
                 <p className="dashboard-metric-value">
-                  <ValueFlash value={model.metrics.exposure.rawValue ?? 0}><ExposureValue value={model.metrics.exposure.rawValue ?? 0} /></ValueFlash>
+                  <ValueFlash value={model.metrics.exposure.rawValue ?? 0}><ExposureValue value={model.metrics.exposure.rawValue ?? 0} hierarchy="l2" /></ValueFlash>
                 </p>
               </article>
             </section>
 
-            <section className="dashboard-status-rail" aria-label="Session and system status">
+            <section className="dashboard-status-rail value-hierarchy value-hierarchy--l3" aria-label="Session and system status">
               {criticalStatus ? (
                 <div className="dashboard-status-item dashboard-status-item--critical">
-                  <p className="dashboard-status-label">Alert</p>
+                  <p className="dashboard-status-label value-hierarchy-label">Alert</p>
                   <StatusBadge variant={criticalStatus.tone} showIcon>
                     {criticalStatus.label}: {criticalStatus.value}
                   </StatusBadge>
@@ -235,7 +235,7 @@ export function DashboardView({
               <div className="dashboard-status-chip-row" role="list" aria-label="System health chips">
                 {sortedStatusRail.map((item) => (
                   <div className="dashboard-status-item" key={item.label} role="listitem">
-                    <p className="dashboard-status-label">
+                    <p className="dashboard-status-label value-hierarchy-label">
                       {item.label}
                       <span className="dashboard-status-help" title={STATUS_HELP_TEXT[item.label]} aria-label={`${item.label} help`}>ⓘ</span>
                     </p>
@@ -246,7 +246,7 @@ export function DashboardView({
                 ))}
               </div>
               <div className="dashboard-status-meta">
-                <p className="dashboard-status-hint muted">
+                <p className="dashboard-status-hint muted value-hierarchy-meta">
                   Updated {model.status.updatedHint}
                   {staleCountdown ? ` · ${staleCountdown}` : ""}
                   {isRefreshing ? " · Syncing now" : ""}

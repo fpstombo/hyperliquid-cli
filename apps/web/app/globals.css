@@ -1415,6 +1415,43 @@ button {
   font-feature-settings: "tnum" 1;
 }
 
+.value-hierarchy {
+  --hierarchy-gap: var(--space-2);
+  display: grid;
+  gap: var(--hierarchy-gap);
+}
+
+.value-hierarchy--l1 {
+  --hierarchy-gap: var(--space-2);
+}
+
+.value-hierarchy--l2 {
+  --hierarchy-gap: var(--space-1);
+}
+
+.value-hierarchy--l3 {
+  --hierarchy-gap: 0.35rem;
+}
+
+.value-hierarchy-label {
+  font-size: var(--text-xs);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--fg-muted);
+}
+
+.value-hierarchy-value {
+  font-variant-numeric: var(--numeric-figure);
+  font-feature-settings: "tnum" 1;
+  color: var(--fg-primary);
+}
+
+.value-hierarchy-meta {
+  color: var(--fg-muted);
+  font-size: var(--type-metadata);
+}
+
+
 .ui-value-text--positive {
   color: var(--semantic-positive);
 }
@@ -1440,6 +1477,23 @@ button {
   color: var(--semantic-success);
 }
 
+.ui-value-text--l1 {
+  font-size: clamp(1.5rem, 2.9vw, 2rem);
+  font-weight: 700;
+  line-height: 1.05;
+}
+
+.ui-value-text--l2 {
+  font-size: clamp(1.06rem, 2.1vw, 1.28rem);
+  font-weight: 640;
+  line-height: 1.15;
+}
+
+.ui-value-text--l3 {
+  font-size: var(--type-metadata);
+  color: var(--fg-secondary);
+}
+
 .ui-value-text--degraded,
 .ui-value-text--rejected {
   color: var(--semantic-error);
@@ -1458,7 +1512,10 @@ button {
   gap: 0.35rem;
   padding-left: 0.45rem;
   border-left: 2px solid var(--border);
-  font-size: clamp(1rem, 2vw, 1.15rem);
+}
+
+.ui-exposure-value > .muted {
+  font-size: var(--type-metadata);
 }
 
 .ui-exposure-value--low {
@@ -1471,6 +1528,21 @@ button {
 
 .ui-exposure-value--high {
   border-left-color: color-mix(in srgb, var(--semantic-negative) 50%, var(--border));
+}
+
+.ui-exposure-value--l1 {
+  font-size: clamp(1.3rem, 2.4vw, 1.6rem);
+  font-weight: 700;
+}
+
+.ui-exposure-value--l2 {
+  font-size: clamp(1.02rem, 2vw, 1.18rem);
+  font-weight: 620;
+}
+
+.ui-exposure-value--l3 {
+  font-size: var(--type-metadata);
+  font-weight: 550;
 }
 
 .ui-skeleton-block {
@@ -1500,9 +1572,22 @@ button {
   font-size: var(--text-sm);
 }
 
+.ui-inline-stat-value {
+  color: var(--fg-primary);
+}
+
 .ui-inline-stat-meta {
   color: var(--fg-muted);
   font-size: var(--text-xs);
+}
+
+.ui-inline-stat--l1 .ui-inline-stat-value {
+  font-size: var(--text-lg);
+  font-weight: 650;
+}
+
+.ui-inline-stat--l3 .ui-inline-stat-meta {
+  opacity: 0.72;
 }
 
 @keyframes ui-skeleton-shimmer {
@@ -1604,7 +1689,7 @@ button {
 
 .trade-panel {
   display: grid;
-  gap: var(--space-4);
+  gap: var(--space-3);
   min-height: 640px;
   align-content: start;
 }
@@ -1633,6 +1718,7 @@ button {
   gap: var(--space-2);
   font-size: var(--type-metadata);
   color: var(--fg-secondary);
+  align-items: center;
 }
 
 .trade-meta-bar > span,
@@ -1641,6 +1727,9 @@ button {
   border-radius: 999px;
   background: color-mix(in srgb, var(--surface-base) 92%, black);
   padding: 0.15rem var(--space-2);
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.35rem;
 }
 
 .signature-live-indicator {
@@ -1773,14 +1862,14 @@ button {
 
 .dashboard-hero-side {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
   align-content: stretch;
 }
 
 .dashboard-secondary-metrics {
   display: grid;
   grid-template-rows: repeat(2, minmax(0, 1fr));
-  gap: var(--space-2);
+  gap: var(--space-3);
 }
 
 .dashboard-status-hint {
@@ -1802,6 +1891,7 @@ button {
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+  align-items: flex-start;
 }
 
 .dashboard-status-label {
@@ -1840,7 +1930,7 @@ button {
 
 .dashboard-status-meta {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   justify-content: space-between;
   gap: var(--space-2);
 }
@@ -1947,6 +2037,7 @@ button {
 .dashboard-metric-card--supporting {
   min-height: 104px;
   padding: var(--space-3) var(--space-4);
+  align-content: start;
 }
 
 .dashboard-metric-label {
@@ -1958,7 +2049,7 @@ button {
 }
 
 .dashboard-metric-value {
-  margin: var(--space-1) 0 0;
+  margin: 0;
   font-size: clamp(1.4rem, 2.5vw, 1.85rem);
   font-variant-numeric: var(--numeric-figure);
   font-feature-settings: "tnum" 1;
@@ -2395,7 +2486,9 @@ button {
 }
 
 .trade-price {
+  margin-top: 0;
   font-size: var(--type-display-metric);
+  line-height: 1.05;
 }
 
 .trade-search-input {
