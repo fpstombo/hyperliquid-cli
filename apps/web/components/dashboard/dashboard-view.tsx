@@ -175,7 +175,7 @@ export function DashboardView({
   return (
     <>
       <section className="dashboard-first-viewport">
-        <section className="dashboard-hero-composition">
+        <section className="dashboard-hero-composition dashboard-region-glow">
           <article className="dashboard-metric-card dashboard-metric-card--hero">
             <div className="dashboard-metric-heading">
               <p className="dashboard-metric-label">{model.metrics.equity.label}</p>
@@ -262,7 +262,7 @@ export function DashboardView({
         </section>
 
         <section className="dashboard-core-grid">
-          <PanelShell title="Open Positions" tier="primary" className="dashboard-grid-span-6">
+          <PanelShell title="Open Positions" tier="primary" className="dashboard-grid-span-6 panel-header-accent dense-data-region">
             {isInitialLoading && model.positions.length === 0 ? (
               tableLoadingSkeleton()
             ) : model.positionsError ? (
@@ -281,7 +281,7 @@ export function DashboardView({
             )}
           </PanelShell>
 
-          <PanelShell title="Open Orders" tier="primary" className="dashboard-grid-span-6">
+          <PanelShell title="Open Orders" tier="primary" className="dashboard-grid-span-6 panel-header-accent dense-data-region">
             {isInitialLoading && model.orders.length === 0 ? (
               tableLoadingSkeleton()
             ) : model.ordersError ? (

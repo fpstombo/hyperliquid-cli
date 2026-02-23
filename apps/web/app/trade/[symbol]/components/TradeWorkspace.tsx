@@ -54,7 +54,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
       <main className="trade-workspace-grid">
         <PanelShell
           tier="primary"
-          className="trade-panel trade-panel-ticket"
+          className="trade-panel trade-panel-ticket panel-header-accent"
           title="Ticket"
           contextTag={<span className="muted">Execution · Symbol: {symbol}</span>}
           actions={null}
@@ -68,7 +68,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
 
         <PanelShell
           tier="primary"
-          className="trade-panel trade-depth-card"
+          className="trade-panel trade-depth-card panel-header-accent dense-data-region"
           title="Market & Depth"
           contextTag={<span className="muted">Market · Spread: {formatMagnitude(spread)} · {marketStatus.label}</span>}
           actions={(
@@ -108,11 +108,11 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
             <span>Best Bid <span className="numeric-fixed">{mockBook.bids[0][0]}</span></span>
             <span>Best Ask <span className="numeric-fixed">{mockBook.asks[0][0]}</span></span>
           </div>
-          <div className="trade-depth-grid">
+          <div className="trade-depth-grid dense-data-region">
             <div>
               <h4>Bids</h4>
               {mockBook.bids.map(([price, size]) => (
-                <div key={`bid-${price}`} className="trade-depth-row">
+                <div key={`bid-${price}`} className="trade-depth-row dense-data-row">
                   <span className="numeric-fixed">{price}</span>
                   <span className="numeric-fixed">{size}</span>
                 </div>
@@ -121,7 +121,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
             <div>
               <h4>Asks</h4>
               {mockBook.asks.map(([price, size]) => (
-                <div key={`ask-${price}`} className="trade-depth-row">
+                <div key={`ask-${price}`} className="trade-depth-row dense-data-row">
                   <span className="numeric-fixed">{price}</span>
                   <span className="numeric-fixed">{size}</span>
                 </div>
@@ -132,7 +132,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
 
         <PanelShell
           tier="primary"
-          className="trade-panel"
+          className="trade-panel panel-header-accent dense-data-region"
           title="Open Orders & Position"
           contextTag={<span className="muted">Position {mockPosition.side}</span>}
           actions={null}
@@ -141,7 +141,7 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
             <span>PNL <PnlValue value={mockPosition.pnl} /></span>
             <span>Size <span className="numeric-fixed">{mockPosition.size}</span></span>
           </div>
-          <PanelShell tier="secondary" className="trade-position-card" title="Position Summary" contextTag="Risk" actions={null}>
+          <PanelShell tier="secondary" className="trade-position-card panel-header-accent" title="Position Summary" contextTag="Risk" actions={null}>
             <div className="trade-position-grid">
               <span className="muted">Entry</span>
               <strong className="financial-value">{mockPosition.entry}</strong>

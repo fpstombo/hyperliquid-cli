@@ -79,7 +79,7 @@ export function TopNavPrimary({ navItems }: { navItems: NavItem[] }) {
   }, [prefersReducedMotion, routeContext.subtitle])
 
   return (
-    <>
+    <div className="top-nav-primary-region">
       <nav className="top-nav-links" aria-label="Primary">
         {navItems.map((item) => {
           const isActive = isRouteActive(pathname, item.href)
@@ -100,7 +100,7 @@ export function TopNavPrimary({ navItems }: { navItems: NavItem[] }) {
         <p className="top-nav-route-label">{routeContext.label}</p>
         <p className={`top-nav-route-subtitle ${isSubtitleVisible ? "is-visible" : ""}`}>{contextSubtitle}</p>
       </div>
-    </>
+    </div>
   )
 }
 

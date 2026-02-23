@@ -205,8 +205,11 @@ a {
 }
 
 .shell-surface {
-  border: 1px solid var(--border-subtle);
-  box-shadow: 0 6px 24px rgb(2 7 18 / 28%);
+  border: 1px solid color-mix(in srgb, var(--border-subtle) 84%, var(--signature-edge-highlight));
+  box-shadow:
+    inset 0 1px 0 rgb(194 232 255 / 10%),
+    inset 0 -1px 0 rgb(109 169 210 / 16%),
+    0 6px 20px rgb(2 7 18 / 24%);
 }
 
 .top-nav {
@@ -221,12 +224,11 @@ a {
 
 .signature-top-bar {
   border-bottom-color: color-mix(in srgb, var(--border-subtle) 62%, var(--signature-edge-highlight));
-  background:
-    linear-gradient(120deg, var(--signature-gradient-start) 0%, var(--signature-gradient-end) 72%),
-    rgb(6 10 19 / 94%);
+  background: linear-gradient(180deg, rgb(10 18 34 / 92%) 0%, rgb(6 10 19 / 96%) 100%);
   box-shadow:
-    0 10px 26px rgb(2 7 18 / 40%),
-    inset 0 1px 0 rgb(198 233 255 / 12%),
+    0 10px 24px rgb(2 7 18 / 34%),
+    0 0 0 1px rgb(86 200 255 / 12%),
+    inset 0 1px 0 rgb(198 233 255 / 10%),
     inset 0 -1px 0 var(--signature-edge-highlight);
 }
 
@@ -247,6 +249,25 @@ a {
 
 .brand {
   font-weight: 700;
+}
+
+.top-nav-primary-region {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-4);
+  position: relative;
+}
+
+.top-nav-primary-region::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -0.25rem;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(86 200 255 / 36%), transparent);
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .top-nav-links {
@@ -1144,14 +1165,14 @@ button {
 /* UI primitives */
 .ui-panel-shell {
   --panel-bg: color-mix(in srgb, var(--surface-base) 94%, black);
-  --panel-border: color-mix(in srgb, var(--border-subtle) 88%, transparent);
-  --panel-inner-highlight: rgb(150 224 255 / 7%);
+  --panel-border: color-mix(in srgb, var(--border-subtle) 86%, var(--signature-edge-highlight));
   --panel-edge-glow: rgb(86 200 255 / 11%);
   border: 1px solid var(--panel-border);
   border-radius: var(--radius-md);
-  background: linear-gradient(180deg, var(--panel-inner-highlight) 0%, transparent 14%), var(--panel-bg);
+  background: color-mix(in srgb, var(--surface-base) 94%, black);
   box-shadow:
     inset 0 1px 0 rgb(255 255 255 / 3%),
+    inset 0 -1px 0 rgb(87 146 190 / 12%),
     0 4px 18px rgb(2 7 18 / 22%);
   padding: var(--space-4);
   display: grid;
@@ -1174,22 +1195,9 @@ button {
     transform var(--motion-tier-standard-duration) var(--motion-tier-standard-ease);
 }
 
-.ui-panel-shell::before {
-  inset: 0;
-  background:
-    linear-gradient(122deg, transparent 0 28%, color-mix(in srgb, var(--signature-accent-core) 16%, transparent) 46%, transparent 68%),
-    radial-gradient(58% 66% at 100% 0%, rgb(86 200 255 / 9%) 0%, transparent 72%);
-  opacity: 0.62;
-}
-
+.ui-panel-shell::before,
 .ui-panel-shell::after {
-  top: 0;
-  right: 0;
-  width: 3.8rem;
-  height: 3.2rem;
-  border-top-right-radius: inherit;
-  background: linear-gradient(138deg, rgb(173 229 255 / 28%) 0 2px, transparent 2px 100%);
-  opacity: 0.44;
+  display: none;
 }
 
 .ui-panel-shell:hover,
@@ -1201,15 +1209,21 @@ button {
     0 0 0 1px var(--panel-edge-glow);
 }
 
-.ui-panel-shell:hover::before,
-.ui-panel-shell:focus-within::before {
-  opacity: 0.86;
+
+.panel-header-accent .ui-panel-shell-header {
+  position: relative;
 }
 
-.ui-panel-shell:hover::after,
-.ui-panel-shell:focus-within::after {
-  transform: translate(-1px, 1px);
-  opacity: 0.66;
+.panel-header-accent .ui-panel-shell-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgb(86 200 255 / 34%) 50%, transparent 100%);
+  opacity: 0.72;
+  pointer-events: none;
 }
 
 .ui-panel-shell-header {
@@ -1743,6 +1757,20 @@ button {
   align-items: stretch;
 }
 
+.dashboard-region-glow {
+  position: relative;
+}
+
+.dashboard-region-glow::after {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: var(--radius-md);
+  pointer-events: none;
+  border: 1px solid rgb(86 200 255 / 12%);
+  box-shadow: 0 0 16px rgb(86 200 255 / 10%);
+}
+
 .dashboard-hero-side {
   display: grid;
   gap: var(--space-2);
@@ -1890,10 +1918,8 @@ button {
   display: grid;
   align-content: start;
   gap: var(--space-2);
-  background:
-    linear-gradient(155deg, color-mix(in srgb, var(--accent) 24%, var(--surface-base)) 0%, color-mix(in srgb, var(--surface-base) 97%, black) 66%),
-    radial-gradient(120% 100% at 0% 0%, rgb(82 192 255 / 14%) 0%, transparent 58%);
-  border-color: color-mix(in srgb, var(--border-subtle) 58%, var(--accent));
+  background: linear-gradient(168deg, color-mix(in srgb, var(--surface-base) 90%, rgb(12 22 40)) 0%, color-mix(in srgb, var(--surface-base) 96%, black) 72%);
+  border-color: color-mix(in srgb, var(--border-subtle) 62%, var(--accent));
 }
 
 .dashboard-metric-card--hero::before,
@@ -1905,18 +1931,12 @@ button {
 }
 
 .dashboard-metric-card--hero::before {
-  background:
-    radial-gradient(circle at 20% 18%, rgb(120 200 255 / 10%) 0 22%, transparent 54%),
-    radial-gradient(circle at 86% 74%, rgb(65 120 255 / 10%) 0 20%, transparent 50%),
-    radial-gradient(circle at 66% 30%, rgb(102 155 255 / 8%) 0 15%, transparent 46%);
-  opacity: 0.8;
+  background: radial-gradient(95% 80% at 8% 10%, rgb(86 200 255 / 12%) 0%, transparent 64%);
+  opacity: 0.7;
 }
 
 .dashboard-metric-card--hero::after {
-  background-image: radial-gradient(rgb(214 238 255 / 6%) 0.7px, transparent 0.7px);
-  background-size: 3px 3px;
-  mix-blend-mode: screen;
-  opacity: 0.26;
+  display: none;
 }
 
 .dashboard-metric-card--hero > * {
@@ -2663,4 +2683,30 @@ button {
     max-width: none;
     justify-content: space-between;
   }
+}
+
+
+.dense-data-region .value-flash--active {
+  animation: none;
+  color: inherit;
+  text-shadow: none;
+}
+
+.dense-data-region .value-flash--with-cue::after {
+  display: none;
+}
+
+.dense-data-region .table-row--interactive:where(:hover, :focus-visible) td {
+  background: color-mix(in srgb, var(--surface-base) 96%, black);
+}
+
+.dense-data-region .table-row--interactive:where(:hover, :focus-visible) td:first-child {
+  box-shadow: none;
+}
+
+.dense-data-row,
+.dense-data-row .numeric-fixed {
+  background: none;
+  box-shadow: none;
+  text-shadow: none;
 }
