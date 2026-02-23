@@ -141,13 +141,23 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
           <article className="dashboard-metric-card dashboard-metric-card--hero">
             <div className="dashboard-metric-heading">
               <p className="dashboard-metric-label">{model.metrics.equity.label}</p>
-              <StatusBadge variant={isSim ? "sim" : "confirmed"} role="status" aria-label={`Mode ${model.status.mode}`}>
-                {model.status.mode}
-              </StatusBadge>
             </div>
             <p className="dashboard-metric-value dashboard-metric-value--hero">
               <ValueFlash value={model.metrics.equity.value}>{model.metrics.equity.value}</ValueFlash>
             </p>
+            <p className="dashboard-metric-mode" aria-label="Trading mode">
+              <StatusBadge variant={isSim ? "sim" : "confirmed"} role="status" aria-label={`Mode ${model.status.mode}`}>
+                {model.status.mode}
+              </StatusBadge>
+            </p>
+            <section className="dashboard-market-pulse" aria-label="Market pulse preview">
+              <span className="dashboard-market-pulse__label">Market pulse</span>
+              <div className="dashboard-market-pulse__tracks" aria-hidden="true">
+                <span className="dashboard-market-pulse__spark dashboard-market-pulse__spark--a" />
+                <span className="dashboard-market-pulse__spark dashboard-market-pulse__spark--b" />
+                <span className="dashboard-market-pulse__spark dashboard-market-pulse__spark--c" />
+              </div>
+            </section>
             <p className="dashboard-metric-tertiary">
               {model.status.session}
               {isSim ? (

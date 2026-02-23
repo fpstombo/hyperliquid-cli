@@ -101,7 +101,7 @@
   --motion-micro-slow: 320ms;
   --motion-hover-duration: 120ms;
   --motion-focus-duration: 160ms;
-  --motion-value-update-duration: 220ms;
+  --motion-value-update-duration: 160ms;
   --motion-panel-duration: 200ms;
   --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-standard: cubic-bezier(0.3, 0, 0.2, 1);
@@ -1389,7 +1389,7 @@ button {
 .dashboard-metric-heading {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: var(--space-2);
 }
 
@@ -1435,10 +1435,46 @@ button {
 }
 
 .dashboard-metric-card--hero {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
   min-height: 228px;
   padding: var(--space-5);
-  background: linear-gradient(160deg, color-mix(in srgb, var(--accent) 20%, var(--surface-base)) 0%, color-mix(in srgb, var(--surface-base) 96%, black) 65%);
+  display: grid;
+  align-content: start;
+  gap: var(--space-2);
+  background:
+    linear-gradient(155deg, color-mix(in srgb, var(--accent) 24%, var(--surface-base)) 0%, color-mix(in srgb, var(--surface-base) 97%, black) 66%),
+    radial-gradient(120% 100% at 0% 0%, rgb(82 192 255 / 14%) 0%, transparent 58%);
   border-color: color-mix(in srgb, var(--border-subtle) 58%, var(--accent));
+}
+
+.dashboard-metric-card--hero::before,
+.dashboard-metric-card--hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.dashboard-metric-card--hero::before {
+  background:
+    radial-gradient(circle at 20% 18%, rgb(120 200 255 / 10%) 0 22%, transparent 54%),
+    radial-gradient(circle at 86% 74%, rgb(65 120 255 / 10%) 0 20%, transparent 50%),
+    radial-gradient(circle at 66% 30%, rgb(102 155 255 / 8%) 0 15%, transparent 46%);
+  opacity: 0.8;
+}
+
+.dashboard-metric-card--hero::after {
+  background-image: radial-gradient(rgb(214 238 255 / 6%) 0.7px, transparent 0.7px);
+  background-size: 3px 3px;
+  mix-blend-mode: screen;
+  opacity: 0.26;
+}
+
+.dashboard-metric-card--hero > * {
+  position: relative;
+  z-index: 1;
 }
 
 .dashboard-metric-card--supporting {
@@ -1455,7 +1491,7 @@ button {
 }
 
 .dashboard-metric-value {
-  margin: var(--space-2) 0 0;
+  margin: var(--space-1) 0 0;
   font-size: clamp(1.4rem, 2.5vw, 1.85rem);
   font-variant-numeric: var(--numeric-figure);
   font-feature-settings: "tnum" 1;
@@ -1464,13 +1500,64 @@ button {
 }
 
 .dashboard-metric-value--hero {
-  margin-top: var(--space-4);
+  margin-top: var(--space-2);
   font-size: var(--type-display-metric);
-  line-height: 1.1;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+
+.dashboard-metric-value .value-flash {
+  min-height: 1em;
+}
+
+.dashboard-metric-value--hero .value-flash {
+  display: inline-grid;
+  align-items: baseline;
+}
+
+.dashboard-metric-mode {
+  margin: 0;
+  line-height: 1;
+}
+
+.dashboard-market-pulse {
+  display: grid;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+}
+
+.dashboard-market-pulse__label {
+  font-size: 0.68rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--fg-muted) 84%, var(--fg-primary));
+}
+
+.dashboard-market-pulse__tracks {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.dashboard-market-pulse__spark {
+  height: 1.15rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border-subtle) 80%, var(--accent));
+  background:
+    linear-gradient(102deg, rgb(82 192 255 / 9%) 0%, rgb(82 192 255 / 2%) 100%),
+    repeating-linear-gradient(90deg, transparent 0 8%, rgb(155 210 255 / 18%) 8% 10%, transparent 10% 18%);
+}
+
+.dashboard-market-pulse__spark--b {
+  opacity: 0.82;
+}
+
+.dashboard-market-pulse__spark--c {
+  opacity: 0.64;
 }
 
 .dashboard-metric-tertiary {
-  margin: var(--space-1) 0 0;
+  margin: var(--space-2) 0 0;
   color: var(--fg-muted);
   font-size: var(--text-xs);
   display: inline-flex;
@@ -1665,14 +1752,46 @@ button {
 .value-flash {
   display: inline-block;
   contain: paint;
+  transform-origin: 50% 55%;
   transition:
     color var(--motion-value-update-duration) var(--motion-ease-standard),
-    text-shadow var(--motion-value-update-duration) var(--motion-ease-standard);
+    text-shadow var(--motion-value-update-duration) var(--motion-ease-standard),
+    opacity var(--motion-value-update-duration) var(--motion-ease-standard),
+    transform var(--motion-value-update-duration) var(--motion-ease-emphasized);
 }
 
 .value-flash--active {
+  animation: value-flash-enter var(--motion-value-update-duration) var(--motion-ease-emphasized) 1;
+}
+
+.value-flash--active[data-direction='up'] {
+  color: color-mix(in srgb, var(--fg-primary) 78%, var(--semantic-success));
+  text-shadow: 0 0 10px rgb(79 224 164 / 24%);
+}
+
+.value-flash--active[data-direction='down'] {
+  color: color-mix(in srgb, var(--fg-primary) 78%, var(--semantic-error));
+  text-shadow: 0 0 10px rgb(255 127 143 / 24%);
+}
+
+.value-flash--active[data-direction='neutral'] {
   color: color-mix(in srgb, var(--fg-primary) 72%, #9ad8ff);
-  text-shadow: 0 0 10px rgb(82 192 255 / 32%);
+  text-shadow: 0 0 10px rgb(82 192 255 / 28%);
+}
+
+@keyframes value-flash-enter {
+  0% {
+    opacity: 0.84;
+    transform: scale(0.988);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.018);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .table-value-update {
@@ -1681,6 +1800,20 @@ button {
     text-shadow var(--motion-value-update-duration) var(--motion-ease-standard);
 }
 
+
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard-metric-card,
+  .value-flash,
+  .table-value-update {
+    transition: none !important;
+  }
+
+  .value-flash--active {
+    animation: none !important;
+    transform: none !important;
+  }
+}
 
 .layout-row-between {
   display: flex;
