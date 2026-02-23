@@ -54,12 +54,16 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
       <main className="trade-workspace-grid">
         <PanelShell
           tier="primary"
-          className="trade-panel"
+          className="trade-panel trade-panel-ticket"
           title="Ticket"
           contextTag={<span className="muted">Execution · Symbol: {symbol}</span>}
           actions={null}
         >
-          <OrderTicket symbol={symbol} onOrderPlaced={() => setRefreshKey((k) => k + 1)} />
+          <OrderTicket
+            symbol={symbol}
+            referencePrice={priceState.data?.price ?? mockBook.asks[0][0]}
+            onOrderPlaced={() => setRefreshKey((k) => k + 1)}
+          />
         </PanelShell>
 
         <PanelShell
@@ -69,7 +73,11 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           contextTag={<span className="muted">Market · Spread: {formatMagnitude(spread)} · {marketStatus.label}</span>}
           actions={isCriticalStatusVariant(marketStatus.tone) ? <StatusBadge variant={marketStatus.tone}>{marketStatus.label}</StatusBadge> : null}
         >
-          {priceState.error ? <p className="status-error">Failed to load price: {priceState.error}</p> : null}
+          {priceState.error ? (
+            <p className="status-error trade-inline-error" role="status" aria-live="polite">
+              Failed to load price: {priceState.error}. Using last known book values for preview calculations.
+            </p>
+          ) : null}
           {priceState.isLoading ? (
             <SkeletonBlock width="14rem" height="2rem" className="trade-price-block" aria-label="Loading latest price" />
           ) : priceState.data?.price ? (
