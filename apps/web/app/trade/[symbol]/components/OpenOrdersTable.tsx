@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-import { Button, PanelShell, Table, ValueFlash, type TableColumn } from "../../../../components/ui"
+import { Button, PanelAsyncState, PanelShell, Table, ValueFlash, type TableColumn } from "../../../../components/ui"
 import { useAuth } from "../../../../components/providers"
 import { formatTimestamp, formatTimestampHint } from "../../../../lib/formatters"
 
@@ -152,15 +152,42 @@ export function OpenOrdersTable({ refreshKey }: Props) {
           API is serving {context?.environment.toUpperCase()} while UI is set to {session.environment.toUpperCase()}. Trading actions are blocked.
         </p>
       ) : null}
-      {error ? <p className="status-error">{error}</p> : null}
-      <Table
-        columns={columns}
-        rows={orders}
-        rowKey={(order) => order.oid}
-        emptyState="No open orders."
-        itemCount={orders.length}
-        itemSize={40}
-      />
+      {error ? (
+        <PanelAsyncState
+          state="error"
+          size="compact"
+          icon="⚠"
+          title="Open orders unavailable"
+          message={error}
+          action={
+            <button className="button secondary" type="button" onClick={() => void loadOrders()}>
+              Retry open orders
+            </button>
+          }
+        />
+      ) : orders.length === 0 ? (
+        <PanelAsyncState
+          state="empty"
+          size="compact"
+          icon="🧾"
+          title="No open orders"
+          message="New orders will appear here as soon as they are accepted."
+          action={
+            <button className="button secondary" type="button" onClick={() => void loadOrders()}>
+              Refresh orders
+            </button>
+          }
+        />
+      ) : (
+        <Table
+          columns={columns}
+          rows={orders}
+          rowKey={(order) => order.oid}
+          emptyState="No open orders."
+          itemCount={orders.length}
+          itemSize={40}
+        />
+      )}
     </PanelShell>
   )
 }

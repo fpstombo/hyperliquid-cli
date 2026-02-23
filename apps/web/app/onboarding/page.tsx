@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react"
 import type { AgentApprovalSnapshot, ApprovalState } from "../../lib/agent-state"
 import { loadOnboardingContext, saveOnboardingContext } from "../../lib/agent-state"
 import { CompletionCelebration, ContextPreview, InlineError, StepProgress, type OnboardingStepKey, type StepDefinition } from "./components"
+import { PanelAsyncState } from "../../components/ui"
 
 function formatTime(ts?: number) {
   if (!ts) return "—"
@@ -340,7 +341,7 @@ export default function OnboardingPage() {
           onRecover={() => {
             void ensureSessionContext().catch((error: unknown) => setSessionError(normalizeError(error)))
           }}
-          recoverLabel="Retry session check"
+          recoverLabel="Retry session"
         >
           {sessionError}
         </InlineError>
@@ -426,9 +427,27 @@ export default function OnboardingPage() {
             </div>
 
             {statusMessage ? (
-              <p className="muted" style={{ margin: 0 }}>
-                {statusMessage}
-              </p>
+              <PanelAsyncState
+                state={record?.state === "active" ? "empty" : "error"}
+                size="compact"
+                icon={record?.state === "active" ? "✅" : "🛰"}
+                title={record?.state === "active" ? "Approval confirmed" : "Approval status update"}
+                message={statusMessage}
+                action={
+                  <button
+                    className="button secondary"
+                    type="button"
+                    onClick={() => {
+                      void pollAgentState(walletAddress, agentAddress, isTestnet, record?.state).catch((error: unknown) => {
+                        setStatusMessage(normalizeError(error))
+                      })
+                    }}
+                    disabled={!walletAddress || !agentAddress}
+                  >
+                    Retry status check
+                  </button>
+                }
+              />
             ) : null}
 
             <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))" }}>
@@ -464,11 +483,18 @@ export default function OnboardingPage() {
       {record?.state === "active" ? (
         <CompletionCelebration onNext={() => (window.location.href = "/trade/BTC")} />
       ) : (
-        <section className="card">
-          <p className="muted" style={{ margin: 0 }}>
-            Finish all steps to unlock trading. You can also review state transitions on <Link href="/agent-status">Agent Status</Link>.
-          </p>
-        </section>
+        <PanelAsyncState
+          state="empty"
+          size="default"
+          icon="🧭"
+          title="Complete onboarding"
+          message="Finish every step to unlock trading and monitor lifecycle transitions in Agent Status."
+          action={
+            <Link className="button secondary" href="/agent-status">
+              Open Agent Status
+            </Link>
+          }
+        />
       )}
 
       <style jsx>{`
