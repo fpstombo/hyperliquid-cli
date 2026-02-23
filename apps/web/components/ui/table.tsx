@@ -25,6 +25,7 @@ type TableProps<T> = {
   itemSize?: number
   rowRenderer?: TableRowRenderer<T>
   getRowProps?: (row: T, index: number) => HTMLAttributes<HTMLTableRowElement>
+  className?: string
 }
 
 export function Table<T>({
@@ -38,6 +39,7 @@ export function Table<T>({
   itemSize,
   rowRenderer,
   getRowProps,
+  className = "",
 }: TableProps<T>) {
   const resolvedItemCount = itemCount ?? rows.length
   const resolvedRowHeight = itemSize ?? (density === "compact" ? 40 : 48)
@@ -45,7 +47,7 @@ export function Table<T>({
   const isNumericColumn = (className?: string) => className?.split(" ").includes("table-col--numeric") ?? false
 
   return (
-    <div className="table-wrap">
+    <div className={`table-wrap ${className}`.trim()}>
       <table className={`table table--${density} ${stickyHeader ? "table--sticky-header" : ""}`}>
         <thead>
           <tr>
@@ -83,11 +85,13 @@ export function Table<T>({
               }
 
               const resolvedRowProps = getRowProps?.(row, index)
+              const rowClassName = ["table-row", resolvedRowProps?.className].filter(Boolean).join(" ")
 
               return (
                 <tr
                   key={rowKey ? rowKey(row, index) : index}
                   {...resolvedRowProps}
+                  className={rowClassName}
                   style={{
                     "--table-row-height": `${resolvedRowHeight}px`,
                     ...(resolvedRowProps?.style ?? {}),
