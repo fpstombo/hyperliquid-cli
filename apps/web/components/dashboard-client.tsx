@@ -12,16 +12,27 @@ const DASHBOARD_POLL_MS = 5000
 
 export function DashboardLiveData() {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
+  const [isRetrying, setIsRetrying] = useState(false)
   const [now, setNow] = useState(() => Date.now())
   const { session } = useAuth()
 
   const onTransientError = useCallback((message: string) => {
-    setToastMessage(`Transient API issue: ${message}`)
+    setToastMessage(`Live sync hiccup: ${message}`)
   }, [])
 
   const balances = useBalances(onTransientError)
   const positions = usePositions(onTransientError)
   const orders = useOrders(onTransientError)
+
+  const retryAll = useCallback(async () => {
+    setIsRetrying(true)
+    try {
+      await Promise.all([balances.retry(), positions.retry(), orders.retry()])
+      setToastMessage("Dashboard refreshed.")
+    } finally {
+      setIsRetrying(false)
+    }
+  }, [balances, orders, positions])
 
   const loading = balances.isLoading || positions.isLoading || orders.isLoading
   const error = balances.error ?? positions.error ?? orders.error
@@ -34,7 +45,6 @@ export function DashboardLiveData() {
     },
     null,
   )
-
 
   useEffect(() => {
     const timer = window.setInterval(() => setNow(Date.now()), 1000)
@@ -64,8 +74,10 @@ export function DashboardLiveData() {
         model={model}
         isInitialLoading={loading}
         staleForSeconds={lastSuccessAt ? Math.floor((now - lastSuccessAt) / 1000) : null}
+        isRefreshing={balances.isRefreshing || positions.isRefreshing || orders.isRefreshing}
+        isRetrying={isRetrying}
         showRetryAction={(Boolean(error) || stale) && (!lastSuccessAt || now - lastSuccessAt > DASHBOARD_POLL_MS * 2)}
-        onRetry={() => void Promise.all([balances.retry(), positions.retry(), orders.retry()])}
+        onRetry={() => void retryAll()}
       />
 
       {summaryError ? (
@@ -76,8 +88,8 @@ export function DashboardLiveData() {
           title="Dashboard summary unavailable"
           message={`We could not refresh balances right now: ${summaryError}`}
           action={
-            <button className="button secondary" type="button" onClick={() => void Promise.all([balances.retry(), positions.retry(), orders.retry()])}>
-              Retry dashboard
+            <button className="button secondary" type="button" onClick={() => void retryAll()} disabled={isRetrying}>
+              {isRetrying ? "Retrying…" : "Retry dashboard"}
             </button>
           }
         />

@@ -2537,3 +2537,130 @@ button {
     scroll-behavior: auto !important;
   }
 }
+
+.onboarding-progress-shell {
+  gap: var(--space-3);
+}
+
+.onboarding-progress-title,
+.onboarding-progress-subtitle,
+.onboarding-progress-copy,
+.onboarding-step-chip-title,
+.onboarding-step-chip-state,
+.onboarding-context-preview-label,
+.onboarding-context-preview-title,
+.onboarding-context-preview-copy,
+.onboarding-complete-title,
+.onboarding-complete-copy {
+  margin: 0;
+}
+
+.onboarding-progress-subtitle {
+  margin-top: 0.35rem;
+}
+
+.onboarding-progress-meter {
+  display: grid;
+  gap: 0.45rem;
+}
+
+.onboarding-progress-copy {
+  font-size: 0.9rem;
+}
+
+.onboarding-progress-track {
+  width: 100%;
+  height: 8px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface-base) 82%, var(--border-subtle));
+  overflow: clip;
+}
+
+.onboarding-progress-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-strong));
+  transition: width 220ms var(--motion-ease-standard);
+}
+
+.onboarding-step-chip {
+  transition: border-color var(--motion-tier-standard-duration) var(--motion-tier-standard-ease);
+}
+
+.onboarding-step-chip--active {
+  border-color: var(--accent-strong);
+}
+
+.onboarding-step-chip-title {
+  font-weight: 600;
+}
+
+.onboarding-step-chip-state {
+  margin-top: 0.2rem;
+}
+
+.onboarding-context-preview {
+  border-style: dashed;
+}
+
+.onboarding-context-preview-title {
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+}
+
+.onboarding-inline-error-action,
+.onboarding-complete-cta {
+  min-height: 44px;
+}
+
+.onboarding-complete-shell {
+  text-align: center;
+}
+
+.onboarding-complete-title {
+  margin: 0.5rem 0;
+}
+
+.trade-meta-bar > span,
+.trade-meta-bar > strong,
+.shortcut-hint,
+.dashboard-status-retry {
+  white-space: nowrap;
+}
+
+.table-row-action:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+.ui-toast-floating {
+  border-radius: var(--radius-md);
+  box-shadow: 0 14px 32px rgb(2 7 18 / 38%);
+  max-width: min(92vw, 460px);
+}
+
+.ui-toast-floating-message {
+  line-height: 1.35;
+}
+
+@media (max-width: 900px) {
+  .ticket-primary-actions,
+  .ticket-confirm-actions,
+  .order-zone-header {
+    flex-wrap: wrap;
+  }
+
+  .ticket-primary-actions .btn,
+  .ticket-confirm-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ui-toast-floating {
+    right: var(--space-2);
+    left: var(--space-2);
+    bottom: var(--space-2);
+    max-width: none;
+    justify-content: space-between;
+  }
+}

@@ -21,6 +21,7 @@ type PollingOptions<T> = {
 }
 
 const TRANSIENT_STATUS_CODES = [408, 429, 500, 502, 503, 504]
+const INITIAL_LOAD_FLOOR_MS = 240
 
 export class HttpError extends Error {
   status: number
@@ -68,8 +69,10 @@ export function usePollingResource<T>({
   }, [])
 
   const refresh = useCallback(async () => {
-    setLastAttemptAt(Date.now())
+    const requestStartedAt = Date.now()
+    setLastAttemptAt(requestStartedAt)
     setIsRefreshing(true)
+    setError(null)
     try {
       const nextData = await fetcher()
       if (!mountedRef.current) {
@@ -93,6 +96,11 @@ export function usePollingResource<T>({
         onTransientError?.(message)
       }
     } finally {
+      const elapsed = Date.now() - requestStartedAt
+      const remaining = hasSnapshotRef.current ? 0 : Math.max(INITIAL_LOAD_FLOOR_MS - elapsed, 0)
+      if (remaining > 0) {
+        await new Promise((resolve) => setTimeout(resolve, remaining))
+      }
       if (mountedRef.current) {
         setIsRefreshing(false)
         setIsLoading(false)

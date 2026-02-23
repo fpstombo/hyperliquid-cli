@@ -14,6 +14,8 @@ import type { DashboardOrderVm, DashboardPositionVm, DashboardViewModel } from "
 type DashboardViewProps = {
   model: DashboardViewModel
   isInitialLoading?: boolean
+  isRefreshing?: boolean
+  isRetrying?: boolean
   staleForSeconds?: number | null
   showRetryAction?: boolean
   onRetry?: () => void
@@ -149,7 +151,15 @@ function renderError(message: string) {
   return <PanelAsyncState state="error" title="Data unavailable" message={message} />
 }
 
-export function DashboardView({ model, isInitialLoading = false, staleForSeconds = null, showRetryAction = false, onRetry }: DashboardViewProps) {
+export function DashboardView({
+  model,
+  isInitialLoading = false,
+  isRefreshing = false,
+  isRetrying = false,
+  staleForSeconds = null,
+  showRetryAction = false,
+  onRetry,
+}: DashboardViewProps) {
   const isSim = model.status.mode === "SIM"
   const statusRail: Array<{ label: string; value: string; tone: StatusVariant }> = [
     { label: "Connection", value: model.status.connection, tone: model.status.connectionTone },
@@ -236,10 +246,14 @@ export function DashboardView({ model, isInitialLoading = false, staleForSeconds
                 ))}
               </div>
               <div className="dashboard-status-meta">
-                <p className="dashboard-status-hint muted">Updated {model.status.updatedHint}{staleCountdown ? ` · ${staleCountdown}` : ""}</p>
+                <p className="dashboard-status-hint muted">
+                  Updated {model.status.updatedHint}
+                  {staleCountdown ? ` · ${staleCountdown}` : ""}
+                  {isRefreshing ? " · Syncing now" : ""}
+                </p>
                 {showRetryAction && onRetry ? (
-                  <button className="dashboard-status-retry" onClick={onRetry} type="button" aria-label="Retry dashboard data now">
-                    ↻ Retry now
+                  <button className="dashboard-status-retry" onClick={onRetry} type="button" aria-label="Retry dashboard data now" disabled={isRetrying}>
+                    {isRetrying ? "↻ Retrying…" : "↻ Retry now"}
                   </button>
                 ) : null}
               </div>
