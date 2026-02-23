@@ -819,8 +819,8 @@ a {
   position: sticky;
   top: 0;
   z-index: 2;
-  backdrop-filter: blur(6px);
-  background: color-mix(in srgb, var(--surface-base) 90%, transparent);
+  backdrop-filter: none;
+  background: color-mix(in srgb, var(--surface-base) 96%, transparent);
   box-shadow: inset 0 -1px 0 var(--border-subtle);
 }
 
@@ -857,7 +857,8 @@ a {
   display: inline-block;
   min-width: 100%;
   text-align: inherit;
-  padding-inline-start: 1ch;
+  padding-inline-start: 0;
+  letter-spacing: 0.01em;
 }
 
 .table-empty {
@@ -868,17 +869,23 @@ a {
 
 .table-row--interactive {
   cursor: default;
-  transition:
-    background-color var(--motion-hover-duration) var(--motion-tier-micro-ease),
-    box-shadow var(--motion-hover-duration) var(--motion-tier-micro-ease);
+  transition: background-color var(--motion-hover-duration) var(--motion-tier-micro-ease);
 }
 
 .table-row--interactive:where(:hover, :focus-visible) td {
+  background: color-mix(in srgb, var(--surface-base) 94%, var(--accent) 6%);
+}
+
+.table-row--interactive[data-row-state="selected"] td {
   background: color-mix(in srgb, var(--surface-base) 90%, var(--accent) 10%);
 }
 
-.table-row--interactive:where(:hover, :focus-visible) td:first-child {
-  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--accent) 62%, transparent);
+.table-row--interactive[data-row-state="stale"] td {
+  color: color-mix(in srgb, var(--fg-secondary) 85%, var(--semantic-warning));
+}
+
+.table-row--interactive[data-row-state="error"] td {
+  color: color-mix(in srgb, var(--fg-primary) 78%, var(--semantic-error));
 }
 
 .table-row--interactive:focus-visible {
@@ -890,26 +897,31 @@ a {
   display: inline-flex;
   justify-content: flex-end;
   align-items: center;
-  gap: 0.35rem;
-  opacity: 0.58;
-  transition: opacity var(--motion-tier-standard-duration) var(--motion-tier-standard-ease);
+  gap: 0.3rem;
+  opacity: 0.75;
+  transition: opacity var(--motion-hover-duration) var(--motion-tier-micro-ease);
 }
 
-.table-row--interactive:where(:hover, :focus-within) .table-row-actions {
+.table-row--interactive:where(:hover, :focus-within) .table-row-actions,
+.table-row--interactive[data-row-state="selected"] .table-row-actions {
   opacity: 1;
 }
 
 .table-row-action {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
+  min-height: 1.45rem;
+  min-width: 4.5ch;
   gap: 0.3rem;
   color: var(--fg-secondary);
-  border: 1px solid color-mix(in srgb, var(--border-subtle) 75%, transparent);
-  border-radius: 999px;
-  padding: 0.12rem 0.52rem;
-  font-size: 0.7rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-xs);
+  padding: 0.1rem 0.4rem;
+  font-size: 0.68rem;
+  line-height: 1.2;
   text-decoration: none;
-  background: color-mix(in srgb, var(--surface-base) 86%, transparent);
+  background: transparent;
   transition:
     border-color var(--motion-hover-duration) var(--motion-tier-micro-ease),
     color var(--motion-hover-duration) var(--motion-tier-micro-ease),
@@ -919,7 +931,8 @@ a {
 .table-row-action:hover,
 .table-row-action:focus-visible {
   color: var(--fg-primary);
-  border-color: color-mix(in srgb, var(--accent) 42%, var(--border-subtle));
+  border-color: color-mix(in srgb, var(--accent) 32%, var(--border-subtle));
+  background: color-mix(in srgb, var(--surface-base) 94%, transparent);
   outline: none;
 }
 
@@ -2790,11 +2803,19 @@ button {
 }
 
 .dense-data-region .table-row--interactive:where(:hover, :focus-visible) td {
-  background: color-mix(in srgb, var(--surface-base) 96%, black);
+  background: color-mix(in srgb, var(--surface-base) 97%, black);
 }
 
-.dense-data-region .table-row--interactive:where(:hover, :focus-visible) td:first-child {
-  box-shadow: none;
+.dense-data-region .table-row--interactive[data-row-state="selected"] td {
+  background: color-mix(in srgb, var(--surface-base) 93%, var(--accent) 7%);
+}
+
+.dense-data-region .table-row--interactive[data-row-state="stale"] td {
+  color: color-mix(in srgb, var(--fg-secondary) 90%, var(--semantic-warning));
+}
+
+.dense-data-region .table-row--interactive[data-row-state="error"] td {
+  color: color-mix(in srgb, var(--fg-primary) 85%, var(--semantic-error));
 }
 
 .dense-data-row,

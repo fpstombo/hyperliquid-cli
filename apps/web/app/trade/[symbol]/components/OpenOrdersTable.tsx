@@ -79,10 +79,11 @@ export function OpenOrdersTable({ refreshKey }: Props) {
   }
 
   const hasEnvironmentMismatch = context ? context.environment !== session.environment : false
+  const staleThresholdMs = 30_000
 
   const columns = useMemo<TableColumn<Order>[]>(
     () => [
-      { key: "oid", header: "OID", minWidth: 96, className: "table-col--numeric" },
+      { key: "oid", header: "OID", align: "right", minWidth: 96, width: 96, className: "table-col--numeric" },
       { key: "coin", header: "Coin", minWidth: 88 },
       {
         key: "side",
@@ -111,6 +112,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
       {
         key: "timestamp",
         header: "Timestamp",
+        align: "right",
         minWidth: 170,
         width: 190,
         className: "table-col--numeric",
@@ -123,10 +125,17 @@ export function OpenOrdersTable({ refreshKey }: Props) {
       {
         key: "actions",
         header: "",
-        minWidth: 90,
-        width: 90,
+        align: "right",
+        minWidth: 96,
+        width: 96,
         render: (order) => (
-          <Button size="sm" variant="ghost" onClick={() => void cancelOrder(order)} disabled={hasEnvironmentMismatch}>
+          <Button
+            size="sm"
+            variant="ghost"
+            className="table-row-action"
+            onClick={() => void cancelOrder(order)}
+            disabled={hasEnvironmentMismatch}
+          >
             Cancel
           </Button>
         ),
@@ -139,6 +148,7 @@ export function OpenOrdersTable({ refreshKey }: Props) {
     <PanelShell
       tier="secondary"
       title="Open Orders"
+      className="dense-data-region"
       contextTag={<span className="muted">Updated {formatTimestampHint(lastLoadedAt ?? undefined)}</span>}
       actions={null}
     >
@@ -184,8 +194,21 @@ export function OpenOrdersTable({ refreshKey }: Props) {
           rows={orders}
           rowKey={(order) => order.oid}
           emptyState="No open orders."
+          className="dense-data-table"
           itemCount={orders.length}
           itemSize={40}
+          getRowProps={(order) => {
+            const rowAgeMs = order.timestamp ? Math.max(Date.now() - order.timestamp, 0) : 0
+            const rowState = hasEnvironmentMismatch ? "error" : rowAgeMs > staleThresholdMs ? "stale" : "default"
+
+            return {
+              className: "table-row--interactive",
+              tabIndex: 0,
+              "aria-label": `Open order ${order.coin} ${order.side === "B" ? "buy" : "sell"}`,
+              "aria-selected": false,
+              "data-row-state": rowState,
+            }
+          }}
         />
       )}
     </PanelShell>
