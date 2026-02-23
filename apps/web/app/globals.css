@@ -108,6 +108,7 @@
   --motion-hover-duration: var(--motion-tier-micro-duration);
   --motion-focus-duration: var(--motion-tier-standard-duration);
   --motion-value-update-duration: 160ms;
+  --motion-reduced-duration: 1ms;
   --motion-panel-duration: var(--motion-tier-standard-duration);
   --motion-ease-emphasized: cubic-bezier(0.2, 0, 0, 1);
   --motion-ease-standard: cubic-bezier(0.3, 0, 0.2, 1);
@@ -1191,9 +1192,9 @@ button {
   display: grid;
   gap: var(--space-4);
   transition:
-    border-color var(--motion-panel-duration) var(--motion-ease-standard),
-    background-color var(--motion-panel-duration) var(--motion-ease-standard),
-    box-shadow var(--motion-panel-duration) var(--motion-ease-emphasized);
+    border-color var(--motion-panel-duration) var(--motion-tier-standard-ease),
+    background-color var(--motion-panel-duration) var(--motion-tier-standard-ease),
+    box-shadow var(--motion-panel-duration) var(--motion-tier-emphasized-ease);
   position: relative;
   overflow: clip;
 }
@@ -1203,9 +1204,7 @@ button {
   content: "";
   position: absolute;
   pointer-events: none;
-  transition:
-    opacity var(--motion-tier-standard-duration) var(--motion-tier-standard-ease),
-    transform var(--motion-tier-standard-duration) var(--motion-tier-standard-ease);
+  transition: opacity var(--motion-tier-standard-duration) var(--motion-tier-standard-ease);
 }
 
 .ui-panel-shell::before,
@@ -1312,12 +1311,11 @@ button {
     border-color var(--motion-tier-standard-duration) var(--motion-tier-standard-ease),
     background-color var(--motion-tier-standard-duration) var(--motion-tier-standard-ease),
     color var(--motion-tier-standard-duration) var(--motion-tier-standard-ease),
-    box-shadow var(--motion-tier-standard-duration) var(--motion-tier-standard-ease),
-    transform var(--motion-tier-micro-duration) var(--motion-tier-micro-ease);
+    box-shadow var(--motion-tier-standard-duration) var(--motion-tier-standard-ease);
 }
 
 .ui-status-badge:where(:hover, :focus-visible) {
-  transform: translateY(-1px);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 .ui-status-badge__icon {
@@ -2355,16 +2353,14 @@ button {
 .value-flash {
   display: inline-block;
   contain: paint;
-  transform-origin: 50% 55%;
   transition:
-    color var(--motion-value-update-duration) var(--motion-ease-standard),
-    text-shadow var(--motion-value-update-duration) var(--motion-ease-standard),
-    opacity var(--motion-value-update-duration) var(--motion-ease-standard),
-    transform var(--motion-value-update-duration) var(--motion-ease-emphasized);
+    color var(--motion-value-update-duration) var(--motion-tier-standard-ease),
+    text-shadow var(--motion-value-update-duration) var(--motion-tier-standard-ease),
+    opacity var(--motion-value-update-duration) var(--motion-tier-standard-ease);
 }
 
 .value-flash--active {
-  animation: value-flash-enter var(--motion-value-update-duration) var(--motion-ease-emphasized) 1;
+  opacity: 1;
 }
 
 .value-flash--active[data-direction='up'] {
@@ -2382,25 +2378,10 @@ button {
   text-shadow: 0 0 10px rgb(82 192 255 / 28%);
 }
 
-@keyframes value-flash-enter {
-  0% {
-    opacity: 0.84;
-    transform: scale(0.988);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(1.018);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 .table-value-update {
   transition:
-    color var(--motion-value-update-duration) var(--motion-ease-standard),
-    text-shadow var(--motion-value-update-duration) var(--motion-ease-standard);
+    color var(--motion-value-update-duration) var(--motion-tier-standard-ease),
+    text-shadow var(--motion-value-update-duration) var(--motion-tier-standard-ease);
 }
 
 .value-flash--with-cue {
@@ -2415,8 +2396,7 @@ button {
   content: "";
   font-size: 0.72em;
   opacity: 0;
-  transform: translateY(1px);
-  transition: opacity var(--motion-value-update-duration) var(--motion-ease-standard);
+  transition: opacity var(--motion-value-update-duration) var(--motion-tier-standard-ease);
 }
 
 .value-flash--active.value-flash--with-cue[data-direction="up"]::after {
@@ -2437,17 +2417,24 @@ button {
 
 
 @media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-hover-duration: var(--motion-reduced-duration);
+    --motion-focus-duration: var(--motion-reduced-duration);
+    --motion-value-update-duration: var(--motion-reduced-duration);
+    --motion-panel-duration: var(--motion-reduced-duration);
+  }
+
   .dashboard-metric-card,
   .value-flash,
   .table-value-update,
   .table-row--interactive,
   .panel-async-state__icon {
-    transition: none !important;
+    transition-duration: var(--motion-reduced-duration) !important;
   }
 
   .value-flash--active {
-    animation: none !important;
-    transform: none !important;
+    color: inherit;
+    text-shadow: none;
   }
 }
 

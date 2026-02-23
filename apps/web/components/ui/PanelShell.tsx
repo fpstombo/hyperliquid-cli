@@ -16,7 +16,7 @@ type PanelShellProps = HTMLAttributes<HTMLElement> & {
  */
 export function PanelShell({ title, contextTag, actions, footer, tier = "primary", className = "", children, ...props }: PanelShellProps) {
   return (
-    <section className={`ui-panel-shell ui-panel-shell--${tier} ${className}`.trim()} {...props}>
+    <section className={`ui-panel-shell ui-panel-shell--${tier} ${className}`.trim()} data-motion-scope="color-only" {...props}>
       <header className="ui-panel-shell-header">
         <div className="ui-panel-shell-heading">
           <h2 className="ui-panel-shell-title">{title}</h2>
