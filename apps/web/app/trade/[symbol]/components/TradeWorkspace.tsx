@@ -71,7 +71,15 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           className="trade-panel trade-depth-card"
           title="Market & Depth"
           contextTag={<span className="muted">Market · Spread: {formatMagnitude(spread)} · {marketStatus.label}</span>}
-          actions={isCriticalStatusVariant(marketStatus.tone) ? <StatusBadge variant={marketStatus.tone}>{marketStatus.label}</StatusBadge> : null}
+          actions={(
+            <>
+              <span className="signature-live-indicator" data-tone={marketStatus.tone} role="status" aria-label={`Market status ${marketStatus.label}`}>
+                <span className="signature-live-indicator__dot" aria-hidden="true" />
+                {marketStatus.tone === "confirmed" ? "Live" : "Sync"}
+              </span>
+              {isCriticalStatusVariant(marketStatus.tone) ? <StatusBadge variant={marketStatus.tone} showIcon>{marketStatus.label}</StatusBadge> : null}
+            </>
+          )}
         >
           {priceState.error ? (
             <p className="status-error trade-inline-error" role="status" aria-live="polite">
