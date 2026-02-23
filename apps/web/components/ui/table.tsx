@@ -1,4 +1,4 @@
-import type { CSSProperties, ReactNode } from "react"
+import type { CSSProperties, HTMLAttributes, ReactNode } from "react"
 
 type TableDensity = "compact" | "regular"
 
@@ -24,6 +24,7 @@ type TableProps<T> = {
   itemCount?: number
   itemSize?: number
   rowRenderer?: TableRowRenderer<T>
+  getRowProps?: (row: T, index: number) => HTMLAttributes<HTMLTableRowElement>
 }
 
 export function Table<T>({
@@ -36,6 +37,7 @@ export function Table<T>({
   itemCount,
   itemSize,
   rowRenderer,
+  getRowProps,
 }: TableProps<T>) {
   const resolvedItemCount = itemCount ?? rows.length
   const resolvedRowHeight = itemSize ?? (density === "compact" ? 40 : 48)
@@ -80,11 +82,15 @@ export function Table<T>({
                 return null
               }
 
+              const resolvedRowProps = getRowProps?.(row, index)
+
               return (
                 <tr
                   key={rowKey ? rowKey(row, index) : index}
+                  {...resolvedRowProps}
                   style={{
                     "--table-row-height": `${resolvedRowHeight}px`,
+                    ...(resolvedRowProps?.style ?? {}),
                   } as CSSProperties}
                 >
                   {columns.map((column) => (

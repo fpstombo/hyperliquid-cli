@@ -597,8 +597,10 @@ a {
 }
 
 .table-wrap {
-  overflow-x: auto;
+  overflow: auto;
   max-height: 420px;
+  scrollbar-gutter: stable both-edges;
+  border-radius: var(--radius-sm);
 }
 
 .table {
@@ -641,7 +643,10 @@ a {
 .table--sticky-header thead th {
   position: sticky;
   top: 0;
-  z-index: 1;
+  z-index: 2;
+  backdrop-filter: blur(6px);
+  background: color-mix(in srgb, var(--surface-base) 90%, transparent);
+  box-shadow: inset 0 -1px 0 var(--border-subtle);
 }
 
 .table--compact th,
@@ -683,6 +688,57 @@ a {
 .table-empty {
   color: var(--fg-muted);
   text-align: center;
+}
+
+
+.table-row--interactive {
+  cursor: default;
+  transition: background-color 120ms var(--motion-ease-standard), box-shadow 120ms var(--motion-ease-standard);
+}
+
+.table-row--interactive:where(:hover, :focus-visible) td {
+  background: color-mix(in srgb, var(--surface-base) 90%, var(--accent) 10%);
+}
+
+.table-row--interactive:where(:hover, :focus-visible) td:first-child {
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--accent) 62%, transparent);
+}
+
+.table-row--interactive:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--focus-ring) 74%, transparent);
+  outline-offset: -2px;
+}
+
+.table-row-actions {
+  display: inline-flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.35rem;
+  opacity: 0.58;
+}
+
+.table-row--interactive:where(:hover, :focus-within) .table-row-actions {
+  opacity: 1;
+}
+
+.table-row-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: var(--fg-secondary);
+  border: 1px solid color-mix(in srgb, var(--border-subtle) 75%, transparent);
+  border-radius: 999px;
+  padding: 0.12rem 0.52rem;
+  font-size: 0.7rem;
+  text-decoration: none;
+  background: color-mix(in srgb, var(--surface-base) 86%, transparent);
+}
+
+.table-row-action:hover,
+.table-row-action:focus-visible {
+  color: var(--fg-primary);
+  border-color: color-mix(in srgb, var(--accent) 42%, var(--border-subtle));
+  outline: none;
 }
 
 .modal-backdrop {
@@ -1599,6 +1655,8 @@ button {
 
 .panel-async-state {
   display: grid;
+  justify-items: center;
+  text-align: center;
   gap: var(--space-2);
   align-content: center;
   min-height: 164px;
@@ -1606,6 +1664,17 @@ button {
   border: 1px dashed color-mix(in srgb, var(--border-subtle) 70%, transparent);
   border-radius: var(--radius-sm);
   background: color-mix(in srgb, var(--surface-base) 96%, black);
+}
+
+.panel-async-state__icon {
+  display: inline-grid;
+  place-items: center;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--border-subtle) 70%, transparent);
+  color: color-mix(in srgb, var(--fg-secondary) 65%, var(--accent));
+  background: color-mix(in srgb, var(--surface-base) 84%, transparent);
 }
 
 .panel-async-state__title {
@@ -1619,9 +1688,18 @@ button {
   color: var(--fg-muted);
 }
 
+.panel-async-state--empty .panel-async-state__icon {
+  animation: panel-empty-float 1600ms var(--motion-ease-emphasized) infinite;
+}
+
 .panel-async-state--error {
   border-color: color-mix(in srgb, var(--semantic-negative) 45%, var(--border-subtle));
   background: color-mix(in srgb, var(--semantic-negative) 10%, var(--surface-base));
+}
+
+.panel-async-state--error .panel-async-state__icon {
+  color: color-mix(in srgb, var(--semantic-negative) 70%, var(--fg-secondary));
+  border-color: color-mix(in srgb, var(--semantic-negative) 48%, var(--border-subtle));
 }
 
 .panel-async-state__action {
@@ -1800,12 +1878,45 @@ button {
     text-shadow var(--motion-value-update-duration) var(--motion-ease-standard);
 }
 
+.value-flash--with-cue {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.35ch;
+  min-width: 9ch;
+}
+
+.value-flash--with-cue::after {
+  content: "";
+  font-size: 0.72em;
+  opacity: 0;
+  transform: translateY(1px);
+  transition: opacity var(--motion-value-update-duration) var(--motion-ease-standard);
+}
+
+.value-flash--active.value-flash--with-cue[data-direction="up"]::after {
+  content: "↗";
+  opacity: 0.9;
+}
+
+.value-flash--active.value-flash--with-cue[data-direction="down"]::after {
+  content: "↘";
+  opacity: 0.9;
+}
+
+@keyframes panel-empty-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
 
 
 @media (prefers-reduced-motion: reduce) {
   .dashboard-metric-card,
   .value-flash,
-  .table-value-update {
+  .table-value-update,
+  .table-row--interactive,
+  .panel-async-state__icon {
     transition: none !important;
   }
 

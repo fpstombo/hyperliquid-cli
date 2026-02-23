@@ -7,6 +7,7 @@ import { SkeletonBlock } from "../ui/SkeletonBlock"
 import { StatusBadge, getStatusVariantPriority, isCriticalStatusVariant, type StatusVariant } from "../ui/StatusBadge"
 import { Table, type TableColumn } from "../ui/table"
 import { ValueFlash } from "../ui/ValueFlash"
+import { MarketRowActions } from "./market-row-actions"
 import { formatTimestamp } from "../../lib/formatters"
 import type { DashboardOrderVm, DashboardPositionVm, DashboardViewModel } from "../../lib/hooks/dashboard-view-model"
 
@@ -58,7 +59,7 @@ const positionColumns: TableColumn<DashboardPositionVm>[] = [
     width: 120,
     minWidth: 110,
     className: "table-col--numeric",
-    render: (position) => <ValueFlash value={position.size} className="table-value-update financial-value">{position.size}</ValueFlash>,
+    render: (position) => <ValueFlash value={position.size} className="table-value-update financial-value" showDirectionCue>{position.size}</ValueFlash>,
   },
   {
     key: "unrealizedPnl",
@@ -68,10 +69,18 @@ const positionColumns: TableColumn<DashboardPositionVm>[] = [
     minWidth: 120,
     className: "table-col--numeric",
     render: (position) => (
-      <ValueFlash value={position.unrealizedPnl} className="table-value-update financial-value">
+      <ValueFlash value={position.unrealizedPnl} className="table-value-update financial-value" showDirectionCue>
         <PnlValue value={position.unrealizedPnl} />
       </ValueFlash>
     ),
+  },
+  {
+    key: "actions",
+    header: "Actions",
+    align: "right",
+    width: 148,
+    minWidth: 132,
+    render: (position) => <MarketRowActions symbol={position.market} />,
   },
 ]
 
@@ -90,7 +99,7 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
     width: 110,
     minWidth: 100,
     className: "table-col--numeric",
-    render: (order) => <ValueFlash value={order.size} className="table-value-update financial-value">{order.size}</ValueFlash>,
+    render: (order) => <ValueFlash value={order.size} className="table-value-update financial-value" showDirectionCue>{order.size}</ValueFlash>,
   },
   {
     key: "limitPrice",
@@ -99,7 +108,7 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
     width: 120,
     minWidth: 110,
     className: "table-col--numeric",
-    render: (order) => <ValueFlash value={order.limitPrice} className="table-value-update financial-value">{order.limitPrice}</ValueFlash>,
+    render: (order) => <ValueFlash value={order.limitPrice} className="table-value-update financial-value" showDirectionCue>{order.limitPrice}</ValueFlash>,
   },
   {
     key: "timestamp",
@@ -108,15 +117,23 @@ const orderColumns: TableColumn<DashboardOrderVm>[] = [
     minWidth: 170,
     className: "table-col--numeric",
     render: (order) => (
-      <ValueFlash value={order.timestamp ?? ""} className="table-value-update financial-value">
+      <ValueFlash value={order.timestamp ?? ""} className="table-value-update financial-value" showDirectionCue>
         {formatTimestamp(order.timestamp)}
       </ValueFlash>
     ),
   },
+  {
+    key: "actions",
+    header: "Actions",
+    align: "right",
+    width: 148,
+    minWidth: 132,
+    render: (order) => <MarketRowActions symbol={order.market} />,
+  },
 ]
 
 function renderEmpty(message: string) {
-  return <PanelAsyncState state="empty" message={message} />
+  return <PanelAsyncState state="empty" title="No active rows" message={message} />
 }
 
 function renderError(message: string) {
@@ -213,6 +230,7 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
                 rowKey={(position) => position.id}
                 itemCount={model.positions.length}
                 itemSize={40}
+                getRowProps={(position) => ({ className: "table-row table-row--interactive", tabIndex: 0, "aria-label": `Position ${position.market}` })}
               />
             ) : (
               renderEmpty("No open positions.")
@@ -231,6 +249,7 @@ export function DashboardView({ model, isInitialLoading = false }: DashboardView
                 rowKey={(order) => order.id}
                 itemCount={model.orders.length}
                 itemSize={40}
+                getRowProps={(order) => ({ className: "table-row table-row--interactive", tabIndex: 0, "aria-label": `Order ${order.market}` })}
               />
             ) : (
               renderEmpty("No open orders.")
