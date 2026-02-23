@@ -30,7 +30,7 @@ export default function AuthPage() {
     <main className="grid" style={{ maxWidth: 540 }}>
       <section className="card">
         <h1 style={{ marginTop: 0, marginBottom: "0.5rem" }}>Connect to Hyperliquid Web</h1>
-        <p className="muted" style={{ marginTop: 0 }}>
+        <p className="muted route-context-subtitle is-visible" style={{ marginTop: 0 }}>
           Authentication is powered by Privy. Connect a wallet or sign in to continue.
         </p>
 

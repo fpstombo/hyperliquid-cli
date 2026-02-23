@@ -197,7 +197,7 @@ export default function AgentStatusPage() {
     <main className="grid" style={{ gridTemplateColumns: "2fr 1fr" }}>
       <section className="card grid">
         <h1 style={{ margin: 0 }}>Agent authorization status</h1>
-        <p className="muted" style={{ margin: 0 }}>
+        <p className="muted route-context-subtitle is-visible" style={{ margin: 0 }}>
           Live status is fetched from API routes backed by Hyperliquid validation and extra-agent polling.
         </p>
 
@@ -228,7 +228,7 @@ export default function AgentStatusPage() {
         </label>
 
         <div className="card" style={{ borderColor: statusMeta[state].color }}>
-          <p className="muted" style={{ marginTop: 0 }}>
+          <p className="muted route-context-subtitle is-visible" style={{ marginTop: 0 }}>
             Current state
           </p>
           <h2 style={{ marginBottom: "0.4rem", color: statusMeta[state].color }}>{statusMeta[state].label}</h2>
@@ -303,7 +303,7 @@ export default function AgentStatusPage() {
 
       <aside className="card grid">
         <h2 style={{ margin: 0 }}>Remediation guide</h2>
-        <p className="muted" style={{ margin: 0 }}>
+        <p className="muted route-context-subtitle is-visible" style={{ margin: 0 }}>
           Server lifecycle response: <strong>{statusMeta[state].label}</strong>
         </p>
         <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
@@ -311,7 +311,7 @@ export default function AgentStatusPage() {
             <li key={step}>{step}</li>
           ))}
         </ul>
-        <p className="muted" style={{ margin: 0 }}>
+        <p className="muted route-context-subtitle is-visible" style={{ margin: 0 }}>
           Trading stays blocked unless the agent state is Active. Return to the onboarding wizard for guided setup.
         </p>
         <Link className="button" href="/onboarding">
