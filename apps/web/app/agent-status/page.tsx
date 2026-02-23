@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 import type { AgentApprovalSnapshot, ApprovalState } from "../../lib/agent-state"
+import { PanelAsyncState } from "../../components/ui"
 import { clearOnboardingContext, loadOnboardingContext, saveOnboardingContext } from "../../lib/agent-state"
 
 const statusMeta: Record<ApprovalState, { label: string; color: string }> = {
@@ -247,6 +248,7 @@ export default function AgentStatusPage() {
 
         <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))" }}>
           <button
+            type="button"
             className="button"
             onClick={() => {
               void fetchState(walletAddress, agentAddress, isTestnet, record?.state).catch((error: unknown) => {
@@ -257,10 +259,11 @@ export default function AgentStatusPage() {
           >
             Retry status check
           </button>
-          <button className="button" onClick={waitForActive} disabled={!walletAddress || !agentAddress || isRefreshing}>
+          <button type="button" className="button" onClick={waitForActive} disabled={!walletAddress || !agentAddress || isRefreshing}>
             {isRefreshing ? "Waiting..." : "Wait for approval"}
           </button>
           <button
+            type="button"
             className="button secondary"
             onClick={() => {
               clearOnboardingContext()
@@ -274,9 +277,27 @@ export default function AgentStatusPage() {
           </button>
         </div>
         {message ? (
-          <p className="muted" style={{ margin: 0 }}>
-            {message}
-          </p>
+          <PanelAsyncState
+            state={state === "active" ? "empty" : "error"}
+            size="compact"
+            icon={state === "active" ? "✅" : "🛡"}
+            title={state === "active" ? "Authorization healthy" : "Action needed"}
+            message={message}
+            action={
+              <button
+                className="button secondary"
+                type="button"
+                onClick={() => {
+                  void fetchState(walletAddress, agentAddress, isTestnet, record?.state).catch((error: unknown) => {
+                    setMessage(error instanceof Error ? error.message : "Unable to refresh status")
+                  })
+                }}
+                disabled={!walletAddress || !agentAddress || isRefreshing}
+              >
+                Retry status check
+              </button>
+            }
+          />
         ) : null}
       </section>
 

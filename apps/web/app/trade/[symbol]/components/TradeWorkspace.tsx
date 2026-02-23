@@ -1,7 +1,7 @@
 "use client"
 
 import { useCallback, useMemo, useState } from "react"
-import { PanelShell, PnlValue, SkeletonBlock, StatusBadge, Toast } from "../../../../components/ui"
+import { PanelAsyncState, PanelShell, PnlValue, SkeletonBlock, StatusBadge, Toast } from "../../../../components/ui"
 import { isCriticalStatusVariant, type StatusVariant } from "../../../../components/ui/StatusBadge"
 import { formatMagnitude } from "../../../../lib/formatters"
 import { useSymbolPrice } from "../../../../lib/hooks/use-trade-data"
@@ -83,7 +83,18 @@ export function TradeWorkspace({ symbol }: { symbol: string }) {
           ) : priceState.data?.price ? (
             <p className="trade-price financial-value">{priceState.data.price}</p>
           ) : (
-            <p className="muted">No price found for this symbol.</p>
+            <PanelAsyncState
+              state="empty"
+              size="compact"
+              icon="₿"
+              title="Price unavailable"
+              message="No live quote is available for this symbol yet."
+              action={
+                <button className="button secondary" type="button" onClick={() => void priceState.retry()}>
+                  Retry price check
+                </button>
+              }
+            />
           )}
           <div className="trade-meta-bar">
             <span>Best Bid <span className="numeric-fixed">{mockBook.bids[0][0]}</span></span>

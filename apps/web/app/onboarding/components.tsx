@@ -1,6 +1,7 @@
 "use client"
 
 import type { ReactNode } from "react"
+import { PanelAsyncState } from "../../components/ui"
 
 export type OnboardingStepKey = "connect" | "prerequisites" | "approve" | "ready"
 
@@ -71,18 +72,20 @@ export function ContextPreview({ title, description }: { title: string; descript
 
 export function InlineError({ children, onRecover, recoverLabel }: { children: ReactNode; onRecover?: () => void; recoverLabel?: string }) {
   return (
-    <div
-      className="card"
-      style={{ borderColor: "color-mix(in srgb, var(--semantic-warning) 60%, var(--border))", background: "color-mix(in srgb, var(--surface-base) 90%, var(--semantic-warning) 10%)" }}
-    >
-      <p style={{ margin: 0, fontWeight: 600 }}>Need a quick recovery?</p>
-      <p style={{ margin: "0.35rem 0 0" }}>{children}</p>
-      {onRecover ? (
-        <button className="button secondary" style={{ marginTop: "0.6rem", minHeight: 44 }} onClick={onRecover}>
-          {recoverLabel ?? "Retry"}
-        </button>
-      ) : null}
-    </div>
+    <PanelAsyncState
+      state="error"
+      size="default"
+      icon="🔐"
+      title="Session check required"
+      message={typeof children === "string" ? children : "We could not verify your session yet."}
+      action={
+        onRecover ? (
+          <button className="button secondary" style={{ minHeight: 44 }} type="button" onClick={onRecover}>
+            {recoverLabel ?? "Retry"}
+          </button>
+        ) : undefined
+      }
+    />
   )
 }
 

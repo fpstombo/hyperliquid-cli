@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { Toast } from "./Toast"
+import { PanelAsyncState } from "./ui"
 import { useBalances, useOrders, usePositions } from "../lib/hooks/use-dashboard-data"
 import { useAuth } from "./providers"
 import { DashboardView } from "./dashboard/dashboard-view"
@@ -68,10 +69,18 @@ export function DashboardLiveData() {
       />
 
       {summaryError ? (
-        <section className="card">
-          <p className="status-error">Failed to load summary data: {summaryError}</p>
-          <button onClick={() => void Promise.all([balances.retry(), positions.retry(), orders.retry()])}>Retry</button>
-        </section>
+        <PanelAsyncState
+          state="error"
+          size="compact"
+          icon="📊"
+          title="Dashboard summary unavailable"
+          message={`We could not refresh balances right now: ${summaryError}`}
+          action={
+            <button className="button secondary" type="button" onClick={() => void Promise.all([balances.retry(), positions.retry(), orders.retry()])}>
+              Retry dashboard
+            </button>
+          }
+        />
       ) : null}
 
       {toastMessage ? <Toast message={toastMessage} onDismiss={() => setToastMessage(null)} /> : null}
